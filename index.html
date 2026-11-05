@@ -1930,7 +1930,7 @@ function initGL(){
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
   viewEl.insertBefore(renderer.domElement,viewEl.firstChild);
   scene=new THREE.Scene();root=new THREE.Group();scene.add(root);
-  camera=new THREE.PerspectiveCamera(32,1,0.1,100);
+  camera=new THREE.PerspectiveCamera(32,1,3,100);
   makeGeos();
   setCam();build();
   var cv=renderer.domElement;cv.style.touchAction='none';
@@ -1999,7 +1999,7 @@ function build(){
   if(!renderer)return;
   var kids=root.children.slice();
   kids.forEach(function(g){root.remove(g);g.traverse(function(o){if(o.material)o.material.dispose()})});
-  var st=STYLES[styleKey],bodyCol=st.body||css('--cube-body','#171a20'),dimCol=css('--dim','#b3bbc8'),off=st.size*UNIT/2+.001;
+  var st=STYLES[styleKey],bodyCol=st.body||css('--cube-body','#171a20'),dimCol=css('--dim','#b3bbc8'),off=st.size*UNIT/2+.004;
   var z=new THREE.Vector3(0,0,1);
   state.forEach(function(c,i){
     var g=new THREE.Group();g.position.set(c.p[0]*PS,c.p[1]*PS,c.p[2]*PS);
@@ -2007,7 +2007,7 @@ function build(){
     b.userData={kind:'body',ci:i};g.add(b);
     var lit=!hlFn||hlFn(c);
     c.s.forEach(function(s,si){
-      var m=new THREE.Mesh(stickGeo,new THREE.MeshBasicMaterial({color:lit?HEX[s.c]:dimCol}));
+      var m=new THREE.Mesh(stickGeo,new THREE.MeshBasicMaterial({color:lit?HEX[s.c]:dimCol,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));
       m.position.set(s.n[0]*off,s.n[1]*off,s.n[2]*off);
       m.quaternion.setFromUnitVectors(z,new THREE.Vector3(s.n[0],s.n[1],s.n[2]));
       m.userData={kind:'st',ci:i,si:si};g.add(m);});
@@ -2034,7 +2034,7 @@ var FLASHC={ok:'#22c55e',bad:'#ef4444',info:'#3b82f6'};
 function flash(kind,items){
   if(kind==='ok'||kind==='bad')sfx(kind);
   if(!renderer)return;
-  var z=new THREE.Vector3(0,0,1),off=STYLES[styleKey].size*UNIT/2+.004;
+  var z=new THREE.Vector3(0,0,1),off=STYLES[styleKey].size*UNIT/2+.012;
   items.forEach(function(it){
     var c=state[it.ci],s=c.s[it.si];
     var m=new THREE.Mesh(stickGeo,new THREE.MeshBasicMaterial({color:FLASHC[kind],transparent:true,opacity:0,depthWrite:false}));
