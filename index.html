@@ -2209,7 +2209,7 @@ $('#redoBtn').addEventListener('click',redoLast);
 function tlClear(){tl.token++;tl.playing=false;tl.seq=[];tl.idx=0;tl.dirty=false;tl.hide=false;renderTl();}
 function tlSet(seq,pre){
   tl.token++;tl.playing=false;tl.seq=seq||[];tl.pre=pre||[];tl.idx=0;tl.dirty=false;tl.hide=false;
-  if(!tl.userSpeed)tl.speed=tl.seq.length>10?0.5:1.5;
+  tl.speed=settings.speed;
   setState(seqState(tl.pre));renderTl();}
 function tlStep(tok){
   if(tl.token!==tok||!tl.playing)return;
@@ -2238,7 +2238,7 @@ tlEl.addEventListener('click',function(ev){
   if(b.id==='tlPlay'){if(tl.playing)tlPause();else tlPlay();}
   else if(b.id==='tlStop')tlStop();
   else if(b.dataset.i!=null){tlJump(parseInt(b.dataset.i,10));}});
-$('#tlSpeed').addEventListener('change',function(ev){tl.speed=parseFloat(ev.target.value);tl.userSpeed=true;});
+$('#tlSpeed').addEventListener('change',function(ev){var v=parseFloat(ev.target.value);tl.speed=v;if(okSpeed(v)){settings.speed=v;saveSettings();}});
 
 /* ---------- progreso ---------- */
 var LS_KEY='rubik-paso-a-paso-v1';
@@ -2577,8 +2577,10 @@ $('#tabs').addEventListener('click',function(ev){
   renderMap();});
 function syncTabs(){[].forEach.call(document.querySelectorAll('.tab'),function(t){t.setAttribute('aria-selected',t.dataset.course===course?'true':'false');});}
 /* ---- ajustes y notación al tocarla ---- */
-var settings={notation:true,dragTurn:true,hidePad:false,sound:true,holdView:true};
-try{var ss=JSON.parse(localStorage.getItem('rubik-ajustes'));if(ss){['notation','hidePad','sound','holdView'].forEach(function(k){if(typeof ss[k]==='boolean')settings[k]=ss[k];});}}catch(e){}
+var SPEEDS=[0.5,1,1.5,2,3,5];
+var settings={notation:true,dragTurn:true,hidePad:false,sound:true,holdView:true,speed:1.5};
+function okSpeed(v){return typeof v==='number'&&SPEEDS.indexOf(v)>=0;}
+try{var ss=JSON.parse(localStorage.getItem('rubik-ajustes'));if(ss){['notation','hidePad','sound','holdView'].forEach(function(k){if(typeof ss[k]==='boolean')settings[k]=ss[k];});if(okSpeed(ss.speed))settings.speed=ss.speed;}}catch(e){}
 function saveSettings(){try{localStorage.setItem('rubik-ajustes',JSON.stringify(settings));}catch(e){}}
 function applySettings(){document.documentElement.classList.toggle('notation-on',settings.notation);$('#setNotation').checked=settings.notation;$('#setHidePad').checked=settings.hidePad;$('#setSound').checked=settings.sound;$('#setHold').checked=settings.holdView;}
 var tipEl=$('#tip'),setPanel=$('#settingsPanel');
@@ -2603,7 +2605,7 @@ $('#progLoad').addEventListener('click',function(){
     var p=JSON.parse(box.value),pr=(p&&p.progress)?p.progress:p;
     if(!pr||typeof pr!=='object'||typeof pr.done!=='object')throw new Error('x');
     prog=pr;saveProg();
-    if(p.settings&&typeof p.settings==='object'){['notation','hidePad','sound','holdView'].forEach(function(k){if(typeof p.settings[k]==='boolean')settings[k]=p.settings[k];});saveSettings();applySettings();}
+    if(p.settings&&typeof p.settings==='object'){['notation','hidePad','sound','holdView'].forEach(function(k){if(typeof p.settings[k]==='boolean')settings[k]=p.settings[k];});if(okSpeed(p.settings.speed)){settings.speed=p.settings.speed;tl.speed=settings.speed;}saveSettings();applySettings();}
     msg.textContent=p.settings?'Progreso y ajustes importados.':'Progreso importado.';renderMap();if(lesson)renderPanel();}
   catch(e){msg.textContent='El texto no parece un progreso válido.';}});
 var MVRE=/^(2?)([RLUDFBxyzMES])(w?)(['2]?)$/;
