@@ -178,6 +178,8 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .sel{position:relative;display:inline-block;flex:none}
 .sel::after{content:"";position:absolute;right:13px;top:50%;width:6px;height:6px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}
 .tl-speed{-webkit-appearance:none;appearance:none;padding:6px 32px 6px 12px!important;cursor:pointer;font:inherit;font-family:var(--f-mono);font-size:.8rem;font-weight:700;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 4px;min-height:34px}
+.stage .uredo{position:absolute;left:10px;bottom:10px;display:flex;gap:6px;z-index:2}
+.stage .uredo .btn{background:color-mix(in srgb,var(--panel) 88%,transparent);box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .stage .tip{position:absolute;right:12px;top:10px;font-size:.78rem;color:var(--muted);font-family:var(--f-mono)}
 .nogl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--muted)}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0;display:grid;gap:14px}
@@ -337,10 +339,9 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
     <div class="lgrid">
       <div class="stagebox">
         <div class="stage" id="stage">
-          <div class="view" id="view"><span class="tip">Arrastra una pieza para girar · mantén o usa 2 dedos para mover la vista</span></div>
+          <div class="view" id="view"><span class="tip">Arrastra una pieza para girar · mantén o usa 2 dedos para mover la vista</span>
+          <div class="uredo" id="uredo" hidden><button class="btn sm icon" id="undoBtn" aria-label="Deshacer" title="Deshacer" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button><button class="btn sm icon" id="redoBtn" aria-label="Rehacer" title="Rehacer" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button></div></div>
           <div class="ctl" id="ctl" hidden>
-            <button class="btn sm icon" id="undoBtn" aria-label="Deshacer" title="Deshacer" hidden disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
-            <button class="btn sm icon" id="redoBtn" aria-label="Rehacer" title="Rehacer" hidden disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
             <div class="tl" id="tl" hidden>
               <button class="btn sm icon" id="tlPlay" aria-label="Reproducir"></button>
               <button class="btn sm icon" id="tlStop" aria-label="Volver al inicio"></button>
@@ -2183,9 +2184,9 @@ function renderTl(){
 function updateCtl(){
   var showU=acceptsMoves(),u=$('#undoBtn');
   var rb=$('#redoBtn');
-  u.hidden=!showU;u.disabled=!(showU&&ex&&ex.moves.length&&ex.groups.length&&!ex.queued);
-  rb.hidden=!showU;rb.disabled=!(showU&&ex&&ex.redo&&ex.redo.length&&!ex.queued);
-  $('#ctl').hidden=!(showU||tl.seq.length);}
+  $('#uredo').hidden=!showU;u.disabled=!(showU&&ex&&ex.moves.length&&ex.groups.length&&!ex.queued);
+  rb.disabled=!(showU&&ex&&ex.redo&&ex.redo.length&&!ex.queued);
+  $('#ctl').hidden=!tl.seq.length;}
 function undoLast(){
   if(!ex||!ex.moves.length||ex.queued>0||ex.status!=='pending'||!ex.groups.length)return;
   tlUserMoved();
