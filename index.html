@@ -1941,7 +1941,7 @@ function initGL(){
     if(e.button===0&&!e.shiftKey&&dragTurnOK()){var p=pick(e.clientX,e.clientY);if(p&&p.pt){down.turn={p:p,active:false,t:null};
       if(settings.holdView){var dd0=down;down.hold=setTimeout(function(){
         if(down!==dd0||!dd0.turn||dd0.turn.active||dd0.moved||ptrCount()!==1)return;
-        dd0.turn=null;dd0.moved=true;dd0.hold=null;holdCue();},400);}}}
+        dd0.turn=null;dd0.moved=true;dd0.hold=null;holdCue();},250);}}}
     try{cv.setPointerCapture(e.pointerId)}catch(_){}});
   cv.addEventListener('pointermove',function(e){
     if(ptrs[e.pointerId]){ptrs[e.pointerId].x=e.clientX;ptrs[e.pointerId].y=e.clientY;}
