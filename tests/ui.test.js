@@ -44,21 +44,6 @@ S.test('con el ajuste «mantener pulsado» apagado, mantener y arrastrar gira la
   assert((await T(pg, 'hist')).length > 0, 'debería haber girado una capa');
 });
 
-S.test('dos dedos mueven la vista; un temblor pequeño no', async c => {
-  const pg = await c.lesson('3x3', '1.1'); await goTo(pg, 'try');
-  const box = await pg.$eval('#view canvas', e => { const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
-  const pe = (type, id, x, y) => pg.evaluate(([type, id, x, y]) => {
-    document.querySelector('#view canvas').dispatchEvent(new PointerEvent(type, { pointerId: id, clientX: x, clientY: y, button: 0, isPrimary: id === 1, pointerType: 'touch', bubbles: true }));
-  }, [type, id, x, y]);
-  const az0 = await T(pg, 'az');
-  await pe('pointerdown', 1, box.x - 40, box.y); await pe('pointerdown', 2, box.x + 40, box.y);
-  for (let i = 1; i <= 3; i++) { await pe('pointermove', 1, box.x - 40 + i * 2, box.y); await pe('pointermove', 2, box.x + 40 + i * 2, box.y); }
-  eq(await T(pg, 'az'), az0, 'un temblor pequeño no debe mover la vista');
-  for (let i = 1; i <= 10; i++) { await pe('pointermove', 1, box.x - 40 + i * 12, box.y); await pe('pointermove', 2, box.x + 40 + i * 12, box.y); }
-  assert((await T(pg, 'az')) !== az0, 'dos dedos deberían mover la vista');
-  await pe('pointerup', 1, 0, 0); await pe('pointerup', 2, 0, 0);
-});
-
 S.test('el zoom con dos dedos respeta los límites 70 %–130 %', async c => {
   const pg = await c.lesson('3x3', '1.1'); await goTo(pg, 'try');
   const box = await pg.$eval('#view canvas', e => { const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
@@ -72,6 +57,80 @@ S.test('el zoom con dos dedos respeta los límites 70 %–130 %', async c => {
   await pe('pointerdown', 1, box.x - 200, box.y); await pe('pointerdown', 2, box.x + 200, box.y);
   for (let i = 1; i <= 20; i++) { await pe('pointermove', 1, box.x - 200 + i * 9, box.y); await pe('pointermove', 2, box.x + 200 - i * 9, box.y); }
   assert((await T(pg, 'zoom')) >= 0.6999, 'zoom por debajo de 0,7');
+});
+
+
+/* ---------- giros del cubo entero con dos dedos ---------- */
+async function twoFingers(pg, fx, steps) {
+  const c = await pg.$eval('#view canvas', e => { const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+  const pe = (type, id, x, y) => pg.evaluate(([type, id, x, y]) => {
+    document.querySelector('#view canvas').dispatchEvent(new PointerEvent(type, { pointerId: id, clientX: x, clientY: y, button: 0, isPrimary: id === 1, pointerType: 'touch', bubbles: true }));
+  }, [type, id, x, y]);
+  const before = await T(pg, 'hist');
+  const p0 = fx(0, c);
+  await pe('pointerdown', 1, p0[0], p0[1]); await pe('pointerdown', 2, p0[2], p0[3]);
+  for (let n = 1; n <= steps; n++) { const p = fx(n / steps, c); await pe('pointermove', 1, p[0], p[1]); await pe('pointermove', 2, p[2], p[3]); await pg.waitForTimeout(25); }
+  await pg.waitForTimeout(250);
+  const live = await T(pg, 'live');
+  await pe('pointerup', 1, 0, 0); await pe('pointerup', 2, 0, 0); await pg.waitForTimeout(900);
+  return { mv: (await T(pg, 'hist')).slice(before.length).trim(), live };
+}
+const slide = (dx, dy) => (t, c) => [c.x - 60 + dx * t, c.y + dy * t, c.x + 60 + dx * t, c.y + dy * t];
+const twist = deg => (t, c) => { const a = deg * t * Math.PI / 180; return [c.x - 60 * Math.cos(a), c.y - 60 * Math.sin(a), c.x + 60 * Math.cos(a), c.y + 60 * Math.sin(a)]; };
+
+S.test('dos dedos: deslizar arriba/abajo = x/x\', izquierda/derecha = y/y\', girar los dedos = z/z\'', async c => {
+  const pg = await c.lesson('3x3', '1.1'); await goTo(pg, 'try');
+  const got = [];
+  got.push((await twoFingers(pg, slide(0, -130), 14)).mv);
+  got.push((await twoFingers(pg, slide(0, 130), 14)).mv);
+  got.push((await twoFingers(pg, slide(-130, 0), 14)).mv);
+  got.push((await twoFingers(pg, slide(130, 0), 14)).mv);
+  got.push((await twoFingers(pg, twist(90), 14)).mv);
+  got.push((await twoFingers(pg, twist(-90), 14)).mv);
+  eq(got.join(' '), "x x' y y' z z'");
+});
+
+S.test('dos dedos: deslizar más (≈180°) da media vuelta, x2', async c => {
+  const pg = await c.lesson('3x3', '1.1'); await goTo(pg, 'try');
+  eq((await twoFingers(pg, slide(0, -230), 24)).mv, 'x2');
+});
+
+S.test('dos dedos: el sentido visual del giro coincide con el movimiento registrado', async c => {
+  const pg = await c.lesson('3x3', '1.1'); await goTo(pg, 'try');
+  for (const [fx, steps] of [[slide(0, -130), 14], [slide(130, 0), 14], [twist(90), 14], [twist(-90), 14]]) {
+    const r = await twoFingers(pg, fx, steps);
+    const L = r.mv[0], k = await pg.evaluate(L => window.__T.k(L), L);
+    const want = k * (r.mv.length === 1 ? 1 : -1) * Math.PI / 2;
+    assert(r.live && r.live.all, 'debe girar todo el cubo');
+    assert(Math.abs(r.live.theta - want) < 0.05, r.mv + ': el giro en vivo (' + r.live.theta.toFixed(2) + ') no coincide con el del movimiento (' + want.toFixed(2) + ')');
+  }
+});
+
+S.test('dos dedos: un roce pequeño o solo pellizcar (zoom) no giran el cubo', async c => {
+  const pg = await c.lesson('3x3', '1.1'); await goTo(pg, 'try');
+  eq((await twoFingers(pg, slide(0, -20), 6)).mv, '', 'un roce');
+  eq((await twoFingers(pg, (t, c) => [c.x - 50 - 50 * t, c.y, c.x + 50 + 50 * t, c.y], 14)).mv, '', 'pellizco');
+  assert((await T(pg, 'zoom')) > 1.0, 'el pellizco debe hacer zoom');
+});
+
+S.test('dos dedos: el eje sigue a la vista (al verlo desde el lado, deslizar arriba ya no es x)', async c => {
+  const pg = await c.lesson('3x3', '1.1'); await goTo(pg, 'try');
+  await pg.evaluate(() => window.__T.view(1.4, 0.5)); await pg.waitForTimeout(200);
+  const r = await twoFingers(pg, slide(0, -130), 14);
+  assert(r.mv && r.mv[0] !== 'x', 'con la vista girada no debería salir x, salió ' + r.mv);
+});
+
+S.test('con dos dedos se puede completar un ejercicio de giro del cubo entero (x2)', async c => {
+  const pg = await c.lesson('3x3', '2.2'); await goTo(pg, 'ex0');
+  eq((await twoFingers(pg, slide(0, -230), 24)).mv, 'x2');
+  eq(await T(pg, 'status'), 'ok', 'el ejercicio debe darse por bueno');
+});
+
+S.test('sin movimientos aceptados (ejercicio de mirar), dos dedos mueven la vista', async c => {
+  const pg = await c.lesson('3x3', 'e1'); await goTo(pg, 'ex8');
+  const az0 = await T(pg, 'az');
+  await twoFingers(pg, slide(90, 0), 12);
+  assert((await T(pg, 'az')) !== az0, 'la vista debería moverse');
 });
 
 /* ---------- deshacer y rehacer ---------- */
@@ -116,13 +175,15 @@ S.test('en «F2 L» no se da por mal el ejercicio tras F, F (se cuentan cuartos 
   eq(await T(pg, 'status'), 'ok', 'tras L D\' B B debe darse por bueno');
 });
 
-S.test('sin botonera cuando el ejercicio se puede hacer arrastrando; sí con giros del cubo entero', async c => {
+S.test('sin botonera cuando el ejercicio se puede hacer con gestos (incluido x2); sí en el 4×4', async c => {
   const pg = await c.lesson('3x3', '1.10'); await goTo(pg, 'ex2');
   eq((await pg.$$('.mvbtn')).length, 0, 'ejercicio con medios giros: sin botonera');
   assert(await pg.$('.gesturehint'), 'debería haber ayuda de gestos');
   const pg2 = await c.lesson('3x3', '2.2'); await goTo(pg2, 'ex0');
   eq((await pg2.textContent('.q')).includes('x2'), true, 'no es el ejercicio de x2');
-  assert((await pg2.$$('.mvbtn')).length > 0, 'con un giro del cubo entero (x2) la botonera debe quedarse');
+  eq((await pg2.$$('.mvbtn')).length, 0, 'x2 también se hace con dos dedos: sin botonera');
+  const pg3 = await c.lesson('4x4', 'B1'); await goTo(pg3, 'try');
+  assert((await pg3.$$('.mvbtn')).length > 0, 'en el 4×4 no hay gestos: la botonera debe estar');
 });
 
 S.test('la ayuda «¿Cómo mover el cubo?» sale cerrada y se recuerda si la abres', async c => {
