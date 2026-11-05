@@ -41,11 +41,18 @@ Desde esa dirección (https) se puede **instalar como app** en el móvil o el es
 | `manifest.webmanifest` | Datos para instalarla como app. |
 | `sw.js` | Service worker: caché para usarla sin conexión. |
 | `icon.svg`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | Iconos. |
+| `tests/` | Pruebas automáticas (ver abajo). |
 
-## Progreso
+## Progreso y ajustes
 
-El progreso se guarda en el navegador (`localStorage`). Para llevártelo a otro dispositivo: **Ajustes → Progreso → Mostrar mi progreso**, copia el texto y pégalo allí en **Cargar desde el cuadro**.
+El progreso y los ajustes se guardan en el navegador (`localStorage`). Cada lección se guarda paso a paso, así que puedes salir y **retomarla** donde la dejaste. Para llevarte todo a otro dispositivo: **Ajustes → Progreso y ajustes → Exportar**, copia el texto y pégalo allí en **Importar desde el cuadro**.
 
 ## Cómo se comprobó
 
 Cada ejercicio de resolver se genera con un simulador del cubo que aplica los movimientos de verdad: parte de un estado que no cumple el objetivo y comprueba que la solución propuesta lo cumple. Los algoritmos de cada lección (Sune, A-perm, paridades del 4×4, etc.) se verificaron en ese simulador antes de incluirlos.
+
+Además hay **pruebas automáticas** en [`tests/`](tests/README.md): comprueban el contenido de los cuatro cursos, la interfaz (gestos, deshacer y rehacer, retomar lecciones, ajustes…) y que la app abre sin conexión.
+
+```bash
+cd tests && npm install && npx playwright install chromium && npm test
+```

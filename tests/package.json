@@ -1,0 +1,14 @@
+{
+  "name": "rubik-paso-a-paso-tests",
+  "private": true,
+  "description": "Pruebas automáticas de Rubik Paso a Paso",
+  "scripts": {
+    "test": "node run.js",
+    "test:logic": "node run.js logic",
+    "test:ui": "node run.js ui",
+    "test:offline": "node run.js offline"
+  },
+  "devDependencies": {
+    "playwright": "^1.40.0"
+  }
+}
