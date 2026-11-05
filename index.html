@@ -194,6 +194,7 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .steps li span{display:block;height:6px;border-radius:99px;background:var(--panel2);border:1px solid var(--line)}
 .steps li.done span{background:var(--accent);border-color:var(--accent)}
 .steps li.now span{background:var(--accent-soft);border-color:var(--accent)}
+.steps li.reach span{background:transparent;border-color:var(--accent)}
 .steps li em{display:block;font-style:normal;font-size:.7rem;color:var(--muted);margin-top:4px;font-family:var(--f-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .steps li.now em{color:var(--ink);font-weight:700}
 .body p:last-child{margin-bottom:0}
@@ -2397,7 +2398,7 @@ function stepper(){
   if(lesson.practice)return '';
   var ks=stepKinds().slice(0,-1),h='<ol class="steps">';
   ks.forEach(function(k,n){var l=stepName(k);
-    h+='<li class="'+(n<step?'done':(n===step?'now':''))+'"><button class="stp" data-step="'+n+'"'+(n>maxStep?' disabled':'')+(n===step?' aria-current="step"':'')+' aria-label="Paso '+(n+1)+': '+l+'" title="'+l+'"><span></span></button></li>';});
+    h+='<li class="'+(n<step?'done':(n===step?'now':(n<=maxStep?'reach':'')))+'"><button class="stp" data-step="'+n+'"'+(n>maxStep?' disabled':'')+(n===step?' aria-current="step"':'')+' aria-label="Paso '+(n+1)+': '+l+'" title="'+l+'"><span></span></button></li>';});
   return h+'</ol>';}
 
 var padTab='faces';
