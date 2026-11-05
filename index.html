@@ -1946,7 +1946,7 @@ function initGL(){
     if(e.button===0&&!e.shiftKey&&dragTurnOK()){var p=pick(e.clientX,e.clientY);if(p&&p.pt){down.turn={p:p,active:false,t:null};
       if(settings.holdView){var dd0=down;down.hold=setTimeout(function(){
         if(down!==dd0||!dd0.turn||dd0.turn.active||dd0.moved||ptrCount()!==1)return;
-        dd0.turn=null;dd0.moved=true;dd0.hold=null;holdCue();},200);}}}
+        dd0.turn=null;dd0.moved=true;dd0.hold=null;holdCue();},180);}}}
     try{cv.setPointerCapture(e.pointerId)}catch(_){}});
   cv.addEventListener('pointermove',function(e){
     if(ptrs[e.pointerId]){ptrs[e.pointerId].x=e.clientX;ptrs[e.pointerId].y=e.clientY;}
@@ -2261,7 +2261,7 @@ var course='3x3',lesson=null,li=-1,step=0,maxStep=0,ex=null,lessonErrors=0,hlOn=
 var mapView=$('#mapView'),lessonView=$('#lessonView'),panel=$('#panel');
 
 function showMap(){
-  lessonView.hidden=true;mapView.hidden=false;visible=false;lesson=null;tlClear();
+  lessonView.hidden=true;mapView.hidden=false;visible=false;lesson=null;epoch++;tlClear();
   document.documentElement.classList.remove('in-lesson');
   $('#tabs').hidden=false;renderMap();window.scrollTo(0,0);}
 function renderMap(){
@@ -2273,14 +2273,14 @@ function renderMap(){
     '<p class="sub">'+HERO[course][1]+'Lecciones muy cortas. Cada una empieza con un repaso de la anterior y acaba con ejercicios. La siguiente no se abre hasta que los superas.</p>'+
     '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+total+'" aria-valuenow="'+doneN+'"><i style="width:'+(doneN/total*100)+'%"></i></div>'+
     '<div class="row"><span class="mono" style="font-size:.85rem;color:var(--muted)">'+doneN+' de '+total+' lecciones</span>';
-  if(ci>=0)h+='<button class="btn primary" data-lesson="'+ci+'" style="margin-left:auto">'+(doneN?'Continuar':'Empezar')+': '+LESSONS[ci].title+' →</button>';
+  if(ci>=0)h+='<button class="btn primary" data-lesson="'+ci+'" style="margin-left:auto">'+((prog.res&&prog.res[LESSONS[ci].id])?'Retomar':(doneN?'Continuar':'Empezar'))+': '+LESSONS[ci].title+' →</button>';
   else h+='<span style="margin-left:auto;font-weight:700;color:var(--ok)">Has completado el curso '+(course==='adv'?'avanzado':'del '+COURSE_NAME[course])+'</span>';
   h+='</div></section>';
   var lastB=-1;
   LESSONS.forEach(function(l,i){
     if(l.block!==lastB){if(lastB!==-1)h+='</div>';h+='<div class="blk-title">'+BLOCKS[l.block]+'</div><div class="lessons">';lastB=l.block;}
     var d=!!prog.done[l.id],u=unlocked(i),cur=i===ci;
-    var meta=d?(prog.done[l.id].errors?prog.done[l.id].errors+' fallos':'sin fallos'):'';
+    var meta=d?(prog.done[l.id].errors?prog.done[l.id].errors+' fallos':'sin fallos'):((prog.res&&prog.res[l.id])?'En curso':'');
     h+='<button class="lrow'+(d?' done':'')+(cur?' cur':'')+'" data-lesson="'+i+'"'+(u?'':' disabled')+'>'+
       '<span class="st">'+(d?I_CHECK:(u?I_PLAY:I_LOCK))+'</span><span class="id">'+dl(l)+'</span>'+
       '<span style="min-width:0"><span class="t">'+l.title+'</span><span class="s">'+l.sub+'</span></span><span class="meta">'+meta+'</span></button>';
@@ -2315,6 +2315,8 @@ function startPractice(i){
   window.scrollTo(0,0);setTimeout(resize,0);goStep(0);}
 function enterLesson(i){
   li=i;lesson=LESSONS[i];lessonErrors=0;maxStep=0;
+  var rs=prog.res&&prog.res[lesson.id],rstep=0;
+  if(rs){var nk=stepKinds().length-1;rstep=Math.max(0,Math.min(rs.s|0,nk-1));maxStep=Math.max(rstep,Math.min(rs.m|0,nk-1));lessonErrors=rs.e|0;}
   setN(COURSE_N[course]);if(renderer)makeGeos();
   mapView.hidden=true;lessonView.hidden=false;visible=true;
   document.documentElement.classList.add('in-lesson');
@@ -2322,7 +2324,7 @@ function enterLesson(i){
   $('#lessonTag').textContent=dl(lesson)+' · '+lesson.title;
   window.scrollTo(0,0);
   setTimeout(resize,0);
-  goStep(0);}
+  goStep(rstep);}
 
 /* pasos de una lección: repaso (si hay anterior), aprende, prueba, ejercicios, final */
 function dl(l){return l.disp||l.id;}
@@ -2348,7 +2350,13 @@ function pickQuick(){
   for(i=0;i<c.length;i++){r-=c[i].w;if(r<=0){pick=c[i];break;}}
   var q=QUICK[pick.l.id];
   return {id:pick.l.id,title:pick.l.title,q:q[0],answer:q[1],opts:shuffle([q[1]].concat(q[2])),wrong:{},status:'pending'};}
-function goStep(n){step=n;if(n>maxStep)maxStep=n;ex=newEx();applyStep();panel.scrollTop=0;}
+function saveRes(){
+  if(!lesson||lesson.practice)return;
+  prog.res=prog.res||{};
+  if(curKind()==='done')delete prog.res[lesson.id];
+  else prog.res[lesson.id]={s:step,m:maxStep,e:lessonErrors};
+  saveProg();}
+function goStep(n){step=n;if(n>maxStep)maxStep=n;ex=newEx();applyStep();panel.scrollTop=0;saveRes();}
 function exStart(e){return seqState((e.pre||[]).concat(e.setup||[]));}
 function curStart(){
   var k=curKind(),e=curExercise();
@@ -2375,7 +2383,7 @@ function applyStep(){
 }
 
 function gestureOn(){return !!(settings.dragTurn&&NSZ===3);}
-function gestureDo(e){return gestureOn()&&e.seq.every(function(m){return /^[RLUDFBMES]'?$/.test(m)});}
+function gestureDo(e){return gestureOn()&&e.seq.every(function(m){return /^[RLUDFBMES][2']?$/.test(m)});}
 var gestureOpen=false;
 function gestureHint(big){return '<details class="fb info gesturehint'+(big?'':' compact')+'"'+(gestureOpen?' open':'')+'><summary>¿Cómo mover el cubo?</summary><p>Arrastra una pieza para girar su capa. Para mover la vista, arrastra el fondo, mantén pulsado sobre el cubo o usa dos dedos (separarlos o juntarlos hace zoom).</p></details>';}
 function REPLAY_BTN(act){return '<button class="btn icon outline" data-act="'+act+'" aria-label="Ver otra vez" title="Ver otra vez">'+I_REPLAY+'</button>';}
@@ -2395,7 +2403,7 @@ var padTab='faces';
 function movCat(m){return /^[xyz]/.test(m)?'cube':(/^[MES]/.test(m)?'slice':(/^2/.test(m)?'inner':(/w/.test(m)?'wide':'faces')));}
 var CATLAB={faces:'Caras',wide:'Anchos',inner:'Internas',slice:'Capa media',cube:'Cubo'};
 function padHtml(list,disabled,compact){
-  if(settings.hidePad&&settings.dragTurn&&NSZ===3){list=list.filter(function(m){return /^[xyz]/.test(m)||/2$/.test(m)});if(!list.length)return '';}
+  if(settings.hidePad&&settings.dragTurn&&NSZ===3){list=list.filter(function(m){return /^[xyz]/.test(m)});if(!list.length)return '';}
   var order='RLUDFBMESxyz',rank={'':0,"'":1,'2':2};
   function sk(m){var p=parseMove(m);return [order.indexOf(p.L),rank[p.suf]];}
   var shown=list,tabs='';
