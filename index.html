@@ -2450,7 +2450,7 @@ function renderPanel(){
       '<div class="opts">'+qk.opts.map(function(o,oi){var cls='opt'+(qk.status==='ok'&&o===qk.answer?' right':'')+(qk.wrong[oi]?' wrong':'');
         return '<button class="'+cls+'" data-act="quick" data-v="'+oi+'"'+((qk.status!=='pending'||qk.wrong[oi])?' disabled':'')+'>'+o+'</button>';}).join('')+'</div>'+
       (qk.status==='ok'?'<div class="fb ok" role="status">¡Correcto!</div>':(Object.keys(qk.wrong).length?'<div class="fb bad" role="status">No es esa. Prueba otra.</div>':''))+
-      '<div class="row">'+(qk.status==='ok'?'':'<button class="btn ghost" data-act="qskip">Saltar</button>')+'<button class="btn primary" data-act="next" style="margin-left:auto"'+(qk.status==='ok'?'':' disabled')+'>Continuar →</button></div>';
+      '<div class="row"><button class="btn primary" data-act="next" style="margin-left:auto"'+(qk.status==='ok'?'':' disabled')+'>Continuar →</button></div>';
   }else if(kind==='learn'){
     h+=lesson.learn;
     if(lesson.hl)h+='<label class="toggle"><input type="checkbox" id="hlt"'+(hlOn?' checked':'')+'> Resaltar en el cubo</label>';
@@ -2486,8 +2486,8 @@ function renderPanel(){
     var nxt=li+1<LESSONS.length?li+1:-1;
     h+='<div class="done-mark">'+I_CHECK.replace('width="16" height="16"','width="30" height="30"')+'</div><p class="q" style="margin-top:12px">Lección completada.</p><p>'+
       (lessonErrors?('Has tenido '+lessonErrors+(lessonErrors===1?' fallo o pista':' fallos o pistas')+' en los ejercicios. No cuentan en contra: repetir ayuda a fijarlo.'):'Sin un solo fallo.')+'</p></div>';
-    h+='<div class="row"><button class="btn ghost" data-act="again">Repetir lección</button>';
-    if(nxt>=0)h+='<button class="btn primary" data-act="nextLesson" style="margin-left:auto">Siguiente lección →</button>';
+    h+='<div class="row actions"><button class="btn icon outline" data-act="again" aria-label="Repetir lección" title="Repetir lección">'+I_REPLAY+'</button>';
+    if(nxt>=0)h+='<button class="btn primary" data-act="nextLesson">Siguiente lección →</button>';
     h+='</div>';
     if(nxt<0){var DM={'2x2':'¡Has completado el curso del 2×2! El 3×3 es el siguiente paso: ya conoces las esquinas.','3x3':'¡Has completado el curso del 3×3! Ya sabes resolver el cubo por capas. El 4×4 y el método avanzado ya están disponibles en sus pestañas.','4x4':'¡Has completado el curso del 4×4! Ya sabes resolver el cubo por reducción.','adv':'¡Has completado el método avanzado!'};h+='<p class="fb ok" style="margin:0">'+DM[course]+'</p>';}
   }
@@ -2553,7 +2553,6 @@ panel.addEventListener('click',function(ev){
     if(v===String(e.answer)){ex.status='ok';stageFlash('ok');ex.fb={kind:'ok',html:'¡Correcto!'};if(tl.seq.length){tl.hide=false;renderTl();}renderPanel();}
     else{ex.wrong[v]=true;stageFlash('bad');lessonErrors++;b.classList.add('wrong');b.disabled=true;setFb('bad','No es esa.'+(e.nohint?'':' '+e.hint));if(e.anim)playSeq(e.anim,e.pre,true);}
   }
-  else if(a==='qskip'&&ex.quick){var dq=prog.done[ex.quick.id];if(dq){dq.weak=(dq.weak||0)+1;saveProg();}goStep(step+1);}
   else if(a==='quick'&&ex.quick){
     var qk2=ex.quick,oi=parseInt(b.dataset.v,10),d2=prog.done[qk2.id];
     if(qk2.opts[oi]===qk2.answer){qk2.status='ok';sfx('ok');if(d2&&d2.weak){d2.weak=Math.max(0,d2.weak-1);saveProg();}}
