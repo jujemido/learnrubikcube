@@ -2305,6 +2305,7 @@ function renderMap4(){
   mapView.innerHTML=h+'</div>';}
 function genEx(st){var g=genPractice(st);return {t:'solve',q:st.q,pre:st.pre,setup:g.setup,sol:g.sol,goal:st.goal,hint:st.hint,rand:true};}
 function startPractice(i){
+  histIn();
   var st=practFor(course)[i];
   setN(COURSE_N[course]);if(renderer)makeGeos();
   lesson={id:'P:'+st.key,disp:'P',block:99,title:'Práctica: '+st.title,sub:st.sub,practice:true,st:st,pad:course==='4x4'?PAD4:PALL,pre:st.pre,exercises:[genEx(st)]};
@@ -2314,7 +2315,9 @@ function startPractice(i){
   $('#tabs').hidden=true;
   $('#lessonTag').textContent='Práctica · '+st.title;
   window.scrollTo(0,0);setTimeout(resize,0);goStep(0);}
+function histIn(){try{var st={rubikLesson:1};if(history.state&&history.state.rubikLesson)history.replaceState(st,'');else history.pushState(st,'');}catch(e){}}
 function enterLesson(i){
+  histIn();
   li=i;lesson=LESSONS[i];lessonErrors=0;maxStep=0;
   var rs=prog.res&&prog.res[lesson.id],rstep=0;
   if(rs){var nk=stepKinds().length-1;rstep=Math.max(0,Math.min(rs.s|0,nk-1));maxStep=Math.max(rstep,Math.min(rs.m|0,nk-1));lessonErrors=rs.e|0;}
@@ -2559,7 +2562,7 @@ panel.addEventListener('click',function(ev){
     renderPanel();}
   else if(a==='pnext'){lesson.exercises[0]=genEx(lesson.st);goStep(0);}
   else if(a==='nextLesson'){enterLesson(li+1);}
-  else if(a==='map'){showMap();}
+  else if(a==='map'){leaveLesson();}
   else if(a==='again'){enterLesson(li);}
 });
 panel.addEventListener('toggle',function(ev){if(ev.target.classList&&ev.target.classList.contains('gesturehint'))gestureOpen=ev.target.open;},true);
@@ -2569,7 +2572,9 @@ panel.addEventListener('change',function(ev){
     var src=curKind()==='recap'?LESSONS[prevIdx(li)]:lesson;
     setHl(hlOn?(src.hl||null):null);}});
 
-$('#backBtn').addEventListener('click',showMap);
+function leaveLesson(){try{if(history.state&&history.state.rubikLesson){history.back();return;}}catch(e){}showMap();}
+window.addEventListener('popstate',function(){if(!lessonView.hidden)showMap();});
+$('#backBtn').addEventListener('click',leaveLesson);
 $('#tabs').addEventListener('click',function(ev){
   var b=ev.target.closest('[data-course]');if(!b)return;
   useCourse(b.dataset.course);

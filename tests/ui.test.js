@@ -157,6 +157,30 @@ S.test('retomar también funciona en un mini-examen', async c => {
   eq(await T(pg, 'kind'), 'ex3');
 });
 
+S.test('«atrás» del navegador/móvil dentro de una lección vuelve al temario, sin cerrar la app', async c => {
+  const pg = await c.lesson('3x3', '1.3');
+  assert(await pg.isVisible('#lessonView'), 'debería estar en la lección');
+  await pg.goBack(); await pg.waitForTimeout(400);
+  assert(await pg.isVisible('#mapView'), 'tras «atrás» debe verse el temario');
+  assert(!(await pg.isVisible('#lessonView')), 'la lección debe cerrarse');
+  assert(pg.url().includes('rubik-test'), 'la app no debe haberse cerrado ni cambiado de página');
+});
+
+S.test('«atrás» tras pasar a la siguiente lección también lleva al temario (no a la anterior)', async c => {
+  const pg = await c.lesson('3x3', '1.3'); await goTo(pg, 'done');
+  await pg.click('[data-act=nextLesson]'); await pg.waitForTimeout(400);
+  await pg.goBack(); await pg.waitForTimeout(400);
+  assert(await pg.isVisible('#mapView'), 'tras «atrás» debe verse el temario');
+  assert(pg.url().includes('rubik-test'), 'la app no debe haberse cerrado');
+});
+
+S.test('el botón «Volver al temario» también vuelve al temario', async c => {
+  const pg = await c.lesson('3x3', '1.3');
+  await pg.click('#backBtn'); await pg.waitForTimeout(400);
+  assert(await pg.isVisible('#mapView'), 'debe verse el temario');
+  assert(pg.url().includes('rubik-test'), 'la app no debe haberse cerrado');
+});
+
 S.test('al terminar la lección se borra lo guardado para retomar', async c => {
   const pg = await c.lesson('3x3', '1.3'); await goTo(pg, 'ex1');
   assert(/"1\.3"/.test(await T(pg, 'res')), 'debería haber algo guardado');
