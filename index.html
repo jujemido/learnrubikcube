@@ -160,6 +160,7 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .stage{display:flex;flex-direction:column;position:relative;background:var(--stage);border:1px solid var(--line);border-radius:16px;overflow:hidden;aspect-ratio:1/1;max-height:70vh;width:100%}
 .stage canvas{display:block;width:100%;height:100%}
 .stage .view{position:relative;flex:1;min-height:0}
+.stage .view.holdcue{box-shadow:inset 0 0 0 3px var(--accent);border-radius:12px;transition:box-shadow .15s}
 .stage .ctl{flex:none;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 10px;border-top:1px solid var(--line)}
 .btn.icon{padding:0;width:34px;display:inline-grid;place-items:center}
 .btn.icon.outline:not(.sm){width:44px}
@@ -304,6 +305,7 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
       <h3>Ajustes</h3>
       <label class="toggle" style="margin-top:10px"><input type="checkbox" id="setNotation"> Explicar la notación al tocarla</label>
       <label class="toggle" style="margin-top:6px"><input type="checkbox" id="setDrag"> Girar capas arrastrando sobre el cubo</label>
+      <label class="toggle" style="margin-top:6px"><input type="checkbox" id="setHold"> Mantener pulsado sobre el cubo para mover la vista</label>
       <label class="toggle" style="margin-top:6px"><input type="checkbox" id="setHidePad"> Ocultar los botones de movimiento</label>
       <label class="toggle" style="margin-top:6px"><input type="checkbox" id="setSound"> Sonidos (al mover, acertar, fallar y terminar)</label>
       <p class="small">Girar arrastrando es una prueba y solo funciona en el 3×3. Al ocultar los botones quedan solo los giros del cubo entero (x, y, z).</p>
@@ -330,7 +332,7 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
     <div class="lgrid">
       <div class="stagebox">
         <div class="stage" id="stage">
-          <div class="view" id="view"><span class="tip">Arrastra para girar · toca una pieza</span></div>
+          <div class="view" id="view"><span class="tip">Arrastra una pieza para girar · mantén o usa 2 dedos para mover la vista</span></div>
           <div class="ctl" id="ctl" hidden>
             <button class="btn sm icon" id="undoBtn" aria-label="Deshacer" title="Deshacer" hidden disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
             <button class="btn sm icon" id="redoBtn" aria-label="Rehacer" title="Rehacer" hidden disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
@@ -1933,17 +1935,25 @@ function initGL(){
     if(ptrCount()===2){
       if(down&&down.turn&&down.turn.active){settleTurn(down.turn.t,0,null);}
       down=null;var k=Object.keys(ptrs),a=ptrs[k[0]],b=ptrs[k[1]];
-      pinch={d0:Math.hypot(a.x-b.x,a.y-b.y)||1,z0:zoom};return;}
+      var mx=(a.x+b.x)/2,my=(a.y+b.y)/2;if(down&&down.hold){clearTimeout(down.hold);}pinch={d0:Math.hypot(a.x-b.x,a.y-b.y)||1,z0:zoom,mx0:mx,my0:my,lx:mx,ly:my,pan:false};return;}
     if(ptrCount()>2)return;
     down={x:e.clientX,y:e.clientY,px:e.clientX,py:e.clientY,moved:false,turn:null};
-    if(e.button===0&&!e.shiftKey&&dragTurnOK()){var p=pick(e.clientX,e.clientY);if(p&&p.pt)down.turn={p:p,active:false,t:null};}
+    if(e.button===0&&!e.shiftKey&&dragTurnOK()){var p=pick(e.clientX,e.clientY);if(p&&p.pt){down.turn={p:p,active:false,t:null};
+      if(settings.holdView){var dd0=down;down.hold=setTimeout(function(){
+        if(down!==dd0||!dd0.turn||dd0.turn.active||dd0.moved||ptrCount()!==1)return;
+        dd0.turn=null;dd0.moved=true;dd0.hold=null;holdCue();},400);}}}
     try{cv.setPointerCapture(e.pointerId)}catch(_){}});
   cv.addEventListener('pointermove',function(e){
     if(ptrs[e.pointerId]){ptrs[e.pointerId].x=e.clientX;ptrs[e.pointerId].y=e.clientY;}
-    if(pinch&&ptrCount()===2){var k=Object.keys(ptrs),a=ptrs[k[0]],b=ptrs[k[1]];zoom=Math.max(.7,Math.min(1.3,pinch.z0*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d0));setCam();return;}
+    if(pinch&&ptrCount()===2){var k=Object.keys(ptrs),a=ptrs[k[0]],b=ptrs[k[1]];zoom=Math.max(.7,Math.min(1.3,pinch.z0*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d0));
+      var mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+      if(!pinch.pan&&Math.hypot(mx-pinch.mx0,my-pinch.my0)>12){pinch.pan=true;pinch.lx=mx;pinch.ly=my;}
+      if(pinch.pan){az-=(mx-pinch.lx)*.009;el=Math.max(-1.35,Math.min(1.35,el+(my-pinch.ly)*.009));pinch.lx=mx;pinch.ly=my;}
+      setCam();return;}
     if(!down)return;
     var dist2=Math.hypot(e.clientX-down.x,e.clientY-down.y);
     if(dist2>5)down.moved=true;
+    if(dist2>8&&down.hold){clearTimeout(down.hold);down.hold=null;}
     if(down.turn){
       if(!down.turn.active&&dist2>9)startTurn(down,e);
       if(down.turn.active)updateTurn(down,e);
@@ -1951,12 +1961,12 @@ function initGL(){
     if(down.moved){az-=(e.clientX-down.px)*.009;el=Math.max(-1.35,Math.min(1.35,el+(e.clientY-down.py)*.009));setCam();}
     down.px=e.clientX;down.py=e.clientY;});
   cv.addEventListener('pointerup',function(e){
-    endPtr(e);
+    endPtr(e);if(down&&down.hold){clearTimeout(down.hold);down.hold=null;}
     if(down&&down.turn&&down.turn.active){finishTurn(down);down=null;return;}
     if(down&&!down.moved&&!anim){var p=pick(e.clientX,e.clientY);if(p&&onTap)onTap(p);}
     down=null;});
   cv.addEventListener('pointercancel',function(e){
-    endPtr(e);
+    endPtr(e);if(down&&down.hold){clearTimeout(down.hold);down.hold=null;}
     if(down&&down.turn&&down.turn.active){settleTurn(down.turn.t,0,null);}
     down=null;});
   cv.addEventListener('wheel',function(e){e.preventDefault();zoom=Math.max(.7,Math.min(1.3,zoom*Math.exp(-e.deltaY*.0015)));setCam();},{passive:false});
@@ -1970,7 +1980,9 @@ function resize(){
   if(!renderer||!visible)return;
   var w=viewEl.clientWidth,h=viewEl.clientHeight;if(!w||!h)return;
   renderer.setSize(w,h,false);camera.aspect=w/h;
-  dist=10/Math.min(1,camera.aspect*1.08);camera.updateProjectionMatrix();setCam();}
+  dist=11.8/Math.min(1,camera.aspect*1.08);camera.updateProjectionMatrix();setCam();}
+function holdCue(){viewEl.classList.add('holdcue');setTimeout(function(){viewEl.classList.remove('holdcue');},420);
+  try{if(navigator.vibrate)navigator.vibrate(12);}catch(e){}}
 function setCam(){if(!camera)return;
   var dd=dist/zoom;camera.position.set(dd*Math.sin(az)*Math.cos(el),dd*Math.sin(el),dd*Math.cos(az)*Math.cos(el));
   camera.lookAt(0,0,0);}
@@ -2060,12 +2072,15 @@ function startTurn(d,e){
 function updateTurn(d,e){
   var t=d.turn.t,dx=e.clientX-d.x,dy=e.clientY-d.y,Q=Math.PI/2;
   var proj=(dx*t.sc[0]+dy*t.sc[1])/t.len;
-  var th=Math.max(-Q*1.15,Math.min(Q*1.15,proj/t.pxQ*Q));
+  var th=Math.max(-Q*2.15,Math.min(Q*2.15,proj/t.pxQ*Q));
   t.thetaU=th;
   /* encaje: cerca del cuarto de vuelta se queda enganchado (con histéresis) */
-  var near=Math.abs(th)>=Q*.72,keep=t.snapQ!==0&&Math.sign(th)===t.snapQ&&Math.abs(th)>=Q*.55;
-  t.snapQ=(near||keep)?(th>0?1:-1):0;
-  t.target=t.s*(t.snapQ!==0?t.snapQ*Q:th);}
+  /* puntos de encaje cada cuarto de vuelta (90°, 180°): engancha a .28Q, suelta a .45Q y sigue hasta el siguiente */
+  var k=Math.round(th/Q),sq=0;
+  if(k!==0&&Math.abs(th-k*Q)<=Q*.28)sq=k;
+  else if(t.snapQ!==0&&Math.abs(th-t.snapQ*Q)<=Q*.45)sq=t.snapQ;
+  t.snapQ=sq;
+  t.target=t.s*(sq!==0?sq*Q:th);}
 function moveForAxis(a,l,kq){
   if(l===0){var sl=[['M',1],['E',1],['S',-1]][a];return sl[0]+(kq===sl[1]?'':"'");}
   var L=['R','L','U','D','F','B'];
@@ -2078,12 +2093,13 @@ function settleTurn(t,q,mv){
   pivot.rotation[AX[t.a]]=t.theta;
   anim={pivot:pivot,axis:AX[t.a],from:t.theta,target:mv?t.s*q*Math.PI/2:0,t0:performance.now(),dur:mv?200:160,res:function(){},mv:mv,e:epoch,user:!!mv};}
 function finishTurn(d){
-  var t=d.turn.t,q=t.snapQ!==0?t.snapQ:(Math.abs(t.thetaU)>Math.PI*.2?(t.thetaU>0?1:-1):0);turnLive=null;
+  var t=d.turn.t,Q=Math.PI/2,tu=t.thetaU,q=t.snapQ!==0?t.snapQ:(Math.abs(tu)<Q*.4?0:(tu>0?1:-1)*Math.max(1,Math.round(Math.abs(tu)/Q)));turnLive=null;
   d.turn.active=false;
-  var mv=q!==0?moveForAxis(t.a,t.l,t.s*q):null;
+  var mv=null;
+  if(q!==0){var m1=moveForAxis(t.a,t.l,t.s*(q>0?1:-1));mv=Math.abs(q)===2?m1.replace("'",'')+'2':m1;}
   if(mv){tlUserMoved();pushGroup(1);ex.queued++;}
   settleTurn(t,q,mv);}
-function updateTip(){var t=$('#view .tip');if(!t)return;var on=!!(settings.dragTurn&&NSZ===3&&acceptsMoves());t.textContent='Arrastra para girar · toca una pieza';t.hidden=on;}
+function updateTip(){var t=$('#view .tip');if(!t)return;var on=!!(settings.dragTurn&&NSZ===3&&acceptsMoves());t.textContent='Arrastra una pieza para girar · mantén o usa 2 dedos para mover la vista';t.hidden=on;}
 
 function pick(cx,cy){
   if(!renderer)return null;
@@ -2355,7 +2371,7 @@ function applyStep(){
 
 function gestureOn(){return !!(settings.dragTurn&&NSZ===3);}
 function gestureDo(e){return gestureOn()&&e.seq.every(function(m){return /^[RLUDFBMES]'?$/.test(m)});}
-function gestureHint(big){return '<div class="fb info gesturehint'+(big?'':' compact')+'" role="note"><b>Haz esto con el cubo:</b> arrastra una pieza para girar su capa. Arrastra el fondo para mover la vista y pellizca con dos dedos para acercar o alejar.</div>';}
+function gestureHint(big){return '<div class="fb info gesturehint'+(big?'':' compact')+'" role="note"><b>Haz esto con el cubo:</b> arrastra una pieza para girar su capa. Para mover la vista, arrastra el fondo, mantén pulsado sobre el cubo o usa dos dedos (separarlos o juntarlos hace zoom).</div>';}
 function REPLAY_BTN(act){return '<button class="btn icon outline" data-act="'+act+'" aria-label="Ver otra vez" title="Ver otra vez">'+I_REPLAY+'</button>';}
 function stepName(k){
   if(k==='intro')return lesson.exam?'Intro':'Objetivo';
@@ -2546,16 +2562,17 @@ $('#tabs').addEventListener('click',function(ev){
   renderMap();});
 function syncTabs(){[].forEach.call(document.querySelectorAll('.tab'),function(t){t.setAttribute('aria-selected',t.dataset.course===course?'true':'false');});}
 /* ---- ajustes y notación al tocarla ---- */
-var settings={notation:true,dragTurn:true,hidePad:false,sound:true};
-try{var ss=JSON.parse(localStorage.getItem('rubik-ajustes'));if(ss){['notation','dragTurn','hidePad','sound'].forEach(function(k){if(typeof ss[k]==='boolean')settings[k]=ss[k];});}}catch(e){}
+var settings={notation:true,dragTurn:true,hidePad:false,sound:true,holdView:true};
+try{var ss=JSON.parse(localStorage.getItem('rubik-ajustes'));if(ss){['notation','dragTurn','hidePad','sound','holdView'].forEach(function(k){if(typeof ss[k]==='boolean')settings[k]=ss[k];});}}catch(e){}
 function saveSettings(){try{localStorage.setItem('rubik-ajustes',JSON.stringify(settings));}catch(e){}}
-function applySettings(){document.documentElement.classList.toggle('notation-on',settings.notation);$('#setNotation').checked=settings.notation;$('#setDrag').checked=settings.dragTurn;$('#setHidePad').checked=settings.hidePad;$('#setSound').checked=settings.sound;}
+function applySettings(){document.documentElement.classList.toggle('notation-on',settings.notation);$('#setNotation').checked=settings.notation;$('#setDrag').checked=settings.dragTurn;$('#setHidePad').checked=settings.hidePad;$('#setSound').checked=settings.sound;$('#setHold').checked=settings.holdView;}
 var tipEl=$('#tip'),setPanel=$('#settingsPanel');
 [].forEach.call(document.querySelectorAll('.js-settings'),function(b){b.addEventListener('click',function(ev){
   ev.stopPropagation();var r=b.getBoundingClientRect();
   setPanel.style.top=Math.min(r.bottom+8,window.innerHeight-200)+'px';setPanel.style.right=Math.max(16,window.innerWidth-r.right)+'px';
   setPanel.hidden=!setPanel.hidden;tipEl.hidden=true;});});
 $('#setDrag').addEventListener('change',function(ev){settings.dragTurn=ev.target.checked;saveSettings();if(lesson)renderPanel();});
+$('#setHold').addEventListener('change',function(ev){settings.holdView=ev.target.checked;saveSettings();});
 $('#setSound').addEventListener('change',function(ev){settings.sound=ev.target.checked;saveSettings();if(settings.sound){audioCtx();sfx('ok');}});
 $('#setHidePad').addEventListener('change',function(ev){settings.hidePad=ev.target.checked;saveSettings();if(lesson)renderPanel();});
 $('#setNotation').addEventListener('change',function(ev){settings.notation=ev.target.checked;saveSettings();applySettings();if(!settings.notation)tipEl.hidden=true;});
@@ -2572,7 +2589,7 @@ $('#progLoad').addEventListener('click',function(){
     var p=JSON.parse(box.value),pr=(p&&p.progress)?p.progress:p;
     if(!pr||typeof pr!=='object'||typeof pr.done!=='object')throw new Error('x');
     prog=pr;saveProg();
-    if(p.settings&&typeof p.settings==='object'){['notation','dragTurn','hidePad','sound'].forEach(function(k){if(typeof p.settings[k]==='boolean')settings[k]=p.settings[k];});saveSettings();applySettings();}
+    if(p.settings&&typeof p.settings==='object'){['notation','dragTurn','hidePad','sound','holdView'].forEach(function(k){if(typeof p.settings[k]==='boolean')settings[k]=p.settings[k];});saveSettings();applySettings();}
     msg.textContent=p.settings?'Progreso y ajustes importados.':'Progreso importado.';renderMap();if(lesson)renderPanel();}
   catch(e){msg.textContent='El texto no parece un progreso válido.';}});
 var MVRE=/^(2?)([RLUDFBxyzMES])(w?)(['2]?)$/;
