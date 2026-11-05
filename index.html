@@ -348,7 +348,7 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
               <span class="tl-cur mono" id="tlCur" aria-hidden="true"></span>
               <div class="tl-track" id="tlTrack" role="group" aria-label="Línea de movimientos"></div>
               <span class="sel"><select id="tlSpeed" class="tl-speed" aria-label="Segundos por movimiento">
-                <option value="0.5">0,5 s</option><option value="1">1 s</option><option value="2">2 s</option><option value="3">3 s</option><option value="5">5 s</option>
+                <option value="0.5">0,5 s</option><option value="1">1 s</option><option value="1.5">1,5 s</option><option value="2">2 s</option><option value="3">3 s</option><option value="5">5 s</option>
               </select></span>
             </div>
           </div>
@@ -2164,7 +2164,7 @@ function move(mv,o){
 /* ---------- línea de tiempo (reproductor de movimientos) ---------- */
 var I_PAUSE='<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="2.5" width="3.4" height="11" rx="1"/><rect x="9.6" y="2.5" width="3.4" height="11" rx="1"/></svg>';
 var I_STOP='<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1.6"/></svg>';
-var tl={seq:[],pre:[],idx:0,playing:false,token:0,speed:1,userSpeed:false,dirty:false,hide:false};
+var tl={seq:[],pre:[],idx:0,playing:false,token:0,speed:1.5,userSpeed:false,dirty:false,hide:false};
 var tlEl=$('#tl');
 function renderTl(){
   var n=tl.seq.length;tlEl.hidden=!n;updateCtl();if(!n)return;
@@ -2209,7 +2209,7 @@ $('#redoBtn').addEventListener('click',redoLast);
 function tlClear(){tl.token++;tl.playing=false;tl.seq=[];tl.idx=0;tl.dirty=false;tl.hide=false;renderTl();}
 function tlSet(seq,pre){
   tl.token++;tl.playing=false;tl.seq=seq||[];tl.pre=pre||[];tl.idx=0;tl.dirty=false;tl.hide=false;
-  if(!tl.userSpeed)tl.speed=tl.seq.length>10?0.5:1;
+  if(!tl.userSpeed)tl.speed=tl.seq.length>10?0.5:1.5;
   setState(seqState(tl.pre));renderTl();}
 function tlStep(tok){
   if(tl.token!==tok||!tl.playing)return;
