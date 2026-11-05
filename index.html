@@ -267,6 +267,11 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .body ul.agenda{list-style:none;padding-left:0;margin:0;display:grid;gap:8px}
 .agenda li{background:var(--panel2);border-radius:10px;padding:10px 14px}
 .gesturehint.compact{font-size:.86rem;padding:8px 12px}
+.gesturehint summary{cursor:pointer;font-weight:700;list-style:none}
+.gesturehint summary::-webkit-details-marker{display:none}
+.gesturehint summary::before{content:'▸ ';display:inline-block;width:1em}
+.gesturehint[open] summary::before{content:'▾ '}
+.gesturehint p{margin:6px 0 0}
 .mixtag{color:var(--accent);font-weight:700}
 .quick{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px}
 .quick .q{font-size:1rem}
@@ -2371,7 +2376,8 @@ function applyStep(){
 
 function gestureOn(){return !!(settings.dragTurn&&NSZ===3);}
 function gestureDo(e){return gestureOn()&&e.seq.every(function(m){return /^[RLUDFBMES]'?$/.test(m)});}
-function gestureHint(big){return '<div class="fb info gesturehint'+(big?'':' compact')+'" role="note"><b>Haz esto con el cubo:</b> arrastra una pieza para girar su capa. Para mover la vista, arrastra el fondo, mantén pulsado sobre el cubo o usa dos dedos (separarlos o juntarlos hace zoom).</div>';}
+var gestureOpen=false;
+function gestureHint(big){return '<details class="fb info gesturehint'+(big?'':' compact')+'"'+(gestureOpen?' open':'')+'><summary>¿Cómo mover el cubo?</summary><p>Arrastra una pieza para girar su capa. Para mover la vista, arrastra el fondo, mantén pulsado sobre el cubo o usa dos dedos (separarlos o juntarlos hace zoom).</p></details>';}
 function REPLAY_BTN(act){return '<button class="btn icon outline" data-act="'+act+'" aria-label="Ver otra vez" title="Ver otra vez">'+I_REPLAY+'</button>';}
 function stepName(k){
   if(k==='intro')return lesson.exam?'Intro':'Objetivo';
@@ -2548,6 +2554,7 @@ panel.addEventListener('click',function(ev){
   else if(a==='map'){showMap();}
   else if(a==='again'){enterLesson(li);}
 });
+panel.addEventListener('toggle',function(ev){if(ev.target.classList&&ev.target.classList.contains('gesturehint'))gestureOpen=ev.target.open;},true);
 panel.addEventListener('change',function(ev){
   if(ev.target.id==='hlt'){
     hlOn=ev.target.checked;
