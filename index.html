@@ -315,7 +315,7 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
       <label class="toggle" style="margin-top:6px"><input type="checkbox" id="setHold"> Mantener pulsado sobre el cubo para mover la vista</label>
       <label class="toggle" style="margin-top:6px"><input type="checkbox" id="setHidePad"> Ocultar los botones de movimiento</label>
       <label class="toggle" style="margin-top:6px"><input type="checkbox" id="setSound"> Sonidos (al mover, acertar, fallar y terminar)</label>
-      <p class="small">Girar capas arrastrando solo funciona en el 3×3. Al ocultar los botones quedan solo los giros del cubo entero (x, y, z).</p>
+      <p class="small">Girar capas arrastrando solo funciona en el 3×3. Con dos dedos, deslizar hacia arriba o abajo da x, hacia los lados y, y girar los dedos z.</p>
       <p class="small">Toca un movimiento como <b>R'</b> o <b>2R</b> dentro de una lección y verás qué hace. En los mini-exámenes está desactivado.</p>
       <div id="instSec" hidden><h3 style="margin-top:16px">Instalar la app</h3>
       <p class="small" id="instTxt"></p>
@@ -339,7 +339,7 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
     <div class="lgrid">
       <div class="stagebox">
         <div class="stage" id="stage">
-          <div class="view" id="view"><span class="tip">Arrastra una pieza para girar · mantén o usa 2 dedos para mover la vista</span>
+          <div class="view" id="view"><span class="tip">Arrastra una pieza para girar la capa · desliza con 2 dedos para girar el cubo</span>
           <div class="uredo" id="uredo" hidden><button class="btn sm icon" id="undoBtn" aria-label="Deshacer" title="Deshacer" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button><button class="btn sm icon" id="redoBtn" aria-label="Rehacer" title="Rehacer" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button></div></div>
           <div class="ctl" id="ctl" hidden>
             <div class="tl" id="tl" hidden>
@@ -1935,13 +1935,13 @@ function initGL(){
   var cv=renderer.domElement;cv.style.touchAction='none';
   var down=null,ptrs={},pinch=null;
   function ptrCount(){return Object.keys(ptrs).length;}
-  function endPtr(e){delete ptrs[e.pointerId];if(ptrCount()<2)pinch=null;}
+  function endPtr(e,cancel){delete ptrs[e.pointerId];if(ptrCount()<2){if(pinch&&pinch.cube)finishCube(pinch.cube,cancel);pinch=null;}}
   cv.addEventListener('pointerdown',function(e){
     ptrs[e.pointerId]={x:e.clientX,y:e.clientY};
     if(ptrCount()===2){
       if(down&&down.turn&&down.turn.active){settleTurn(down.turn.t,0,null);}
       down=null;var k=Object.keys(ptrs),a=ptrs[k[0]],b=ptrs[k[1]];
-      var mx=(a.x+b.x)/2,my=(a.y+b.y)/2;if(down&&down.hold){clearTimeout(down.hold);}pinch={d0:Math.hypot(a.x-b.x,a.y-b.y)||1,z0:zoom,mx0:mx,my0:my,lx:mx,ly:my,pan:false};return;}
+      var mx=(a.x+b.x)/2,my=(a.y+b.y)/2;if(down&&down.hold){clearTimeout(down.hold);}pinch={d0:Math.hypot(a.x-b.x,a.y-b.y)||1,z0:zoom,mx0:mx,my0:my,lx:mx,ly:my,pan:false,ang:Math.atan2(b.y-a.y,b.x-a.x),acc:0,mode:null,cube:null};return;}
     if(ptrCount()>2)return;
     down={x:e.clientX,y:e.clientY,px:e.clientX,py:e.clientY,moved:false,turn:null};
     if(e.button===0&&!e.shiftKey&&dragTurnOK()){var p=pick(e.clientX,e.clientY);if(p&&p.pt){down.turn={p:p,active:false,t:null};
@@ -1952,9 +1952,22 @@ function initGL(){
   cv.addEventListener('pointermove',function(e){
     if(ptrs[e.pointerId]){ptrs[e.pointerId].x=e.clientX;ptrs[e.pointerId].y=e.clientY;}
     if(pinch&&ptrCount()===2){var k=Object.keys(ptrs),a=ptrs[k[0]],b=ptrs[k[1]];zoom=Math.max(.7,Math.min(1.3,pinch.z0*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d0));
-      var mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
-      if(!pinch.pan&&Math.hypot(mx-pinch.mx0,my-pinch.my0)>12){pinch.pan=true;pinch.lx=mx;pinch.ly=my;}
-      if(pinch.pan){az-=(mx-pinch.lx)*.009;el=Math.max(-1.35,Math.min(1.35,el+(my-pinch.ly)*.009));pinch.lx=mx;pinch.ly=my;}
+      var mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dd=Math.hypot(a.x-b.x,a.y-b.y);
+      var an=Math.atan2(b.y-a.y,b.x-a.x),da=an-pinch.ang;if(da>Math.PI)da-=2*Math.PI;if(da<-Math.PI)da+=2*Math.PI;pinch.acc+=da;pinch.ang=an;
+      var dmx=mx-pinch.mx0,dmy=my-pinch.my0;
+      if(pinch.cube||(!pinch.mode&&cubeGestureOK())){
+        /* deslizar o girar los dedos = girar el cubo entero (x, y, z); separarlos/juntarlos = zoom */
+        if(!pinch.mode){
+          var twPx=Math.abs(pinch.acc)*pinch.d0/2,slPx=Math.hypot(dmx,dmy),zmPx=Math.abs(dd-pinch.d0)/2,big=Math.max(twPx,slPx,zmPx);
+          if(big>14){pinch.mode=big===zmPx?'zoom':(big===twPx?'tw':(Math.abs(dmy)>=Math.abs(dmx)?'v':'h'));
+            if(pinch.mode!=='zoom')pinch.cube=startCube(pinch.mode);}}
+        if(pinch.cube){
+          var Q2=Math.PI/2,u=pinch.mode==='v'?-dmy/110:(pinch.mode==='h'?-dmx/110:pinch.acc/Q2);
+          setTurnAngle(pinch.cube,u*Q2);}
+      }else if(!pinch.mode){
+        /* sin giros de cubo (no acepta movimientos, 2×2, 4×4…): dos dedos mueven la vista */
+        if(!pinch.pan&&Math.hypot(dmx,dmy)>12){pinch.pan=true;pinch.lx=mx;pinch.ly=my;}
+        if(pinch.pan){az-=(mx-pinch.lx)*.009;el=Math.max(-1.35,Math.min(1.35,el+(my-pinch.ly)*.009));pinch.lx=mx;pinch.ly=my;}}
       setCam();return;}
     if(!down)return;
     var dist2=Math.hypot(e.clientX-down.x,e.clientY-down.y);
@@ -1972,7 +1985,7 @@ function initGL(){
     if(down&&!down.moved&&!anim){var p=pick(e.clientX,e.clientY);if(p&&onTap)onTap(p);}
     down=null;});
   cv.addEventListener('pointercancel',function(e){
-    endPtr(e);if(down&&down.hold){clearTimeout(down.hold);down.hold=null;}
+    endPtr(e,true);if(down&&down.hold){clearTimeout(down.hold);down.hold=null;}
     if(down&&down.turn&&down.turn.active){settleTurn(down.turn.t,0,null);}
     down=null;});
   cv.addEventListener('wheel',function(e){e.preventDefault();zoom=Math.max(.7,Math.min(1.3,zoom*Math.exp(-e.deltaY*.0015)));setCam();},{passive:false});
@@ -2078,10 +2091,12 @@ function startTurn(d,e){
 function updateTurn(d,e){
   var t=d.turn.t,dx=e.clientX-d.x,dy=e.clientY-d.y,Q=Math.PI/2;
   var proj=(dx*t.sc[0]+dy*t.sc[1])/t.len;
-  var th=Math.max(-Q*2.15,Math.min(Q*2.15,proj/t.pxQ*Q));
+  setTurnAngle(t,proj/t.pxQ*Q);}
+/* th = ángulo pedido (rad, positivo en el sentido de la letra). Puntos de encaje cada cuarto de vuelta (90°, 180°):
+   engancha a .28Q, suelta a .45Q y sigue hasta el siguiente. */
+function setTurnAngle(t,th0){
+  var Q=Math.PI/2,th=Math.max(-Q*2.15,Math.min(Q*2.15,th0));
   t.thetaU=th;
-  /* encaje: cerca del cuarto de vuelta se queda enganchado (con histéresis) */
-  /* puntos de encaje cada cuarto de vuelta (90°, 180°): engancha a .28Q, suelta a .45Q y sigue hasta el siguiente */
   var k=Math.round(th/Q),sq=0;
   if(k!==0&&Math.abs(th-k*Q)<=Q*.28)sq=k;
   else if(t.snapQ!==0&&Math.abs(th-t.snapQ*Q)<=Q*.45)sq=t.snapQ;
@@ -2095,7 +2110,7 @@ function moveForAxis(a,l,kq){
 function settleTurn(t,q,mv){
   turnLive=null;build();
   var groups=root.children.slice(),pivot=new THREE.Group();root.add(pivot);
-  state.forEach(function(cc,i){if(cc.p[t.a]===t.l)pivot.add(groups[i]);});
+  state.forEach(function(cc,i){if(t.all||cc.p[t.a]===t.l)pivot.add(groups[i]);});
   pivot.rotation[AX[t.a]]=t.theta;
   anim={pivot:pivot,axis:AX[t.a],from:t.theta,target:mv?t.s*q*Math.PI/2:0,t0:performance.now(),dur:mv?200:160,res:function(){},mv:mv,e:epoch,user:!!mv};}
 function finishTurn(d){
@@ -2105,7 +2120,25 @@ function finishTurn(d){
   if(q!==0){var m1=moveForAxis(t.a,t.l,t.s*(q>0?1:-1));mv=Math.abs(q)===2?m1.replace("'",'')+'2':m1;}
   if(mv){tlUserMoved();pushGroup(1);ex.queued++;}
   settleTurn(t,q,mv);}
-function updateTip(){var t=$('#view .tip');if(!t)return;var on=!!(settings.dragTurn&&NSZ===3&&acceptsMoves());t.textContent='Arrastra una pieza para girar · mantén o usa 2 dedos para mover la vista';t.hidden=on;}
+/* ---- giros del cubo entero (x, y, z) con dos dedos ---- */
+function camBasis(){camera.updateMatrixWorld();var m=camera.matrixWorld.elements;return {r:[m[0],m[1],m[2]],u:[m[4],m[5],m[6]],b:[m[8],m[9],m[10]]};}
+function argmax3(v){var i=0;if(Math.abs(v[1])>Math.abs(v[i]))i=1;if(Math.abs(v[2])>Math.abs(v[i]))i=2;return i;}
+function cubeGestureOK(){return NSZ===3&&!anim&&acceptsMoves();}
+/* modo: 'v' deslizar arriba/abajo, 'h' izquierda/derecha, 'tw' girar los dedos. El eje sale de cómo se ve el cubo. */
+function startCube(mode){
+  var B=camBasis(),vec=mode==='v'?B.r:(mode==='h'?B.u:B.b),a=argmax3(vec),sg=vec[a]>=0?1:-1;
+  var groups=root.children.slice(),pivot=new THREE.Group();root.add(pivot);
+  groups.forEach(function(g){pivot.add(g);});
+  var t={snapQ:0,target:0,a:a,s:-sg,l:0,all:true,pivot:pivot,thetaU:0,theta:0};
+  turnLive=t;return t;}
+function finishCube(t,cancel){
+  var Q=Math.PI/2,tu=t.thetaU,q=cancel?0:(t.snapQ!==0?t.snapQ:(Math.abs(tu)<Q*.4?0:(tu>0?1:-1)*Math.max(1,Math.round(Math.abs(tu)/Q))));
+  turnLive=null;
+  var mv=null;
+  if(q!==0){var L='xyz'[t.a],pos=t.s*q<0;mv=Math.abs(q)===2?L+'2':L+(pos?'':"'");}
+  if(mv){tlUserMoved();pushGroup(1);ex.queued++;}
+  settleTurn(t,q,mv);}
+function updateTip(){var t=$('#view .tip');if(!t)return;var on=!!(settings.dragTurn&&NSZ===3&&acceptsMoves());t.textContent='Arrastra una pieza para girar la capa · desliza con 2 dedos para girar el cubo';t.hidden=on;}
 
 function pick(cx,cy){
   if(!renderer)return null;
@@ -2387,9 +2420,9 @@ function applyStep(){
 }
 
 function gestureOn(){return !!(settings.dragTurn&&NSZ===3);}
-function gestureDo(e){return gestureOn()&&e.seq.every(function(m){return /^[RLUDFBMES][2']?$/.test(m)});}
+function gestureDo(e){return gestureOn()&&e.seq.every(function(m){return /^[RLUDFBMESxyz][2']?$/.test(m)});}
 var gestureOpen=false;
-function gestureHint(big){return '<details class="fb info gesturehint'+(big?'':' compact')+'"'+(gestureOpen?' open':'')+'><summary>¿Cómo mover el cubo?</summary><p>Arrastra una pieza para girar su capa. Para mover la vista, arrastra el fondo, mantén pulsado sobre el cubo o usa dos dedos (separarlos o juntarlos hace zoom).</p></details>';}
+function gestureHint(big){return '<details class="fb info gesturehint'+(big?'':' compact')+'"'+(gestureOpen?' open':'')+'><summary>¿Cómo mover el cubo?</summary><p>Arrastra una pieza para girar su capa. Con dos dedos giras el cubo entero: desliza hacia arriba o abajo (x), hacia los lados (y) o gira los dedos (z); separarlos o juntarlos hace zoom. Para mover la vista, arrastra el fondo o mantén pulsado sobre el cubo.</p></details>';}
 function REPLAY_BTN(act){return '<button class="btn icon outline" data-act="'+act+'" aria-label="Ver otra vez" title="Ver otra vez">'+I_REPLAY+'</button>';}
 function stepName(k){
   if(k==='intro')return lesson.exam?'Intro':'Objetivo';
@@ -2407,7 +2440,7 @@ var padTab='faces';
 function movCat(m){return /^[xyz]/.test(m)?'cube':(/^[MES]/.test(m)?'slice':(/^2/.test(m)?'inner':(/w/.test(m)?'wide':'faces')));}
 var CATLAB={faces:'Caras',wide:'Anchos',inner:'Internas',slice:'Capa media',cube:'Cubo'};
 function padHtml(list,disabled,compact){
-  if(settings.hidePad&&settings.dragTurn&&NSZ===3){list=list.filter(function(m){return /^[xyz]/.test(m)});if(!list.length)return '';}
+  if(settings.hidePad&&settings.dragTurn&&NSZ===3)return '';
   var order='RLUDFBMESxyz',rank={'':0,"'":1,'2':2};
   function sk(m){var p=parseMove(m);return [order.indexOf(p.L),rank[p.suf]];}
   var shown=list,tabs='';
