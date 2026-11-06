@@ -295,7 +295,26 @@ S.test('bloque 2: «Aprende» va por páginas (siguiente, anterior y última con
   for (let i = 1; i < n; i++) { await pg.click('[data-act=lpnext]'); await pg.waitForTimeout(250); }
   assert(!(await pg.$('[data-act=lpnext]')), 'en la última página ya no hay «siguiente»');
   assert(await pg.$('[data-act=next]'), 'en la última página debe haber «Continuar»');
-  eq((await pg.$$('.pgdots i')).length, n, 'un punto por página');
+  eq((await pg.$$('.pgdots')).length, 0, 'ya no hay puntitos');
+  const base = (await T(pg, 'kinds')).split(',').length - 1;
+  eq((await pg.$$('.steps li')).length, base + n - 1, 'una rayita por página de «Aprende»');
+});
+
+S.test('páginas: las rayitas llevan a su página y «retomar» vuelve a la misma página', async c => {
+  const pg = await c.lesson('3x3', 'F2'); await goTo(pg, 'learn');
+  await pg.click('[data-act=lpnext]'); await pg.waitForTimeout(250);
+  await pg.click('[data-act=lpnext]'); await pg.waitForTimeout(250);
+  eq(await T(pg, 'page'), 2);
+  await pg.click('.steps li button[data-page="0"]'); await pg.waitForTimeout(300);
+  eq(await T(pg, 'page'), 0, 'la rayita de la primera página vuelve a ella');
+  await pg.click('.steps li button[data-page="2"]'); await pg.waitForTimeout(300);
+  eq(await T(pg, 'page'), 2, 'las páginas ya vistas se pueden volver a abrir');
+  await T(pg, 'map'); await pg.waitForTimeout(300);
+  const idx = (await pg.evaluate(() => window.__T.ids('3x3'))).indexOf('F2');
+  await pg.reload(); await pg.waitForTimeout(500);
+  await pg.click('.tab[data-course="3x3"]'); await pg.click('.lrow[data-lesson="' + idx + '"]'); await pg.waitForTimeout(500);
+  eq(await T(pg, 'kind'), 'learn', 'retoma en «Aprende»');
+  eq(await T(pg, 'page'), 2, 'y en la misma página');
 });
 
 S.test('bloque 2: cada página enseña un movimiento y se reproduce con su cubo', async c => {

@@ -3059,9 +3059,9 @@ function startPractice(i){
 function histIn(){try{var st={rubikLesson:1};if(history.state&&history.state.rubikLesson)history.replaceState(st,'');else history.pushState(st,'');}catch(e){}}
 function enterLesson(i){
   histIn();
-  li=i;lesson=LESSONS[i];lessonErrors=0;maxStep=0;
+  li=i;lesson=LESSONS[i];lessonErrors=0;maxStep=0;pageMax=0;
   var rs=prog.res&&prog.res[lesson.id],rstep=0;
-  if(rs){var nk=stepKinds().length-1;rstep=Math.max(0,Math.min(rs.s|0,nk-1));maxStep=Math.max(rstep,Math.min(rs.m|0,nk-1));lessonErrors=rs.e|0;}
+  if(rs){var nk=stepKinds().length-1;rstep=Math.max(0,Math.min(rs.s|0,nk-1));maxStep=Math.max(rstep,Math.min(rs.m|0,nk-1));lessonErrors=rs.e|0;pageMax=rs.q|0;}
   setN(COURSE_N[course]);if(renderer)makeGeos();
   mapView.hidden=true;lessonView.hidden=false;visible=true;
   document.documentElement.classList.add('in-lesson');
@@ -3069,7 +3069,8 @@ function enterLesson(i){
   $('#lessonTag').textContent=dl(lesson)+' · '+lesson.title;
   window.scrollTo(0,0);
   setTimeout(resize,0);
-  goStep(rstep);}
+  goStep(rstep);
+  if(rs&&(rs.p|0)>0&&curKind()==='learn'&&lesson.pages)learnPage(Math.min(rs.p|0,lesson.pages.length-1));}
 
 /* pasos de una lección: repaso (si hay anterior), aprende, prueba, ejercicios, final */
 function dl(l){return l.disp||l.id;}
@@ -3099,7 +3100,7 @@ function saveRes(){
   if(!lesson||lesson.practice)return;
   prog.res=prog.res||{};
   if(curKind()==='done')delete prog.res[lesson.id];
-  else prog.res[lesson.id]={s:step,m:maxStep,e:lessonErrors};
+  else prog.res[lesson.id]={s:step,m:maxStep,e:lessonErrors,p:(curKind()==='learn'&&ex&&ex.page)||0,q:pageMax};
   saveProg();}
 function goStep(n){step=n;if(n>maxStep)maxStep=n;ex=newEx();applyStep();panel.scrollTop=0;saveRes();}
 function exStart(e){return seqState((e.pre||[]).concat(e.setup||[]));}
@@ -3114,9 +3115,11 @@ var viewTouched=false;
 function pageView(pg){
   if(pg&&pg.view){az=pg.view[0];el=pg.view[1];viewTouched=true;setCam();}
   else if(viewTouched){az=DEF_AZ;el=DEF_EL;viewTouched=false;setCam();}}
+var pageMax=0;
 function learnPage(n){
   var pg=lesson.pages&&lesson.pages[n];if(!pg)return;
-  epoch++;ex.page=n;tlClear();pageView(pg);
+  if(n>pageMax)pageMax=n;
+  epoch++;ex.page=n;saveRes();tlClear();pageView(pg);
   var pre=pg.pre||lesson.pre||[];
   setState(seqState(pre));hlOn=true;setHl(pg.hl||lesson.hl||null);
   renderPanel();panel.scrollTop=0;
@@ -3154,9 +3157,19 @@ function stepName(k){
   return 'Ejercicio '+(parseInt(k.slice(2),10)+1);}
 function stepper(){
   if(lesson.practice)return '';
-  var ks=stepKinds().slice(0,-1),h='<ol class="steps">';
+  var ks=stepKinds().slice(0,-1),h='<ol class="steps">',cp=(ex&&ex.page)||0;
+  function seg(n,pg,cls,dis,cur,l){
+    return '<li class="'+cls+'"><button class="stp" data-step="'+n+'"'+(pg!==null?' data-page="'+pg+'"':'')+(dis?' disabled':'')+(cur?' aria-current="step"':'')+' aria-label="'+l+'" title="'+l+'"><span></span></button></li>';}
   ks.forEach(function(k,n){var l=stepName(k);
-    h+='<li class="'+(n<step?'done':(n===step?'now':(n<=maxStep?'reach':'')))+'"><button class="stp" data-step="'+n+'"'+(n>maxStep?' disabled':'')+(n===step?' aria-current="step"':'')+' aria-label="Paso '+(n+1)+': '+l+'" title="'+l+'"><span></span></button></li>';});
+    if(k==='learn'&&lesson.pages&&lesson.pages.length>1){
+      lesson.pages.forEach(function(_,i){
+        var cls,dis=false,cur=false;
+        if(n<step)cls='done';
+        else if(n===step){if(i<cp)cls='done';else if(i===cp){cls='now';cur=true;}else{cls=i<=pageMax?'reach':'';dis=i>pageMax;}}
+        else{cls=n<=maxStep?'reach':'';dis=n>maxStep;}
+        h+=seg(n,i,cls,dis,cur,'Aprende, página '+(i+1)+' de '+lesson.pages.length);});
+      return;}
+    h+=seg(n,null,n<step?'done':(n===step?'now':(n<=maxStep?'reach':'')),n>maxStep,n===step,'Paso '+(n+1)+': '+l);});
   return h+'</ol>';}
 
 var padTab='faces';
@@ -3235,7 +3248,6 @@ function renderPanel(){
       '<div class="row"><button class="btn primary" data-act="next" style="margin-left:auto"'+(qk.status==='ok'?'':' disabled')+'>Continuar →</button></div>';
   }else if(kind==='learn'&&lesson.pages){
     var pgs=lesson.pages,pi=ex.page||0,pg=pgs[pi],hs=pg.hl||lesson.hl;
-    h+='<div class="pgdots" role="img" aria-label="Paso '+(pi+1)+' de '+pgs.length+'">'+pgs.map(function(_,n){return '<i class="'+(n===pi?'on':(n<pi?'done':''))+'"></i>';}).join('')+'</div>';
     h+=pg.t;
     if(hs)h+='<label class="toggle"><input type="checkbox" id="hlt"'+(hlOn?' checked':'')+'> Resaltar en el cubo</label>';
     h+='</div>';
@@ -3318,7 +3330,7 @@ function finishLesson(){
 
 panel.addEventListener('click',function(ev){
   var sb=ev.target.closest('[data-step]');
-  if(sb&&!sb.disabled){var n=parseInt(sb.dataset.step,10);if(n!==step)goStep(n);return;}
+  if(sb&&!sb.disabled){var n=parseInt(sb.dataset.step,10);if(n!==step)goStep(n);if(sb.dataset.page!==undefined&&curKind()==='learn')learnPage(parseInt(sb.dataset.page,10));return;}
   var b=ev.target.closest('[data-act]');if(!b||b.disabled)return;
   var a=b.dataset.act,e=curExercise(),kind=curKind();
   if(a==='next'){
