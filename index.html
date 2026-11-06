@@ -273,6 +273,14 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .goal{font-family:var(--f-display);font-size:1.3rem;font-weight:700;line-height:1.3;margin:0 0 16px!important}
 .body ul.agenda{list-style:none;padding-left:0;margin:0;display:grid;gap:8px}
 .agenda li{background:var(--panel2);border-radius:10px;padding:10px 14px}
+.goalnote{margin-top:10px;font-size:.88rem;color:var(--muted);line-height:1.45}
+.goalnote b{color:var(--text,inherit)}
+.goalnote .lgd{display:block;margin-top:6px;font-size:.8rem}
+.lg{display:inline-block;width:12px;height:12px;border-radius:3px;margin:0 4px 0 8px;vertical-align:-2px;box-sizing:border-box}
+.lg:first-child{margin-left:0}
+.lg.f{background:#e8b800;box-shadow:0 0 0 2px #d11bd1}
+.lg.c{background:#2f9e5b}
+.lg.d{background:var(--dim)}
 .gesturehint.compact{font-size:.86rem;padding:8px 12px}
 .gesturehint summary{cursor:pointer;font-weight:700;list-style:none}
 .gesturehint summary::-webkit-details-marker{display:none}
@@ -440,6 +448,7 @@ function rotKeys(){
   var set={},tops=[[],['x'],['x2'],["x'"],['z'],["z'"]];
   tops.forEach(function(t){for(var k=0;k<4;k++){var seq=t.slice();for(var i=0;i<k;i++)seq.push('y');set[centersKey(seqState(seq))]=1;}});
   ROT24={n:NSZ,set:set};return set;}
+function ctrOK(cs){return !!rotKeys()[centersKey(cs)];}
 function pairedEdges(cs){
   var m={};cs.forEach(function(c){if(c.s.length===2)m[c.p.join()]=c;});
   return cs.every(function(c){
@@ -449,15 +458,16 @@ function pairedEdges(cs){
     return !!d&&d.s.every(function(s){return a[s.n.join()]===s.c});});}
 var GOALS={
   flower:function(cs){var C=centers(cs),wc=OPP[C['0,1,0']];
+    if(!ctrOK(cs)||C['0,1,0']!=='y')return false;
     var e=cs.filter(function(c){return c.s.length===2&&c.p[1]===LIM});
     return e.length===4&&e.every(function(c){return c.s.some(function(s){return isUp(s)&&s.c===wc})});},
-  cross:function(cs){var C=centers(cs);return cs.filter(function(c){return c.s.length===2&&c.p[1]===-LIM}).every(function(c){return pieceOK(c,C)});},
-  layer1:function(cs){var C=centers(cs);return cs.filter(function(c){return c.p[1]===-LIM}).every(function(c){return pieceOK(c,C)});},
-  layer2:function(cs){var C=centers(cs);return cs.filter(function(c){return c.p[1]<=M2}).every(function(c){return pieceOK(c,C)});},
-  ycross:function(cs){var C=centers(cs);return cs.filter(function(c){return c.s.length===2&&c.p[1]===LIM}).every(function(c){return upOK(c,C)});},
-  yface:function(cs){var C=centers(cs);return cs.filter(function(c){return c.p[1]===LIM}).every(function(c){return upOK(c,C)});},
-  corners:function(cs){var C=centers(cs);return cs.filter(function(c){return c.s.length===3&&c.p[1]===LIM}).every(function(c){return pieceOK(c,C)});},
-  solved:function(cs){var C=centers(cs);return cs.every(function(c){return pieceOK(c,C)});},
+  cross:function(cs){var C=centers(cs);if(!ctrOK(cs)||C['0,-1,0']!=='w')return false;return cs.filter(function(c){return c.s.length===2&&c.p[1]===-LIM}).every(function(c){return pieceOK(c,C)});},
+  layer1:function(cs){var C=centers(cs);if(!ctrOK(cs)||C['0,-1,0']!=='w')return false;return cs.filter(function(c){return c.p[1]===-LIM}).every(function(c){return pieceOK(c,C)});},
+  layer2:function(cs){var C=centers(cs);if(!ctrOK(cs)||C['0,-1,0']!=='w')return false;return cs.filter(function(c){return c.p[1]<=M2}).every(function(c){return pieceOK(c,C)});},
+  ycross:function(cs){var C=centers(cs);if(!ctrOK(cs)||C['0,1,0']!=='y')return false;return cs.filter(function(c){return c.s.length===2&&c.p[1]===LIM}).every(function(c){return upOK(c,C)});},
+  yface:function(cs){var C=centers(cs);if(!ctrOK(cs)||C['0,1,0']!=='y')return false;return cs.filter(function(c){return c.p[1]===LIM}).every(function(c){return upOK(c,C)});},
+  corners:function(cs){var C=centers(cs);if(!ctrOK(cs)||C['0,1,0']!=='y')return false;return cs.filter(function(c){return c.s.length===3&&c.p[1]===LIM}).every(function(c){return pieceOK(c,C)});},
+  solved:function(cs){var C=centers(cs);if(!ctrOK(cs))return false;return cs.every(function(c){return pieceOK(c,C)});},
   centers:function(cs){return !!rotKeys()[centersKey(cs)];},
   paired:function(cs){return pairedEdges(cs);},
   layer1x2:function(cs){return layer1x2(cs);},
@@ -666,24 +676,57 @@ LESSONS.push({id:'2.1',block:2,title:'El plan por capas',sub:'Siete pasos, siemp
     choiceEx('¿Qué viene justo después de la primera capa (cruz y esquinas blancas)?',shuffle([opt('a','Las aristas de la capa del medio'),opt('b','La cruz amarilla'),opt('c','Las esquinas amarillas'),opt('d','Otra vez la cruz blanca')]),'a','Tras la primera capa se hace la del medio, y la capa de arriba va al final.'),
     choiceEx('¿Qué color dejamos abajo en este método?',shuffle([opt('w','Blanco','w'),opt('y','Amarillo','y'),opt('g','Verde','g'),opt('r','Rojo','r')]),'w','La primera capa es la blanca y va abajo. El amarillo queda arriba.')]});
 
+/* cómo girar el cubo entero, según el dispositivo */
+function HOWROT(L){return 'En el móvil, desliza <b>dos dedos</b>'+({x:' hacia arriba o abajo',y:' hacia los lados',z:' girándolos como un volante'}[L]||'')+'. En el ordenador, <b>clic derecho y arrastra</b>'+(L==='z'?' con Mayús pulsado':'')+', o pulsa la tecla <b>'+L.toUpperCase()+'</b> (con Mayús, al revés).';}
 LESSONS.push({id:'2.2',block:2,title:'Girar el cubo entero',sub:'x, y y z',
   recap:K('x')+', '+K('y')+' y '+K('z')+' giran el cubo entero (como R, U y F). '+K('x2')+' lo voltea y deja el blanco abajo.',
-  learn:'<p>Hasta ahora cada letra giraba una capa. Las letras '+K('x')+', '+K('y')+' y '+K('z')+' giran <b>el cubo entero</b>, sin mezclar nada. Es como cambiar cómo lo sujetas.</p><ul><li>'+K('x')+' gira como '+K('R')+': la cara de delante pasa arriba.</li><li>'+K('y')+' gira como '+K('U')+': el frente se va hacia la izquierda.</li><li>'+K('z')+' gira como '+K('F')+': la parte de arriba se va hacia la derecha.</li></ul><p>Llevan apóstrofo y 2 igual que las demás. '+K('x2')+' voltea el cubo y deja el blanco abajo. Desde ahora R, U, F… son las caras <b>donde está el cubo en ese momento</b>, no un color fijo.</p>',
-  demo:['x2'],demoNote:'x2 voltea el cubo: el blanco pasa abajo.',
-  pad:PALL,tryKind:'moves',tryText:'Prueba x, y y z. Mira que ninguna pieza se mezcla.',
+  learn:'<p>Las letras '+K('x')+', '+K('y')+' y '+K('z')+' giran <b>el cubo entero</b>, sin mezclar nada.</p>',
+  hl:'center',
+  pages:[
+    {t:'<p>Hasta ahora cada letra giraba <b>una capa</b>. Las letras '+K('x')+', '+K('y')+' y '+K('z')+' giran <b>el cubo entero</b>, como si lo cogieras con la mano y lo dieras la vuelta. <b>No mezclan nada</b>: las piezas siguen unidas igual.</p><p>Sirven para cambiar <b>cómo lo sujetas</b>: por ejemplo, para dejar el blanco abajo o para tener a mano la cara que quieres girar.</p>',pre:[],demo:['y'],hl:'center',note:'Fíjate en los centros iluminados: giran todos juntos y no se mezclan.'},
+    {t:'<p>'+K('x')+' gira el cubo <b>como '+K('R')+'</b>: la cara de delante sube y pasa arriba.</p><p>El eje de '+K('x')+' va de izquierda a derecha, como una barra que atravesara el cubo por los lados.</p>',pre:[],demo:['x'],hl:{layer:'R'},note:'x gira en el mismo sentido que R, pero con las tres capas a la vez.'},
+    {t:'<p>'+K('y')+' gira el cubo <b>como '+K('U')+'</b>: el frente se va hacia la izquierda y la cara de la derecha pasa al frente.</p><p>Es como girar una peana: el eje va de arriba abajo.</p>',pre:[],demo:['y'],hl:{layer:'U'},note:'y gira en el mismo sentido que U.'},
+    {t:'<p>'+K('z')+' gira el cubo <b>como '+K('F')+'</b>: la parte de arriba se va hacia la derecha.</p><p>Es como girar un volante: el eje va de delante a atrás.</p>',pre:[],demo:['z'],hl:{layer:'F'},note:'z gira en el mismo sentido que F.'},
+    {t:'<p>Llevan apóstrofo y 2 igual que las demás: '+K("x'")+' gira al revés y '+K('x2')+' da media vuelta.</p><p>'+K('x2')+' es la más usada: <b>voltea el cubo</b> y deja el blanco abajo.</p><p>Desde ahora R, U, F… son las caras <b>donde está el cubo en ese momento</b>, no un color fijo.</p>',pre:[],demo:['x2'],hl:'center',note:'x2 voltea el cubo: el blanco pasa abajo.'},
+    {t:'<p><b>Así se giran en la app:</b></p><ul><li><b>Móvil o tableta:</b> desliza <b>dos dedos</b> sobre el cubo. Hacia arriba o abajo es '+K('x')+'; hacia los lados, '+K('y')+'; girando los dedos como un volante, '+K('z')+'. Con un solo dedo, sobre una pieza, giras solo esa capa.</li><li><b>Ordenador:</b> <b>clic derecho y arrastra</b> (arriba o abajo '+K('x')+', a los lados '+K('y')+'; con <b>Mayús</b>, '+K('z')+'), o pulsa las teclas <b>X</b>, <b>Y</b>, <b>Z</b> (con Mayús, al revés).</li><li>También tienes los botones de la pestaña «Cubo». Si no los ves, actívalos en Ajustes.</li></ul><p>Ahora lo practicas.</p>',pre:[]}],
+  pad:PALL,tryKind:'moves',tryText:'Gira el cubo como quieras. Móvil: dos dedos. Ordenador: clic derecho y arrastra, o las teclas X, Y y Z.',
   exercises:[
-    doEx(['x2'],'Deja el centro blanco abajo con '+K('x2')+'.','Con dos dedos, desliza hacia arriba hasta que el cubo dé media vuelta: eso es x2.'),
+    doEx(['x'],'Haz '+K('x')+': la cara de delante debe subir.',HOWROT('x')),
+    doEx(['y'],'Haz '+K('y')+': el frente se va hacia la izquierda.',HOWROT('y')),
+    doEx(['z'],'Haz '+K('z')+': la parte de arriba se va hacia la derecha.',HOWROT('z')),
+    doEx(['x2'],'Deja el centro blanco abajo con '+K('x2')+'.','Media vuelta hacia arriba. '+HOWROT('x')),
     choiceEx('Mira el giro y elige su notación.',fmtOpts(['x','y','z',"y'"]),'y','El cubo gira como la cara de arriba: el frente se va hacia la izquierda. Eso es y.',['y'],true),
-    doEx(['y',"x'"],'Haz '+K("y x'")+'.',"Pulsa y y luego x'.")]});
+    doEx(['y',"x'"],'Haz '+K("y x'")+'.',"Primero y y luego x' (x al revés). "+HOWROT('x'))]});
+
+/* ---- Capas del medio: M, E y S (bloque 1, tras las secuencias largas) ---- */
+var PMES=['M',"M'",'M2','E',"E'",'E2','S',"S'",'S2'];
+var LESSONS_S1=({id:'S1',disp:'1.12',block:1,title:'Las capas del medio',sub:'M, E y S',
+  recap:K('M')+' gira la capa de en medio entre L y R (como L), '+K('E')+' la de entre U y D (como D) y '+K('S')+' la de entre F y B (como F).',
+  learn:'<p>Cada cara gira su capa exterior, pero el cubo tiene <b>tres capas</b> en cada dirección. La del medio también gira, con las letras '+K('M')+', '+K('E')+' y '+K('S')+'.</p>',
+  hl:{layer:'M'},
+  pages:[
+    {t:'<p>Entre dos caras opuestas hay una <b>capa del medio</b>: la que lleva los centros. También se puede girar, y no mueve las caras exteriores.</p><p>Tiene una letra por cada una de las tres direcciones: '+K('M')+', '+K('E')+' y '+K('S')+'. Se escriben igual que las demás: con apóstrofo para ir al revés y con 2 para media vuelta.</p>',pre:[],demo:['M'],hl:{layer:'M'},note:'Se ilumina la capa del medio entre las caras izquierda y derecha.'},
+    {t:'<p>'+K('M')+' (<b>M</b>iddle) es la capa de en medio entre <b>L</b> y <b>R</b>. Gira en el <b>mismo sentido que '+K('L')+'</b>.</p><p>Con '+K('M')+' la columna central de la cara frontal baja.</p>',pre:[],demo:['M'],hl:{layer:'M'},note:'M sigue a L (no a R).'},
+    {t:'<p>'+K('E')+' (<b>E</b>quator) es la capa de en medio entre <b>U</b> y <b>D</b>. Gira en el <b>mismo sentido que '+K('D')+'</b>: el frente se va hacia la derecha.</p>',pre:[],demo:['E'],hl:{layer:'E'},note:'E sigue a D (no a U).'},
+    {t:'<p>'+K('S')+' (<b>S</b>tanding) es la capa de en medio entre <b>F</b> y <b>B</b>. Gira en el <b>mismo sentido que '+K('F')+'</b>.</p>',pre:[],demo:['S'],hl:{layer:'S'},note:'S sigue a F (no a B).'},
+    {t:'<p>Truco para recordarlas: <b>M sigue a L, E sigue a D y S sigue a F</b>.</p><p>Se usan sobre todo en algoritmos de los métodos avanzados. Para girarlas tú: arrastra un <b>centro</b> (la pieza del medio de una cara) y gira su capa. También están en la pestaña «Capa media» de los botones.</p>',pre:[],demo:["M'",'E',"S'"],hl:'center'}],
+  pad:P18.concat(PMES),tryKind:'moves',tryText:'Prueba M, E y S. Arrastra un centro o usa la pestaña «Capa media».',
+  exercises:[
+    doEx(['M'],'Haz '+K('M')+'.','Gira la capa del medio entre L y R como L. Arrastra el centro de la cara frontal hacia abajo, o pulsa M en la pestaña «Capa media».'),
+    doEx(['E'],'Haz '+K('E')+'.','Gira la capa del medio entre U y D como D: el frente se va hacia la derecha. Arrastra el centro frontal hacia la derecha, o pulsa E.'),
+    doEx(["S'"],'Haz '+K("S'")+'.',"Es S al revés: gira la capa entre F y B en sentido contrario a las agujas del reloj. Pulsa S' en la pestaña «Capa media»."),
+    choiceEx('Mira el giro y elige su notación.',fmtOpts(['M','E','S',"E'"]),'E','Se mueve la capa de en medio entre arriba y abajo, hacia la derecha: es E.',['E'],true),
+    choiceEx('¿Qué capa gira <b>S</b>?',shuffle([opt('a','La de en medio entre F y B'),opt('b','La de en medio entre L y R'),opt('c','La de en medio entre U y D'),opt('d','La cara de atrás')]),'a','S es la capa de en medio entre la cara frontal (F) y la trasera (B).'),
+    doEx(['M','E',"S'"],'Haz '+K("M E S'")+'.',"Las tres capas del medio, una tras otra: M, E y S'.")]});
 
 /* ---- Bloque 2 paso a paso: la flor y la cruz blanca ---- */
 function FLO(sol){return FLOWER.concat(invert(sol));}   /* flor con una arista fuera de sitio; «sol» la devuelve a su sitio */
 /* una página por movimiento: cada una parte del cubo tal como queda tras los movimientos anteriores */
 function stepPages(sol,texts,from){
   from=from||0;
-  return sol.slice(from).map(function(m,i){var k=i+from;return {t:texts[i],pre:FLO(sol).concat(sol.slice(0,k)),demo:[m],hl:'wbad'};});}
+  return sol.slice(from).map(function(m,i){var k=i+from;return {t:texts[i],pre:FLO(sol).concat(sol.slice(0,k)),demo:[m],hl:'g:flower'};});}
 function isWbad(p){var c=state[p.ci];return c.s.length===2&&c.s.some(function(s){return s.c==='w'})&&!(c.p[1]===1&&c.s.some(function(s){return s.c==='w'&&s.n[1]===1}));}
-function wbadTap(q,hint,pre){var e=tapEx(q,isWbad,hint);e.pre=pre;e.hl='wbad';return e;}
+function wbadTap(q,hint,pre){var e=tapEx(q,isWbad,hint);e.pre=pre;e.hl={edge:'w',center:'y'};return e;}
 function withPre(e,pre,hl){e.pre=pre;if(hl)e.hl=hl;return e;}
 var S_BD=['F2'],S_OC=['U','R2'],S_BS=P("R F' R'"),S_BS2=P("L B' L'"),S_BS3=P("R' B R"),S_MD=['R'],S_MD2=["F'"],S_MD3=['U','R'],S_TS=P("R' U F'"),S_TS2=P("L U' F");
 var CASES4=[
@@ -691,7 +734,7 @@ var CASES4=[
   {v:'b',label:'Abajo, con el blanco de lado'},
   {v:'c',label:'En la capa del medio'},
   {v:'d',label:'Arriba, con el blanco de lado'}];
-function caseEx(ans,sol,hint){return withPre(choiceEx('¿En cuál de las cuatro situaciones está la arista blanca que falta?',shuffle(CASES4.map(function(c){return opt(c.v,c.label);})),ans,hint),FLO(sol),'wbad');}
+function caseEx(ans,sol,hint){return withPre(choiceEx('¿En cuál de las cuatro situaciones está la arista blanca que falta?',shuffle(CASES4.map(function(c){return opt(c.v,c.label);})),ans,hint),FLO(sol),'g:flower');}
 
 LESSONS.push({id:'F1',block:2,title:'¿Qué es la flor?',sub:'Cuatro pétalos blancos alrededor del amarillo',
   recap:'La <b>flor</b> es el paso previo a la cruz blanca: el centro amarillo con las 4 aristas blancas alrededor, con el blanco mirando <b>hacia arriba</b>.',
@@ -701,92 +744,92 @@ LESSONS.push({id:'F1',block:2,title:'¿Qué es la flor?',sub:'Cuatro pétalos bl
     {t:'<p>Para hacer la <b>cruz blanca</b> primero se forma una <b>flor</b>, y después se baja. Vamos por partes.</p><p>Así se ve una flor terminada: el <b>centro amarillo</b> en medio y, a su alrededor, <b>cuatro pétalos</b>.</p>',pre:FLOWER,hl:{edge:'w',center:'y'},note:'Con «Resaltar en el cubo» se iluminan el centro amarillo y los cuatro pétalos blancos.'},
     {t:'<p>Cada <b>pétalo</b> es una <b>arista</b> (una pieza de dos colores) que lleva blanco. El otro color queda en el lado.</p><p>Lo importante: el <b>blanco</b> de cada pétalo mira <b>hacia arriba</b>, hacia el amarillo. No importa qué color tengan al lado.</p>',pre:FLOWER,hl:{edge:'w',center:'y'}},
     {t:'<p>Trabajamos con el <b>amarillo arriba</b> y el <b>blanco abajo</b> (lo hiciste con <b>x2</b>). La flor se forma en la capa de arriba, alrededor del centro amarillo.</p><p>Los centros no se mueven nunca, así que el centro amarillo es tu guía.</p>',pre:FLOWER,hl:'center'},
-    {t:'<p>Al empezar, las aristas blancas pueden estar en <b>cuatro situaciones</b>:</p><ul><li>Abajo, con el blanco <b>hacia abajo</b>.</li><li>Abajo, con el blanco <b>de lado</b>.</li><li>En la <b>capa del medio</b>.</li><li>Arriba, pero con el blanco <b>de lado</b>.</li></ul><p>Cada situación tiene su movimiento. Las vemos una por una en las próximas lecciones.</p>',pre:FLO(S_BS),hl:'wbad',note:'Aquí hay una arista blanca fuera de sitio: la que está abajo a la derecha.'}],
+    {t:'<p>Al empezar, las aristas blancas pueden estar en <b>cuatro situaciones</b>:</p><ul><li>Abajo, con el blanco <b>hacia abajo</b>.</li><li>Abajo, con el blanco <b>de lado</b>.</li><li>En la <b>capa del medio</b>.</li><li>Arriba, pero con el blanco <b>de lado</b>.</li></ul><p>Cada situación tiene su movimiento. Las vemos una por una en las próximas lecciones.</p>',pre:FLO(S_BS),hl:'g:flower',note:'Aquí hay una arista blanca fuera de sitio: la que está abajo a la derecha.'}],
   tryKind:'tap',tryText:'Toca el centro amarillo y después uno de los pétalos.',
   exercises:[
     withPre(tapCenter('y'),FLOWER),
     withPre(tapEx('Toca <b>un pétalo</b>: una arista con blanco.',function(p){return p.type===2&&p.cols.indexOf('w')>=0},'Un pétalo es una pieza de dos colores: uno de ellos es el blanco.'),FLOWER),
     withPre(choiceEx('¿Hacia dónde mira el blanco de un pétalo en la flor?',shuffle([opt('a','Hacia arriba'),opt('b','Hacia los lados'),opt('c','Hacia abajo'),opt('d','Hacia dentro')]),'a','En la flor todos los blancos miran hacia arriba, a la cara del centro amarillo.'),FLOWER),
-    withPre(choiceEx('A este cubo le falta un pétalo. ¿Qué hay que hacer?',shuffle([opt('a','Subir la arista blanca que está abajo'),opt('b','Cambiar el centro amarillo'),opt('c','Girar todo el cubo con y'),opt('d','Nada: ya está la flor')]),'a','Hay una arista blanca fuera de la flor, abajo. Hay que subirla.'),FLO(S_BD),'wbad')]});
+    withPre(choiceEx('A este cubo le falta un pétalo. ¿Qué hay que hacer?',shuffle([opt('a','Subir la arista blanca que está abajo'),opt('b','Cambiar el centro amarillo'),opt('c','Girar todo el cubo con y'),opt('d','Nada: ya está la flor')]),'a','Hay una arista blanca fuera de la flor, abajo. Hay que subirla.'),FLO(S_BD),'g:flower')]});
 
 LESSONS.push({id:'2.3',block:2,title:'La flor: arista abajo',sub:'El blanco mira hacia abajo: media vuelta',
   recap:'Una arista blanca de abajo con el blanco hacia <b>abajo</b> sube con una media vuelta de su cara ('+K('F2')+', '+K('R2')+', '+K('B2')+' o '+K('L2')+'). Si el hueco de arriba está ocupado, aparta antes con '+K('U')+'.',
   learn:'<p>Una arista blanca de la capa de abajo, con el blanco hacia abajo, sube con una <b>media vuelta</b> de la cara donde está: '+K('F2')+', '+K('R2')+', '+K('B2')+' o '+K('L2')+'.</p><p>Si el hueco de arriba ya tiene un pétalo, gira '+K('U')+' antes para apartarlo.</p>',
-  hl:'wbad',pre:FLO(S_BD),demo:S_BD,demoNote:'Media vuelta de la cara donde está: la arista sube con el blanco hacia arriba.',
+  hl:'g:flower',pre:FLO(S_BD),demo:S_BD,demoNote:'Media vuelta de la cara donde está: la arista sube con el blanco hacia arriba.',
   pages:[
-    {t:'<p>Busca una arista blanca en la <b>capa de abajo</b>. Esta es una: está abajo y su <b>blanco mira hacia abajo</b>.</p><p>La otra cara de la arista es azul, hacia el frente.</p>',pre:FLO(S_BD),hl:'wbad',view:[0.62,-0.75],note:'Estamos mirando el cubo desde abajo para ver el blanco. La arista iluminada es la que falta para completar la flor.'},
-    {t:'<p>Mira <b>justo encima</b> de ella: el hueco de arriba está <b>libre</b> (no hay ningún pétalo). Entonces puede subir directamente.</p>',pre:FLO(S_BD),hl:'wbad'},
-    {t:'<p>Se sube con una <b>media vuelta de la cara donde está la arista</b>: aquí la cara frontal, '+K('F2')+'.</p><p>El blanco queda mirando arriba: ¡un pétalo más!</p>',pre:FLO(S_BD),demo:S_BD,hl:'wbad'},
-    {t:'<p>¿Y si el hueco de arriba <b>ya tiene un pétalo</b>? Aquí la arista roja está abajo a la derecha, pero encima hay otro pétalo. Si das media vuelta, estropeas ese pétalo.</p><p>Primero <b>aparta</b> la flor con '+K('U')+' hasta que encima quede un hueco libre.</p>',pre:FLO(S_OC),demo:['U'],hl:'wbad'},
-    {t:'<p>Ahora el hueco de arriba está libre. Media vuelta de la cara derecha, '+K('R2')+', y la arista sube.</p>',pre:FLO(S_OC).concat(['U']),demo:['R2'],hl:'wbad'}],
+    {t:'<p>Busca una arista blanca en la <b>capa de abajo</b>. Esta es una: está abajo y su <b>blanco mira hacia abajo</b>.</p><p>La otra cara de la arista es azul, hacia el frente.</p>',pre:FLO(S_BD),hl:'g:flower',view:[0.62,-0.75],note:'Estamos mirando el cubo desde abajo para ver el blanco. La arista iluminada es la que falta para completar la flor.'},
+    {t:'<p>Mira <b>justo encima</b> de ella: el hueco de arriba está <b>libre</b> (no hay ningún pétalo). Entonces puede subir directamente.</p>',pre:FLO(S_BD),hl:'g:flower'},
+    {t:'<p>Se sube con una <b>media vuelta de la cara donde está la arista</b>: aquí la cara frontal, '+K('F2')+'.</p><p>El blanco queda mirando arriba: ¡un pétalo más!</p>',pre:FLO(S_BD),demo:S_BD,hl:'g:flower'},
+    {t:'<p>¿Y si el hueco de arriba <b>ya tiene un pétalo</b>? Aquí la arista roja está abajo a la derecha, pero encima hay otro pétalo. Si das media vuelta, estropeas ese pétalo.</p><p>Primero <b>aparta</b> la flor con '+K('U')+' hasta que encima quede un hueco libre.</p>',pre:FLO(S_OC),demo:['U'],hl:'g:flower'},
+    {t:'<p>Ahora el hueco de arriba está libre. Media vuelta de la cara derecha, '+K('R2')+', y la arista sube.</p>',pre:FLO(S_OC).concat(['U']),demo:['R2'],hl:'g:flower'}],
   pad:PALL,tryKind:'moves',tryText:'Haz subir la arista blanca que está abajo.',
   exercises:[
     wbadTap('Toca la arista blanca que falta por subir.','Es la que está en la capa de abajo, con el blanco mirando hacia abajo.',FLO(S_BD)),
-    solveEx({q:'Completa la flor: sube la arista blanca que está abajo.',pre:FLOWER,sol:S_BD,goal:'flower',hint:'Sube con media vuelta de la cara donde está la arista.',hl:'wbad'}),
-    solveEx({q:'Completa la flor. Ojo: el hueco de arriba está ocupado.',pre:FLOWER,sol:S_OC,goal:'flower',hint:'Gira U hasta que encima de la arista quede un hueco libre y entonces media vuelta.',hl:'wbad'}),
-    solveEx({q:'Completa la flor: hay dos aristas blancas abajo.',pre:FLOWER,sol:['L2','B2'],goal:'flower',hint:'Cada arista de abajo sube con la media vuelta de su cara.',hl:'wbad'})]});
+    solveEx({q:'Completa la flor: sube la arista blanca que está abajo.',pre:FLOWER,sol:S_BD,goal:'flower',hint:'Sube con media vuelta de la cara donde está la arista.',hl:'g:flower'}),
+    solveEx({q:'Completa la flor. Ojo: el hueco de arriba está ocupado.',pre:FLOWER,sol:S_OC,goal:'flower',hint:'Gira U hasta que encima de la arista quede un hueco libre y entonces media vuelta.',hl:'g:flower'}),
+    solveEx({q:'Completa la flor: hay dos aristas blancas abajo.',pre:FLOWER,sol:['L2','B2'],goal:'flower',hint:'Cada arista de abajo sube con la media vuelta de su cara.',hl:'g:flower'})]});
 
 LESSONS.push({id:'F2',block:2,title:'La flor: arista abajo de lado',sub:'El blanco mira a un lado: súbela en tres pasos',
   recap:'Si el blanco de una arista de abajo mira a un <b>lado</b>, primero se sube a la capa del medio con un cuarto de vuelta, después se sube a la flor y por último se deshace el primer giro: '+K("R F' R'")+'.',
   learn:'<p>Si la arista está abajo pero con el blanco mirando a un lado, súbela primero a la capa del medio, luego a la flor, y deshaz el primer giro.</p>',
-  hl:'wbad',pre:FLO(S_BS),demo:S_BS,demoNote:'Tres movimientos: subir al medio, subir a la flor y deshacer el primero.',
-  pages:[{t:'<p>A veces la arista blanca está abajo, pero con el <b>blanco mirando a un lado</b> y no hacia abajo.</p><p>Aquí: la arista blanca y azul está abajo a la derecha, con el blanco mirando a la <b>derecha</b>. Una media vuelta no sirve: el blanco acabaría de lado.</p>',pre:FLO(S_BS),hl:'wbad',note:'Se arregla en tres movimientos. Vamos uno a uno.'}].concat(stepPages(S_BS,[
+  hl:'g:flower',pre:FLO(S_BS),demo:S_BS,demoNote:'Tres movimientos: subir al medio, subir a la flor y deshacer el primero.',
+  pages:[{t:'<p>A veces la arista blanca está abajo, pero con el <b>blanco mirando a un lado</b> y no hacia abajo.</p><p>Aquí: la arista blanca y azul está abajo a la derecha, con el blanco mirando a la <b>derecha</b>. Una media vuelta no sirve: el blanco acabaría de lado.</p>',pre:FLO(S_BS),hl:'g:flower',note:'Se arregla en tres movimientos. Vamos uno a uno.'}].concat(stepPages(S_BS,[
     '<p><b>Paso 1.</b> Súbela a la <b>capa del medio</b> con un cuarto de vuelta de la cara donde está el blanco: '+K('R')+'. El blanco sigue mirando a la derecha.</p><p>Ojo: '+K('R')+' también mueve otras aristas de esa cara. Lo arreglamos al final.</p>',
     '<p><b>Paso 2.</b> Ahora es una arista de la <b>capa del medio</b>, como en la lección anterior. Gira la cara <b>del otro color</b> (el azul, el frente) hacia arriba: '+K("F'")+'. El blanco queda mirando arriba.</p>',
     '<p><b>Paso 3.</b> Deshaz el primer giro con '+K("R'")+' para devolver a su sitio lo que se había movido. ¡Flor completa!</p>'])),
   pad:PALL,tryKind:'moves',tryText:'Prueba los tres pasos: R, F\' y R\'.',
   exercises:[
-    solveEx({q:'Completa la flor: la arista de abajo tiene el blanco mirando a la derecha.',pre:FLOWER,sol:S_BS,goal:'flower',hint:'Primero R para subirla al medio, después F\' para llevarla arriba y por último R\' para deshacer.',hl:'wbad'}),
-    withPre(choiceEx('Una arista blanca está abajo con el blanco hacia un lado. ¿Qué haces primero?',shuffle([opt('a','La subo a la capa del medio con un cuarto de vuelta'),opt('b','Le doy media vuelta a su cara'),opt('c','Giro D hasta que mire arriba'),opt('d','Giro todo el cubo con z')]),'a','Con media vuelta el blanco acabaría de lado. Hay que subirla antes al medio.'),FLO(S_BS),'wbad'),
-    solveEx({q:'Completa la flor: esta vez la arista está abajo a la izquierda.',pre:FLOWER,sol:S_BS2,goal:'flower',hint:'Es el mismo truco al otro lado: L, B\' y L\'.',hl:'wbad'}),
-    solveEx({q:'Completa la flor: otra arista con el blanco de lado.',pre:FLOWER,sol:S_BS3,goal:'flower',hint:'Primero R\' para subirla al medio, luego B y R.',hl:'wbad'})]});
+    solveEx({q:'Completa la flor: la arista de abajo tiene el blanco mirando a la derecha.',pre:FLOWER,sol:S_BS,goal:'flower',hint:'Primero R para subirla al medio, después F\' para llevarla arriba y por último R\' para deshacer.',hl:'g:flower'}),
+    withPre(choiceEx('Una arista blanca está abajo con el blanco hacia un lado. ¿Qué haces primero?',shuffle([opt('a','La subo a la capa del medio con un cuarto de vuelta'),opt('b','Le doy media vuelta a su cara'),opt('c','Giro D hasta que mire arriba'),opt('d','Giro todo el cubo con z')]),'a','Con media vuelta el blanco acabaría de lado. Hay que subirla antes al medio.'),FLO(S_BS),'g:flower'),
+    solveEx({q:'Completa la flor: esta vez la arista está abajo a la izquierda.',pre:FLOWER,sol:S_BS2,goal:'flower',hint:'Es el mismo truco al otro lado: L, B\' y L\'.',hl:'g:flower'}),
+    solveEx({q:'Completa la flor: otra arista con el blanco de lado.',pre:FLOWER,sol:S_BS3,goal:'flower',hint:'Primero R\' para subirla al medio, luego B y R.',hl:'g:flower'})]});
 
 LESSONS.push({id:'2.4',block:2,title:'La flor: arista del medio',sub:'Gira la cara del otro color hacia arriba',
   recap:'Una arista blanca de la <b>capa del medio</b> se sube girando la cara <b>del otro color</b> (no la del blanco) hacia arriba. Si tropieza con un pétalo, aparta antes con '+K('U')+'.',
   learn:'<p>Si la arista blanca está en la <b>capa del medio</b>, gira la cara <b>del otro color</b> en el sentido que la sube. El blanco queda mirando arriba.</p>',
-  hl:'wbad',pre:FLO(S_MD),demo:S_MD,demoNote:'R gira la cara roja y sube la arista: el blanco queda arriba.',
+  hl:'g:flower',pre:FLO(S_MD),demo:S_MD,demoNote:'R gira la cara roja y sube la arista: el blanco queda arriba.',
   pages:[
-    {t:'<p>Ahora la arista blanca está en la <b>capa del medio</b>: ni arriba ni abajo, entre dos caras.</p><p>Aquí, el <b>blanco mira al frente</b> y el otro color (rojo) está a la <b>derecha</b>.</p>',pre:FLO(S_MD),hl:'wbad'},
-    {t:'<p><b>Regla:</b> gira la cara donde está el <b>otro color</b> (la roja, la de la derecha) en el sentido que sube la arista: '+K('R')+'.</p><p>El blanco, que miraba al frente, acaba mirando <b>arriba</b>.</p>',pre:FLO(S_MD),demo:S_MD,hl:'wbad'},
-    {t:'<p>Otro caso: ahora el <b>blanco mira a la derecha</b> y el otro color (azul) está al <b>frente</b>. La misma regla: gira la cara del otro color, la frontal, hacia el lado que sube la arista: '+K("F'")+'.</p><p>Fíjate en el apóstrofo: gira hacia el otro lado que '+K('F')+'.</p>',pre:FLO(S_MD2),demo:S_MD2,hl:'wbad'},
-    {t:'<p>¿Y si al subirla tropiezas con un <b>pétalo</b> que ya estaba en la flor? Aquí la arista es la misma de antes (blanco al frente, rojo a la derecha), pero arriba, en el hueco de la derecha, hay otro pétalo.</p><p>Si giras ya la cara roja, lo estropeas. Primero <b>aparta</b> la flor con '+K('U')+' hasta que el hueco de arriba quede libre.</p>',pre:FLO(S_MD3),demo:['U'],hl:'wbad'},
-    {t:'<p>Con el hueco libre, gira la cara del otro color (la derecha) hacia arriba: '+K('R')+'. ¡Un pétalo más!</p>',pre:FLO(S_MD3).concat(['U']),demo:['R'],hl:'wbad'}],
+    {t:'<p>Ahora la arista blanca está en la <b>capa del medio</b>: ni arriba ni abajo, entre dos caras.</p><p>Aquí, el <b>blanco mira al frente</b> y el otro color (rojo) está a la <b>derecha</b>.</p>',pre:FLO(S_MD),hl:'g:flower'},
+    {t:'<p><b>Regla:</b> gira la cara donde está el <b>otro color</b> (la roja, la de la derecha) en el sentido que sube la arista: '+K('R')+'.</p><p>El blanco, que miraba al frente, acaba mirando <b>arriba</b>.</p>',pre:FLO(S_MD),demo:S_MD,hl:'g:flower'},
+    {t:'<p>Otro caso: ahora el <b>blanco mira a la derecha</b> y el otro color (azul) está al <b>frente</b>. La misma regla: gira la cara del otro color, la frontal, hacia el lado que sube la arista: '+K("F'")+'.</p><p>Fíjate en el apóstrofo: gira hacia el otro lado que '+K('F')+'.</p>',pre:FLO(S_MD2),demo:S_MD2,hl:'g:flower'},
+    {t:'<p>¿Y si al subirla tropiezas con un <b>pétalo</b> que ya estaba en la flor? Aquí la arista es la misma de antes (blanco al frente, rojo a la derecha), pero arriba, en el hueco de la derecha, hay otro pétalo.</p><p>Si giras ya la cara roja, lo estropeas. Primero <b>aparta</b> la flor con '+K('U')+' hasta que el hueco de arriba quede libre.</p>',pre:FLO(S_MD3),demo:['U'],hl:'g:flower'},
+    {t:'<p>Con el hueco libre, gira la cara del otro color (la derecha) hacia arriba: '+K('R')+'. ¡Un pétalo más!</p>',pre:FLO(S_MD3).concat(['U']),demo:['R'],hl:'g:flower'}],
   pad:PALL,tryKind:'moves',tryText:'Sube la arista blanca de la capa del medio.',
   exercises:[
     wbadTap('Toca la arista blanca que falta por subir.','Está en la capa del medio, entre dos caras, con el blanco mirando a un lado.',FLO(S_MD)),
-    solveEx({q:'Completa la flor: la arista blanca está en la capa del medio.',pre:FLOWER,sol:S_MD,goal:'flower',hint:'Gira la cara del otro color (la derecha) hacia arriba.',hl:'wbad'}),
-    solveEx({q:'Completa la flor: otra arista del medio, con el blanco a la derecha.',pre:FLOWER,sol:S_MD2,goal:'flower',hint:'Gira la cara del otro color (la frontal) hacia el otro lado: F\'.',hl:'wbad'}),
-    solveEx({q:'Completa la flor: al subirla tropezarías con un pétalo.',pre:FLOWER,sol:S_MD3,goal:'flower',hint:'Aparta la flor con U hasta que quede libre el hueco de arriba y sube la arista con R.',hl:'wbad'})]});
+    solveEx({q:'Completa la flor: la arista blanca está en la capa del medio.',pre:FLOWER,sol:S_MD,goal:'flower',hint:'Gira la cara del otro color (la derecha) hacia arriba.',hl:'g:flower'}),
+    solveEx({q:'Completa la flor: otra arista del medio, con el blanco a la derecha.',pre:FLOWER,sol:S_MD2,goal:'flower',hint:'Gira la cara del otro color (la frontal) hacia el otro lado: F\'.',hl:'g:flower'}),
+    solveEx({q:'Completa la flor: al subirla tropezarías con un pétalo.',pre:FLOWER,sol:S_MD3,goal:'flower',hint:'Aparta la flor con U hasta que quede libre el hueco de arriba y sube la arista con R.',hl:'g:flower'})]});
 
 LESSONS.push({id:'F3',block:2,title:'La flor: arista arriba de lado',sub:'Está en la flor, pero con el blanco de lado',
   recap:'Una arista blanca en la capa de arriba con el blanco de lado <b>no está bien colocada</b>: se baja a la capa del medio, se aparta la flor con '+K('U')+' y se sube con el blanco arriba.',
   learn:'<p>Una arista blanca arriba pero con el blanco mirando a un lado hay que sacarla y volver a meterla bien: bájala al medio, aparta con U y súbela.</p>',
-  hl:'wbad',pre:FLO(S_TS),demo:S_TS,demoNote:'Se baja al medio, se aparta la flor con U y se sube con el blanco arriba.',
-  pages:[{t:'<p>Último caso: la arista blanca ya está en la capa de <b>arriba</b>, pero con el <b>blanco mirando a un lado</b>.</p><p>Aquí está arriba a la derecha y el blanco mira a la derecha. <b>No cuenta como pétalo</b>: el blanco tiene que mirar arriba.</p>',pre:FLO(S_TS),hl:'wbad',note:'Hay que sacarla y volver a meterla bien: tres movimientos.'}].concat(stepPages(S_TS,[
+  hl:'g:flower',pre:FLO(S_TS),demo:S_TS,demoNote:'Se baja al medio, se aparta la flor con U y se sube con el blanco arriba.',
+  pages:[{t:'<p>Último caso: la arista blanca ya está en la capa de <b>arriba</b>, pero con el <b>blanco mirando a un lado</b>.</p><p>Aquí está arriba a la derecha y el blanco mira a la derecha. <b>No cuenta como pétalo</b>: el blanco tiene que mirar arriba.</p>',pre:FLO(S_TS),hl:'g:flower',note:'Hay que sacarla y volver a meterla bien: tres movimientos.'}].concat(stepPages(S_TS,[
     '<p><b>Paso 1.</b> Bájala a la <b>capa del medio</b> con '+K("R'")+'. El blanco sigue mirando a la derecha.</p>',
     '<p><b>Paso 2.</b> Aparta la flor con '+K('U')+' para que el hueco de arriba, justo sobre la arista, quede <b>libre</b>.</p>',
     '<p><b>Paso 3.</b> Ahora es una arista del medio. Gira la cara del otro color (la frontal) hacia arriba: '+K("F'")+'. El blanco queda mirando arriba.</p>'])),
   pad:PALL,tryKind:'moves',tryText:'Prueba los tres pasos: R\', U y F\'.',
   exercises:[
-    solveEx({q:'Completa la flor: la arista de arriba a la derecha tiene el blanco de lado.',pre:FLOWER,sol:S_TS,goal:'flower',hint:'Bájala con R\', aparta con U y súbela con F\'.',hl:'wbad'}),
-    withPre(choiceEx('Una arista blanca está arriba, pero con el blanco mirando a un lado. ¿Está bien colocada en la flor?',shuffle([opt('a','No: hay que sacarla y volver a meterla'),opt('b','Sí: está en la capa de arriba'),opt('c','Sí, si el otro color coincide con su centro'),opt('d','Se arregla con x2')]),'a','En la flor el blanco tiene que mirar hacia arriba. Si mira a un lado, hay que recolocarla.'),FLO(S_TS),'wbad'),
-    solveEx({q:'Completa la flor: otra arista de arriba con el blanco de lado.',pre:FLOWER,sol:S_TS2,goal:'flower',hint:'Bájala a la capa del medio, aparta con U y súbela con la cara del otro color.',hl:'wbad'})]});
+    solveEx({q:'Completa la flor: la arista de arriba a la derecha tiene el blanco de lado.',pre:FLOWER,sol:S_TS,goal:'flower',hint:'Bájala con R\', aparta con U y súbela con F\'.',hl:'g:flower'}),
+    withPre(choiceEx('Una arista blanca está arriba, pero con el blanco mirando a un lado. ¿Está bien colocada en la flor?',shuffle([opt('a','No: hay que sacarla y volver a meterla'),opt('b','Sí: está en la capa de arriba'),opt('c','Sí, si el otro color coincide con su centro'),opt('d','Se arregla con x2')]),'a','En la flor el blanco tiene que mirar hacia arriba. Si mira a un lado, hay que recolocarla.'),FLO(S_TS),'g:flower'),
+    solveEx({q:'Completa la flor: otra arista de arriba con el blanco de lado.',pre:FLOWER,sol:S_TS2,goal:'flower',hint:'Bájala a la capa del medio, aparta con U y súbela con la cara del otro color.',hl:'g:flower'})]});
 
 LESSONS.push({id:'F4',block:2,title:'La flor: reconocer el caso',sub:'Cuatro situaciones, cuatro movimientos',
   recap:'Antes de mover, <b>mira dónde está la arista blanca</b> y cómo mira el blanco: abajo con el blanco abajo (media vuelta), abajo de lado (tres pasos), en el medio (cuarto de vuelta) o arriba de lado (tres pasos).',
   learn:'<p>Antes de mover, mira dónde está la arista blanca y cómo mira el blanco.</p>',
-  hl:'wbad',pre:FLO(S_BS),
+  hl:'g:flower',pre:FLO(S_BS),
   pages:[
-    {t:'<p>Resumen de las <b>cuatro situaciones</b> de una arista blanca que falta en la flor:</p><ol class="plan"><li><b>Abajo, blanco hacia abajo:</b> media vuelta de su cara.</li><li><b>Abajo, blanco de lado:</b> súbela al medio, luego a la flor y deshaz el primer giro.</li><li><b>En la capa del medio:</b> gira la cara del otro color hacia arriba.</li><li><b>Arriba, blanco de lado:</b> bájala al medio, aparta con U y súbela.</li></ol>',pre:FLO(S_BS),hl:'wbad'},
-    {t:'<p><b>Antes de subir cualquier arista</b>, mira el hueco que tiene encima. Si ya hay un pétalo, <b>aparta con U</b> hasta dejarlo libre. Así no estropeas lo que ya tienes.</p><p>Se repite hasta tener los cuatro pétalos arriba. Si ya tienes los cuatro, la flor está hecha.</p>',pre:FLO(S_OC),hl:'wbad'}],
+    {t:'<p>Resumen de las <b>cuatro situaciones</b> de una arista blanca que falta en la flor:</p><ol class="plan"><li><b>Abajo, blanco hacia abajo:</b> media vuelta de su cara.</li><li><b>Abajo, blanco de lado:</b> súbela al medio, luego a la flor y deshaz el primer giro.</li><li><b>En la capa del medio:</b> gira la cara del otro color hacia arriba.</li><li><b>Arriba, blanco de lado:</b> bájala al medio, aparta con U y súbela.</li></ol>',pre:FLO(S_BS),hl:'g:flower'},
+    {t:'<p><b>Antes de subir cualquier arista</b>, mira el hueco que tiene encima. Si ya hay un pétalo, <b>aparta con U</b> hasta dejarlo libre. Así no estropeas lo que ya tienes.</p><p>Se repite hasta tener los cuatro pétalos arriba. Si ya tienes los cuatro, la flor está hecha.</p>',pre:FLO(S_OC),hl:'g:flower'}],
   tryKind:'tap',tryText:'Toca la arista blanca que falta en la flor.',
   exercises:[
     caseEx('a',S_BD,'Está abajo y el blanco mira hacia abajo.'),
     caseEx('b',S_BS,'Está en la capa de abajo, pero el blanco mira a la derecha: de lado.'),
     caseEx('c',S_MD,'Está entre dos caras, en la capa del medio.'),
     caseEx('d',S_TS,'Está arriba, pero el blanco mira a la derecha y no hacia arriba.'),
-    solveEx({q:'Completa la flor: hay una arista abajo y otra en la capa del medio.',pre:FLOWER,sol:['R','F2'],goal:'flower',hint:'Sube cada arista según su situación: cuarto de vuelta la del medio, media vuelta la de abajo.',hl:'wbad'}),
-    solveEx({q:'Completa la flor: una arista del medio, con un pétalo en el camino, y otra abajo.',pre:FLOWER,sol:['U',"F'",'L2'],goal:'flower',hint:'Aparta con U, sube la del medio y sube la de abajo con media vuelta.',hl:'wbad'})]});
+    solveEx({q:'Completa la flor: hay una arista abajo y otra en la capa del medio.',pre:FLOWER,sol:['R','F2'],goal:'flower',hint:'Sube cada arista según su situación: cuarto de vuelta la del medio, media vuelta la de abajo.',hl:'g:flower'}),
+    solveEx({q:'Completa la flor: una arista del medio, con un pétalo en el camino, y otra abajo.',pre:FLOWER,sol:['U',"F'",'L2'],goal:'flower',hint:'Aparta con U, sube la del medio y sube la de abajo con media vuelta.',hl:'g:flower'})]});
 
 LESSONS.push({id:'2.5',block:2,title:'La cruz blanca',sub:'Alinear cada pétalo y bajarlo',
   recap:'Con la flor hecha, <b>gira U</b> hasta que el color lateral de un pétalo coincida con su centro y bájalo con media vuelta. Así sale la cruz blanca.',
@@ -1145,6 +1188,7 @@ Object.keys(EXTRA).forEach(function(id){
   var l=NEWL.filter(function(n){return n.l.id===id})[0].l;
   l.exam=true;l.exercises.forEach(function(e){e.nohint=true;});});
 NEWL.forEach(function(n){var i=LESSONS.findIndex(function(x){return x.id===n.after});LESSONS.splice(i+1,0,n.l);});
+LESSONS.splice(LESSONS.findIndex(function(x){return x.id==='1.11'})+1,0,LESSONS_S1);
 
 /* ---- Mini-exámenes intermedios (a mitad de bloques largos) ---- */
 function exam(id,after,block,title,sub,recap,pad,pre,exs){
@@ -1764,8 +1808,8 @@ LESSONS.push({id:'V7',block:18,title:'OLL: H, Pi y U',sub:'Casos con dos esquina
     ta('Orienta las esquinas: caso Pi.',PIOLL,'yface','Aplica el atajo de la Pi.','ycross'),
     ta('Orienta las esquinas: caso U.',UOLL,'yface','Aplica el atajo de la U.','ycross')]});
 LESSONS.push({id:'V8',block:18,title:'OLL: T y L',sub:'Los últimos casos',
-  recap:'Los dos últimos casos: T '+K("Rw U R' U' Rw' F R F'")+' y L '+K("F R' F' Rw U R U' Rw'")+' (con Rw, dos capas a la vez).',
-  learn:'<p>Quedan dos casos más:</p><ul><li><b>T</b>: '+K("Rw U R' U' Rw' F R F'")+'</li><li><b>L</b>: '+K("F R' F' Rw U R U' Rw'")+'</li></ul><p>Llevan '+K('Rw')+' (las dos capas de la derecha a la vez), que ya conoces del 4×4.</p>',
+  recap:'Los dos últimos casos: T '+K("Rw U R' U' Rw' F R F'")+' y L '+K("F R' F' Rw U R U' Rw'")+' (con Rw: las dos capas de la derecha a la vez, como R y M\' juntas).',
+  learn:'<p>Quedan dos casos más:</p><ul><li><b>T</b>: '+K("Rw U R' U' Rw' F R F'")+'</li><li><b>L</b>: '+K("F R' F' Rw U R U' Rw'")+'</li></ul><p>Llevan '+K('Rw')+': las <b>dos capas de la derecha a la vez</b> (la exterior y la del medio), como hacer '+K('R')+' y '+K("M'")+' juntas.</p>',
   pre:X2.concat(invert(TOLL)),demo:TOLL,demoNote:'Un caso T.',
   pad:PAD_ADV,tryKind:'moves',tryText:'Prueba el caso T.',
   exercises:[
@@ -1845,6 +1889,470 @@ var PRACTA=[
   q:'Cubo mezclado al azar: resuélvelo entero.',hint:'Cruz, F2L, OLL y PLL.',make:function(){return randFaceSeq(FL,20);}}
 ];
 
+
+
+/* ---- Bloques 3 a 5: «Aprende» por páginas, con el resaltado por objetivo ---- */
+function LL(id){return LESSONS3.filter(function(l){return l.id===id})[0];}
+function LP(id){return LL(id).pre;}
+/* páginas de un algoritmo: cada paso parte del cubo tal como queda tras los pasos anteriores */
+function algPg(pre,alg,steps,hl){
+  var k=0,out=[];
+  steps.forEach(function(st){
+    var pg={t:st.t,pre:pre.concat(alg.slice(0,k)),hl:st.hl||hl};
+    if(st.n){pg.demo=alg.slice(k,k+st.n);k+=st.n;}
+    if(st.note)pg.note=st.note;if(st.view)pg.view=st.view;
+    out.push(pg);});
+  return out;}
+var NOTE_FOCUS='El <b>borde morado</b> marca la pieza que vamos a colocar. En color, lo que ya está bien; en gris, lo que ahora no importa.';
+var PG={};
+
+/* ===== Bloque 3: las esquinas blancas ===== */
+(function(){
+  var p=LP('3.1'),h='g:layer1';
+  PG['3.1']=[
+    {t:'<p>Con la cruz blanca hecha, faltan las <b>cuatro esquinas blancas</b>. Una esquina tiene <b>tres colores</b>: blanco y otros dos.</p><p>Aquí tienes una, en la capa de arriba (borde morado). Vamos a bajarla a su sitio.</p>',pre:p,hl:h,note:NOTE_FOCUS},
+    {t:'<p>Cada esquina tiene un <b>hueco</b> en la capa de abajo: el que está entre las dos caras de sus colores de lado. Esta esquina es <b>roja, blanca y azul</b>: su hueco está entre la cara <b>roja</b> (derecha) y la <b>azul</b> (frente).</p><p>Ese hueco queda justo <b>debajo</b> de ella. Si no fuera así, gira '+K('U')+' hasta que la esquina quede encima de su hueco.</p>',pre:p,hl:h},
+    {t:'<p>Ahora mira <b>hacia dónde apunta el blanco</b>: aquí, a la <b>derecha</b>.</p><ul><li>Blanco a la <b>derecha</b>: el algoritmo '+K("R U R' U'")+' <b>una vez</b>.</li><li>Blanco <b>arriba</b>: tres veces (lección 3.2).</li><li>Blanco al <b>frente</b>: cinco veces (lección 3.3).</li></ul>',pre:p,hl:h}
+  ].concat(algPg(p,SEX,[
+    {n:1,t:'<p><b>Paso 1: '+K('R')+'.</b> La columna derecha sube y la esquina blanca se va hacia <b>atrás</b>, para dejar libre su hueco.</p>',note:'Ojo: R mueve también la arista blanca de la cruz y otra esquina, por eso se ven con borde. No pasa nada: al acabar el algoritmo vuelven a su sitio.'},
+    {n:1,t:'<p><b>Paso 2: '+K('U')+'.</b> Giras la capa de arriba y la esquina blanca vuelve al <b>frente</b>, encima de su hueco.</p>'},
+    {n:1,t:'<p><b>Paso 3: '+K("R'")+'.</b> Bajas la columna derecha y la esquina entra en su hueco, con el blanco ya mirando <b>abajo</b>.</p>'},
+    {n:1,t:'<p><b>Paso 4: '+K("U'")+'.</b> Devuelves la capa de arriba a su sitio.</p>'}],h)).concat([
+    {t:'<p>¡Listo! La esquina blanca está en su hueco, con el blanco hacia abajo y los colores de lado iguales a los centros.</p><p>Para esta situación basta <b>una vez</b> '+K("R U R' U'")+'.</p>',pre:p.concat(SEX),hl:h}]);
+
+  p=LP('3.2');
+  PG['3.2']=[
+    {t:'<p>Otra situación: la esquina está <b>encima de su hueco</b>, pero con el blanco mirando <b>hacia arriba</b>.</p>',pre:p,hl:h,note:NOTE_FOCUS},
+    {t:'<p>Con el blanco arriba, '+K("R U R' U'")+' una sola vez no basta. Hay que repetirlo <b>tres veces seguidas</b>.</p><p>Cada repetición baja la esquina al hueco o la vuelve a subir, girándola un poco. Vamos una a una.</p>',pre:p,hl:h}
+  ].concat(algPg(p,rep(SEX,3),[
+    {n:4,t:'<p><b>1.ª vez.</b> La esquina baja al hueco, pero con el blanco mirando a la <b>derecha</b>. Todavía no es correcto.</p>'},
+    {n:4,t:'<p><b>2.ª vez.</b> Vuelve a subir, otra vez encima del hueco y con el blanco a la derecha (es el caso de la lección anterior).</p>'},
+    {n:4,t:'<p><b>3.ª vez.</b> Baja de nuevo y ahora el blanco mira <b>abajo</b>: ¡colocada!</p>'}],h)).concat([
+    {t:'<p>Recuerda: blanco <b>arriba</b> → <b>3 veces</b>. Cuenta en voz alta cada grupo de cuatro movimientos y mira «Tu secuencia» para no perderte.</p><p>Desde aquí tienes un <b>atajo</b> con el algoritmo entero, para no pulsar cada movimiento.</p>',pre:p.concat(rep(SEX,3)),hl:h}]);
+
+  p=LP('3.3');
+  PG['3.3']=[
+    {t:'<p>Tercera situación: la esquina está encima de su hueco, con el blanco mirando al <b>frente</b>.</p>',pre:p,hl:h,note:NOTE_FOCUS},
+    {t:'<p>Con el blanco al frente hay que repetir el algoritmo <b>cinco veces</b>. Es largo, pero no falla.</p>',pre:p,hl:h}
+  ].concat(algPg(p,rep(SEX,5),[
+    {n:8,t:'<p><b>Veces 1 y 2.</b> La esquina baja, sube, y acaba arriba con el blanco mirando <b>hacia arriba</b>: ya es el caso de las tres veces.</p>'},
+    {n:12,t:'<p><b>Veces 3, 4 y 5.</b> Las tres repeticiones que ya conoces: la esquina baja con el blanco de lado, sube, y vuelve a bajar con el blanco <b>abajo</b>.</p>'}],h)).concat([
+    {t:'<p>Resumen de los tres casos con la esquina encima de su hueco:</p><ul><li>Blanco a la <b>derecha</b>: <b>1</b> vez.</li><li>Blanco <b>arriba</b>: <b>3</b> veces.</li><li>Blanco al <b>frente</b>: <b>5</b> veces.</li></ul><p>Siempre son números impares: la esquina acaba abajo.</p>',pre:p.concat(rep(SEX,5)),hl:h}]);
+
+  p=LP('3.4');var p4=X2.concat(invert(rep(SEX,4)));
+  PG['3.4']=[
+    {t:'<p>A veces la esquina blanca <b>ya está en su hueco</b> de abajo, pero mal girada (aquí el blanco mira a la derecha, no abajo).</p>',pre:p,hl:h,note:NOTE_FOCUS},
+    {t:'<p>No hace falta sacarla a mano: <b>repite el mismo algoritmo</b> '+K("R U R' U'")+' hasta que encaje. El algoritmo la saca y la vuelve a meter girada.</p>'+'<p>Con el blanco a la derecha son <b>2 veces</b>.</p>',pre:p,hl:h}
+  ].concat(algPg(p,rep(SEX,2),[
+    {n:4,t:'<p><b>1.ª vez.</b> La esquina sube a la capa de arriba, con el blanco a la derecha: ya es una situación que conoces.</p>'},
+    {n:4,t:'<p><b>2.ª vez.</b> Baja de nuevo y ahora el blanco mira abajo.</p>'}],h)).concat([
+    {t:'<p>Si el blanco mira al <b>frente</b> en vez de a la derecha, hacen falta <b>4 veces</b>.</p>',pre:p4,hl:h},
+    {t:'<p>La regla: esquina atascada abajo con el blanco a un lado → <b>repite el algoritmo hasta que encaje</b> (2 o 4 veces).</p><p>Si en el hueco hay <b>otra</b> esquina (sin blanco), el algoritmo también la saca: después coloca la esquina blanca como en las lecciones anteriores.</p>',pre:p4.concat(rep(SEX,4)),hl:h}]);
+
+  p=LP('3.5');
+  PG['3.5']=[
+    {t:'<p>Para terminar la primera capa repites lo mismo con <b>cada esquina</b>. No hace falta otro algoritmo: <b>giras el cubo entero</b> para traer la siguiente esquina a tu derecha.</p>',pre:p,hl:h,note:NOTE_FOCUS},
+    {t:'<p>Primero la esquina de la derecha: tiene el blanco a la derecha, así que <b>una vez</b> '+K("R U R' U'")+'.</p>',pre:p,demo:SEX,hl:h},
+    {t:'<p>Ahora gira el cubo entero con '+K('y')+': la siguiente esquina pasa a tu derecha, delante. Fíjate en que <b>no se mezcla nada</b>.</p>',pre:p.concat(SEX),demo:['y'],hl:h},
+    {t:'<p>Misma rutina: mira hacia dónde apunta el blanco (aquí, arriba) y repite el algoritmo <b>tres veces</b>.</p>',pre:p.concat(SEX,['y']),demo:rep(SEX,3),hl:h},
+    {t:'<p>Resumen para las cuatro esquinas: <b>1.</b> colócala encima de su hueco con '+K('U')+'. <b>2.</b> Mira hacia dónde apunta el blanco: derecha 1, arriba 3, frente 5. <b>3.</b> Pasa a la siguiente con '+K('y')+'.</p><p>Al acabar, la <b>primera capa</b> (cruz y esquinas) estará completa.</p>',pre:p.concat(SEX,['y'],rep(SEX,3)),hl:h}];
+})();
+
+/* ===== Bloque 4: las aristas de la capa del medio ===== */
+(function(){
+  var h='g:layer2',p=LP('4.1'),pl=LP('4.2');
+  PG['4.1']=[
+    {t:'<p>Con la primera capa hecha, vamos a por la <b>capa del medio</b>: sus cuatro aristas son las que <b>no llevan amarillo</b>.</p><p>Busca una en la capa de arriba que no tenga amarillo (borde morado).</p>',pre:p,hl:h,note:NOTE_FOCUS},
+    {t:'<p>Mira el color de su cara de <b>delante</b> y gira '+K('U')+' hasta que <b>coincida con el centro de delante</b>. Aquí el azul ya coincide.</p>',pre:p,hl:h},
+    {t:'<p>Ahora mira su <b>otro color</b> (el de arriba): es el <b>rojo</b>, que coincide con el centro de la <b>derecha</b>. Entonces la arista debe ir a la <b>derecha</b>, entre la cara azul y la roja.</p><p>Si coincidiera con el de la izquierda, usarías el espejo (lección 4.2).</p>',pre:p,hl:h}
+  ].concat(algPg(p,AR,[
+    {n:4,t:'<p><b>Primera mitad: '+K("U R U' R'")+'.</b> Deja libre el hueco de la derecha. La arista casi no se mueve: vuelve a quedar delante, arriba.</p>'},
+    {n:4,t:'<p><b>Segunda mitad: '+K("U' F' U F")+'.</b> La arista entra en el hueco de la derecha: el azul queda con la cara azul y el rojo con la roja.</p>'}],h)).concat([
+    {t:'<p>Para una arista que va a la <b>derecha</b>: '+K("U R U' R' U' F' U F")+'.</p><p>Antes: pon la arista delante con '+K('U')+' hasta que su color de delante coincida con el centro de delante.</p>',pre:p.concat(AR),hl:h}]);
+
+  PG['4.2']=[
+    {t:'<p>Otra arista de arriba sin amarillo, delante. Esta vez su color de arriba (naranja) coincide con el centro de la <b>izquierda</b>.</p>',pre:pl,hl:h,note:NOTE_FOCUS},
+    {t:'<p>Entonces va a la <b>izquierda</b>. El algoritmo es el <b>espejo</b> del anterior: cambian R por L y las U al revés.</p>',pre:pl,hl:h}
+  ].concat(algPg(pl,AL,[
+    {n:4,t:'<p><b>Primera mitad: '+K("U' L' U L")+'.</b> Deja libre el hueco de la izquierda. La arista vuelve a quedar delante.</p>'},
+    {n:4,t:'<p><b>Segunda mitad: '+K("U F U' F'")+'.</b> La arista entra en el hueco de la izquierda.</p>'}],h)).concat([
+    {t:'<p>Resumen: colores de delante y de arriba → <b>derecha</b> si el de arriba coincide con el centro derecho ('+K("U R U' R' U' F' U F")+'), <b>izquierda</b> si coincide con el izquierdo ('+K("U' L' U L U F U' F'")+').</p>',pre:pl.concat(AL),hl:h}]);
+
+  var p3=LP('4.3');
+  PG['4.3']=[
+    {t:'<p>A veces una arista de la capa del medio está <b>en su hueco pero al revés</b>, o hay una arista con amarillo en el hueco de otra (borde morado: lo que está mal).</p>',pre:p3,hl:h,note:NOTE_FOCUS},
+    {t:'<p>Hay que <b>sacarla</b>. Pon cualquier arista de arriba <b>sin amarillo</b> delante y aplica el algoritmo hacia el lado de la arista atascada: esta se sale a la capa de arriba.</p>',pre:p3,demo:AR,hl:h},
+    {t:'<p>Ahora la arista que estaba mal puesta está arriba. <b>Colócala</b> como en las dos lecciones anteriores: delante, mira su color y usa el algoritmo de la derecha o de la izquierda.</p>',pre:p3.concat(AR),hl:h},
+    {t:'<p>Regla: arista mal puesta en la capa del medio → <b>sácala con el algoritmo</b> y vuelve a colocarla bien.</p>',pre:p3.concat(LL('4.3').demo),hl:h}];
+
+  var p4=LP('4.4');
+  PG['4.4']=[
+    {t:'<p>Para las <b>cuatro</b> aristas del medio repites lo mismo con cada una.</p>',pre:p4,hl:h,note:NOTE_FOCUS},
+    {t:'<p><b>1.</b> Pon una arista de arriba sin amarillo delante con '+K('U')+'. <b>2.</b> Mira hacia qué lado va su color de arriba. <b>3.</b> Aplica el algoritmo de la derecha o de la izquierda.</p>',pre:p4,demo:P("U R U' R' U' F' U F"),hl:h},
+    {t:'<p><b>4.</b> Gira el cubo con '+K('y')+' para traer el siguiente hueco delante. Fíjate: no se mezcla nada, solo cambia cómo lo miras.</p>',pre:p4.concat(P("U R U' R' U' F' U F")),demo:['y'],hl:h},
+    {t:'<p>Al terminar, las <b>dos primeras capas</b> están completas. Solo queda la capa de arriba.</p>',pre:p4.concat(LL('4.4').demo),hl:h}];
+})();
+
+/* ===== Bloque 5: la capa de arriba ===== */
+(function(){
+  var p,hc='g:ycross';
+  p=LP('5.1');
+  PG['5.1']=[
+    {t:'<p>Ahora la capa de arriba. Primero la <b>cruz amarilla</b>: las cuatro aristas de arriba con el amarillo hacia arriba.</p><p>Las aristas con borde morado todavía no tienen el amarillo arriba. Aquí hay <b>dos</b> que sí lo tienen, enfrentadas: una <b>línea</b>.</p>',pre:p,hl:hc,note:NOTE_FOCUS},
+    {t:'<p>Con una línea, ponla <b>horizontal</b> (de izquierda a derecha) girando '+K('U')+' si hace falta. Si está de frente, gira '+K('U')+' una vez.</p>',pre:p,hl:hc},
+    {t:'<p>Se hace con '+K("F R U R' U' F'")+'. Fíjate: es el movimiento que ya conoces, '+K("R U R' U'")+', <b>entre un F y un F\'</b>.</p>',pre:p,demo:YA,hl:hc},
+    {t:'<p>¡Cruz amarilla hecha! Las cuatro aristas tienen el amarillo hacia arriba.</p>',pre:p.concat(YA),hl:hc}];
+
+  p=LP('5.2');
+  PG['5.2']=[
+    {t:'<p>Otra forma: dos aristas amarillas <b>juntas, en ángulo</b>: una <b>L</b>.</p>',pre:p,hl:hc,note:NOTE_FOCUS},
+    {t:'<p>Gira '+K('U')+' hasta que la L quede <b>atrás a la izquierda</b>: las dos aristas amarillas apuntan hacia atrás y hacia la izquierda.</p>',pre:p,hl:hc},
+    {t:'<p>Se hace con '+K("F U R U' R' F'")+'. Es parecido al de la línea, pero el movimiento del medio empieza por U.</p>',pre:p,demo:YB,hl:hc},
+    {t:'<p>¡Cruz amarilla hecha!</p>',pre:p.concat(YB),hl:hc}];
+
+  p=LP('5.3');
+  PG['5.3']=[
+    {t:'<p>Último caso: <b>ninguna</b> arista tiene el amarillo arriba. Solo está el centro: un <b>punto</b>.</p>',pre:p,hl:hc,note:NOTE_FOCUS},
+    {t:'<p>Haz primero '+K("F R U R' U' F'")+'. Aunque no parezca que avanzas, deja una <b>L</b> (o una línea).</p>',pre:p,demo:YA,hl:hc},
+    {t:'<p>Ahora tienes una L. Gira '+K('U')+' hasta dejarla <b>atrás a la izquierda</b>.</p>',pre:p.concat(YA),demo:['U2'],hl:hc},
+    {t:'<p>Y aplica el algoritmo de la L: '+K("F U R U' R' F'")+'.</p>',pre:p.concat(YA,['U2']),demo:YB,hl:hc},
+    {t:'<p>Resumen de la cruz amarilla: <b>punto</b> → '+K("F R U R' U' F'")+' y después la L; <b>L</b> (atrás a la izquierda) → '+K("F U R U' R' F'")+'; <b>línea</b> (horizontal) → '+K("F R U R' U' F'")+'.</p>',pre:p.concat(YA,['U2'],YB),hl:hc}];
+
+  var hy='g:yface';
+  p=LP('5.4');
+  PG['5.4']=[
+    {t:'<p>Ahora las <b>esquinas</b> de arriba: queremos el amarillo <b>hacia arriba</b> en las cuatro.</p><p>Las esquinas con borde morado todavía no lo tienen. Aquí solo hay <b>una</b> bien: es el «pez».</p>',pre:p,hl:hy,note:NOTE_FOCUS},
+    {t:'<p>Gira '+K('U')+' hasta que la esquina con el amarillo arriba quede <b>delante a la izquierda</b>. Aquí ya lo está.</p>',pre:p,hl:hy},
+    {t:'<p>Aplica el <b>Sune</b>: '+K("R U R' U R U2 R'")+'. Son siete movimientos; no hace falta entender cada uno, basta recordarlos.</p>',pre:p,demo:SUNE,hl:hy},
+    {t:'<p>¡Las cuatro esquinas tienen el amarillo arriba! La cara de arriba está completa.</p>',pre:p.concat(SUNE),hl:hy}];
+
+  p=LP('5.5');
+  PG['5.5']=[
+    {t:'<p>¿Y si <b>ninguna</b> esquina tiene el amarillo hacia arriba? También se puede.</p>',pre:p,hl:hy,note:NOTE_FOCUS},
+    {t:'<p>Haz el <b>Sune</b> una vez, desde <b>cualquier posición</b>: '+K("R U R' U R U2 R'")+'.</p>',pre:p,demo:SUNE,hl:hy},
+    {t:'<p>Ahora ya hay una esquina amarilla arriba. Ponla <b>delante a la izquierda</b> con '+K('U')+' (si no lo está) y repite el Sune.</p>',pre:p.concat(SUNE),demo:SUNE,hl:hy},
+    {t:'<p>Si hay <b>dos</b> esquinas amarillas arriba, haz lo mismo: gira '+K('U')+' hasta dejar una delante a la izquierda y aplica el Sune. Repitiendo y girando U, acabas siempre.</p>',pre:p.concat(SUNE,SUNE),hl:hy}];
+
+  var hk='g:corners';
+  p=LP('5.6');
+  PG['5.6']=[
+    {t:'<p>Ahora hay que <b>colocar</b> las esquinas en su sitio, sin cambiar el amarillo de arriba.</p><p>Una esquina está bien colocada si sus <b>colores de lado coinciden con los centros</b> de las dos caras que toca. Las de borde morado no lo están.</p>',pre:p,hl:hk,note:NOTE_FOCUS},
+    {t:'<p>Busca una esquina <b>bien colocada</b> (aquí, en color) y ponla <b>delante a la derecha</b> girando '+K('U')+'. Aquí ya lo está.</p>',pre:p,hl:hk},
+    {t:'<p>Aplica '+K("U R U' L' U R' U' L")+'. Las otras tres esquinas giran entre sí hasta ocupar su sitio.</p>',pre:p,demo:CORN,hl:hk},
+    {t:'<p>Las cuatro esquinas están en su sitio. Si ninguna estuviera bien al principio, haz el algoritmo una vez desde cualquier posición y vuelve a mirar.</p>',pre:p.concat(CORN),hl:hk}];
+
+  var hs='g:solved';
+  p=LP('5.7');
+  PG['5.7']=[
+    {t:'<p>Último paso: las <b>aristas</b> de arriba. Las que tienen borde morado no están en su sitio.</p><p>Busca una arista que <b>ya esté bien</b> (su color de lado coincide con el centro de su cara) y ponla <b>atrás</b>. Aquí ya lo está.</p>',pre:p,hl:hs,note:NOTE_FOCUS},
+    {t:'<p>Aplica '+K("R U' R U R U R U' R' U' R2")+'. Las otras tres aristas giran entre sí.</p>',pre:p,demo:UA,hl:hs},
+    {t:'<p>¡Cubo resuelto! Si aún no lo está, repite el algoritmo: la segunda vez las gira en el otro sentido. Si ninguna arista estaba bien, hazlo una vez y vuelve a mirar.</p>',pre:p.concat(UA),hl:hs}];
+
+  p=LP('5.8');
+  PG['5.8']=[
+    {t:'<p>A veces todo está bien <b>menos</b> que la capa de arriba está <b>girada</b> respecto al resto.</p>',pre:p,hl:hs,note:NOTE_FOCUS},
+    {t:'<p>Un último giro de '+K('U')+' (o '+K("U'")+' o '+K('U2')+') la alinea con los centros.</p>',pre:p,demo:['U\''],hl:hs},
+    {t:'<p>Comprueba siempre: cuando los centros de los lados coinciden con todas las aristas y esquinas, el cubo está resuelto.</p>',pre:p.concat(["U'"]),hl:hs}];
+})();
+
+Object.keys(PG).forEach(function(id){var l=LL(id);l.pages=PG[id];l.hl=PG[id][0].hl;});
+
+
+
+/* ---- 2×2, avanzado y 4×4: «Aprende» por páginas ---- */
+function LLx(arr,id){return arr.filter(function(l){return l.id===id})[0];}
+function LL2(id){return LLx(LESSONS2,id);}
+function LLA(id){return LLx(LESSONSA,id);}
+function LL4(id){return LLx(LESSONS4,id);}
+var PG2={},PGA={},PG4={};
+function setPages(arr,PGx){Object.keys(PGx).forEach(function(id){var l=LLx(arr,id);if(!l)throw new Error('lección '+id);l.pages=PGx[id];l.hl=PGx[id][0].hl||l.hl;});}
+
+/* ======================= 2×2 ======================= */
+(function(){
+  var NF='El <b>borde morado</b> marca la pieza que vamos a colocar. En color, lo que ya está bien; en gris, lo que ahora no importa.';
+  PG2['T1']=[
+    {t:'<p>El <b>2×2</b> es el cubo más pequeño: solo tiene <b>8 piezas</b>, y todas son <b>esquinas</b>.</p>',pre:[],hl:'corner',note:'Se iluminan las 8 piezas: no hay nada más.'},
+    {t:'<p>Cada esquina tiene <b>tres colores</b> (por ejemplo, blanco, verde y rojo) que van <b>siempre juntos</b>.</p><p>No hay aristas (dos colores) ni centros (uno): por eso es la mejor puerta de entrada.</p>',pre:[],hl:'corner'},
+    {t:'<p>Es el mismo reto que las <b>esquinas del 3×3</b>, pero sin nada más. Lo que aprendas aquí te servirá en el resto de cubos.</p><p>Ahora, toca esquinas para comprobar que las reconoces.</p>',pre:[],hl:'corner'}];
+  PG2['T2']=[
+    {t:'<p>En el 3×3 el centro de cada cara dice de qué color es. En el 2×2 <b>no hay centros</b>. ¿Cómo sabes de qué color es cada cara?</p><p>Lo marcan las <b>esquinas</b>: sus colores van siempre juntos y siempre en el mismo orden.</p>',pre:[],hl:'corner'},
+    {t:'<p>El esquema es el de siempre: con el <b>blanco arriba</b> y el <b>verde delante</b>, el <b>rojo</b> queda a la <b>derecha</b>, el azul a la izquierda, el naranja detrás y el amarillo abajo.</p>',pre:[],hl:'corner'},
+    {t:'<p>Los colores <b>opuestos</b> son los de siempre: blanco con amarillo, verde con azul y rojo con naranja.</p>',pre:[],hl:'corner'}];
+  PG2['T3']=[
+    {t:'<p>Las letras son las mismas del 3×3: '+K('R')+', '+K('U')+', '+K('F')+'… Cada una gira <b>una cara</b>.</p>',pre:[],demo:['R'],hl:{layer:'R'},note:'Con solo dos capas, un giro de cara mueve la mitad del cubo.'},
+    {t:'<p>Con el apóstrofo gira al revés y con el 2, media vuelta, igual que en el 3×3.</p>',pre:[],demo:["U'",'F2'],hl:{layer:'U'}},
+    {t:'<p>Como no hay centros, girar '+K('R')+' equivale a <b>girar el cubo entero con '+K('x')+' y después girar '+K('L')+'</b>. Solo cambia cómo queda sujeto el cubo.</p>',pre:[],demo:['x','L'],hl:'corner',note:'El cubo ha quedado girado entero, pero las piezas están unidas igual que con R.'}];
+
+  var p=LL2('T4').pre,h='g:layer1x2';
+  PG2['T4']=[
+    {t:'<p>La <b>primera capa</b> del 2×2 es la cara blanca abajo con sus cuatro esquinas bien: el blanco de las cuatro mirando <b>abajo</b> y los otros colores de cada lado <b>iguales entre sí</b>.</p><p>Aquí faltan una esquina (borde morado): está arriba y hay que bajarla.</p>',pre:p,hl:h,note:NF},
+    {t:'<p>Cada esquina tiene su <b>hueco</b> en la capa de abajo: el que está entre las caras de sus dos colores de lado. Como no hay centros, mira que sus colores de lado <b>coincidan con los de las otras esquinas</b> de esa cara.</p><p>Aquí la esquina ya está <b>encima de su hueco</b>. Si no lo está, gira '+K('U')+' hasta que lo esté.</p>',pre:p,hl:h},
+    {t:'<p>Ahora mira <b>hacia dónde apunta el blanco</b>: aquí, a la <b>derecha</b>.</p><ul><li>Blanco a la <b>derecha</b>: '+K("R U R' U'")+' <b>una vez</b>.</li><li>Blanco <b>arriba</b>: tres veces.</li><li>Blanco al <b>frente</b>: cinco veces.</li></ul>',pre:p,hl:h}
+  ].concat(algPg(p,SEX,[
+    {n:1,t:'<p><b>Paso 1: '+K('R')+'.</b> La esquina blanca se va hacia <b>atrás</b>, para dejar libre su hueco.</p>'},
+    {n:1,t:'<p><b>Paso 2: '+K('U')+'.</b> La esquina blanca vuelve al <b>frente</b>, encima de su hueco.</p>'},
+    {n:1,t:'<p><b>Paso 3: '+K("R'")+'.</b> La esquina entra en su hueco, con el blanco mirando <b>abajo</b>.</p>'},
+    {n:1,t:'<p><b>Paso 4: '+K("U'")+'.</b> Devuelves la capa de arriba a su sitio.</p>'}],h)).concat([
+    {t:'<p>¡Listo! Para esta situación basta <b>una vez</b> '+K("R U R' U'")+'. Con el blanco arriba son tres veces y con el blanco al frente, cinco: las mismas reglas del 3×3.</p>',pre:p.concat(SEX),hl:h}]);
+
+  p=LL2('T5').pre;
+  PG2['T5']=[
+    {t:'<p>La primera capa del 2×2 son <b>cuatro esquinas</b>, así que repites la misma rutina como máximo cuatro veces.</p>',pre:p,hl:h,note:NF},
+    {t:'<p>Primero la esquina de la derecha: tiene el blanco a la derecha, así que <b>una vez</b> '+K("R U R' U'")+'.</p>',pre:p,demo:SEX,hl:h},
+    {t:'<p>Gira el cubo entero con '+K('y')+': la siguiente esquina pasa a tu derecha, delante.</p>',pre:p.concat(SEX),demo:['y'],hl:h},
+    {t:'<p>Misma rutina: mira hacia dónde apunta el blanco (aquí, arriba) y repite el algoritmo <b>tres veces</b>.</p>',pre:p.concat(SEX,['y']),demo:rep(SEX,3),hl:h},
+    {t:'<p>Resumen: <b>1.</b> esquina encima de su hueco ('+K('U')+'). <b>2.</b> Blanco a la derecha 1, arriba 3, al frente 5. <b>3.</b> Siguiente esquina con '+K('y')+'.</p>',pre:p.concat(SEX,['y'],rep(SEX,3)),hl:h}];
+
+  p=LL2('T6').pre;var ho='g:oll2';
+  PG2['T6']=[
+    {t:'<p>Con la primera capa hecha, queremos el <b>amarillo de las cuatro esquinas arriba</b>. Las esquinas con borde morado todavía no lo tienen.</p><p>Aquí hay solo <b>una</b> bien: es el «pez».</p>',pre:p,hl:ho,note:NF},
+    {t:'<p>Gira '+K('U')+' hasta que esa esquina quede <b>delante a la izquierda</b> (aquí ya lo está) y aplica el <b>Sune</b>: '+K("R U R' U R U2 R'")+'.</p>',pre:p,demo:SUNE,hl:ho},
+    {t:'<p>¡Las cuatro esquinas con el amarillo arriba!</p>',pre:p.concat(SUNE),hl:ho},
+    {t:'<p>A veces el pez está al revés. Aquí la esquina amarilla está <b>atrás a la derecha</b>: usa el <b>Anti-Sune</b>, que hace lo contrario: '+K("R U2 R' U' R U' R'")+'.</p>',pre:X2.concat(invert(ANTI)),demo:ANTI,hl:ho}];
+
+  var pt=X2.concat(invert(SUNE.concat(SUNE)));
+  PG2['T7']=[
+    {t:'<p>¿Y si <b>ninguna</b> esquina tiene el amarillo arriba? Haz el <b>Sune</b> desde cualquier posición: aparecerá un pez.</p>',pre:pt,demo:SUNE,hl:ho,note:NF},
+    {t:'<p>Ahora ya hay una esquina amarilla arriba: ponla delante a la izquierda con '+K('U')+' y repite el Sune. Es un camino que siempre funciona.</p>',pre:pt.concat(SUNE),demo:SUNE,hl:ho},
+    {t:'<p>Con práctica, cada forma tiene un <b>atajo</b>. Los amarillos de los lados dibujan una <b>H</b>:</p><p>'+K("F R U R' U' R U R' U' R U R' U' F'")+'</p>',pre:X2.concat(invert(HOLL)),demo:HOLL,hl:ho},
+    {t:'<p>Los amarillos dibujan una <b>Pi</b>:</p><p>'+K("R U2 R2 U' R2 U' R2 U2 R")+'</p>',pre:X2.concat(invert(PIOLL)),demo:PIOLL,hl:ho},
+    {t:'<p>Los amarillos dibujan una <b>U</b>:</p><p>'+K("R2 D R' U2 R D' R' U2 R'")+'</p>',pre:X2.concat(invert(UOLL)),demo:UOLL,hl:ho},
+    {t:'<p>Los casos <b>T</b> y <b>L</b> tienen sus propios atajos: '+K("R U R' U' R' F R F'")+' y '+K("F R' F' R U R U' R'")+'.</p>',pre:X2.concat(invert(TOLL2)),demo:TOLL2,hl:ho}];
+
+  p=LL2('T8').pre;var hs='g:solved2';
+  PG2['T8']=[
+    {t:'<p>Con el amarillo arriba, hay que <b>colocar las esquinas</b> en su sitio. Las de borde morado no lo están.</p><p>Hay dos casos: dos esquinas <b>contiguas</b> intercambiadas, o dos en <b>diagonal</b>.</p>',pre:p,hl:hs,note:NF},
+    {t:'<p><b>Contiguas intercambiadas:</b> ponlas a la derecha (delante y detrás) y aplica la <b>T</b>:</p><p>'+K("R U R' U' R' F R2 U' R' U' R U R' F'")+'</p>',pre:p,demo:TPERM,hl:hs},
+    {t:'<p><b>En diagonal:</b> aplica la <b>Y</b>:</p><p>'+K("F R U' R' U' R U R' F' R U R' U' R' F R F'")+'</p>',pre:X2.concat(invert(YPERM)),demo:YPERM,hl:hs},
+    {t:'<p>Si todo está bien salvo que la capa de arriba está girada, un último giro de '+K('U')+' alinea el cubo.</p>',pre:p.concat(TPERM),hl:hs}];
+
+  PG2['T9']=[
+    {t:'<p>Ya conoces todo el método del 2×2:</p><ol class="plan"><li>La <b>primera capa</b> con el blanco abajo.</li><li><b>Orientar</b> la última capa con el Sune.</li><li><b>Colocar</b> las esquinas con la T o la Y.</li><li><b>Alinear</b> con un giro de U.</li></ol>',pre:[],hl:'corner'},
+    {t:'<p>Si te atascas, pulsa «Pista». Cada ejercicio resalta con borde lo que falta y en color lo que ya está bien.</p>',pre:[],hl:'corner'}];
+  setPages(LESSONS2,PG2);
+})();
+
+/* ======================= Avanzado ======================= */
+(function(){
+  var NF='El <b>borde morado</b> marca lo que falta por colocar. En color, lo que ya está bien; en gris, lo que ahora no importa.';
+  PGA['V1']=[
+    {t:'<p>El <b>método avanzado</b> (CFOP) resuelve el cubo en <b>cuatro pasos</b> en vez de siete, uniendo algunos de los que ya conoces.</p>',pre:X2,hl:'g:solved'},
+    {t:'<p><b>1. Cruz.</b> La cruz blanca, como ya sabes, abajo.</p>',pre:X2,hl:'g:cross',note:'Se iluminan las piezas de este paso.'},
+    {t:'<p><b>2. F2L</b> (<i>First Two Layers</i>). Las esquinas blancas y las aristas del medio <b>a la vez</b>, por <b>pares</b>.</p>',pre:X2,hl:'g:layer2'},
+    {t:'<p><b>3. OLL</b> (<i>Orient Last Layer</i>). Orientar la última capa: todo el <b>amarillo arriba</b>, en dos pasos.</p>',pre:X2,hl:'g:yface'},
+    {t:'<p><b>4. PLL</b> (<i>Permute Last Layer</i>). Colocar las piezas de la última capa para terminar el cubo, en dos pasos.</p>',pre:X2,hl:'g:solved'}];
+
+  var p=LLA('V2').pre,h='g:layer2',p2=X2.concat(invert(F2L2));
+  PGA['V2']=[
+    {t:'<p>En F2L no haces la primera capa y la del medio por separado. Unes una <b>esquina blanca</b> con su <b>arista del medio</b> formando un <b>par</b>, y los metes juntos en su hueco.</p>',pre:p2,hl:h,note:NF},
+    {t:'<p>Aquí tienes un par (borde morado): la esquina blanca y su arista están <b>juntas</b> y los colores que se tocan <b>coinciden</b> (rojo con rojo, azul con azul).</p><p>Su hueco está <b>abajo a la derecha, delante</b>.</p>',pre:p2,hl:h},
+    {t:'<p>Se inserta con <b>tres movimientos</b> que siguen siempre la misma idea: un giro que <b>abre</b> el hueco, un giro de '+K('U')+' que <b>coloca el par encima</b> y el giro contrario que lo <b>cierra</b> con el par dentro.</p>',pre:p2,demo:F2L2,hl:h}
+  ].concat(algPg(p,F2L1,[
+    {n:1,t:'<p><b>Otro caso: '+K('R')+'.</b> La esquina blanca está arriba delante a la derecha y su arista, atrás. El primer giro lleva la esquina junto a su arista: ya forman un par.</p>'},
+    {n:1,t:'<p><b>'+K('U')+'.</b> Colocas el par encima del hueco.</p>'},
+    {n:1,t:'<p><b>'+K("R'")+'.</b> Cierras: el par entra en su hueco.</p>'}],h)).concat([
+    {t:'<p>Los otros casos son simétricos: con '+K('F')+' en vez de '+K('R')+' o con '+K('U')+' al revés:</p><ul><li>'+K("R U R'")+' y '+K("R U' R'")+' (a la derecha).</li><li>'+K("F' U' F")+' y '+K("F' U F")+' (por delante).</li></ul><p>Te toca ir probando: el borde morado marca el par.</p>',pre:p,hl:h}]);
+
+  p=LLA('V3').pre;
+  PGA['V3']=[
+    {t:'<p>A veces la esquina blanca está <b>dentro del hueco pero girada</b>, y su arista arriba (borde morado). Entonces hace falta un algoritmo más largo: primero se <b>saca</b> la esquina y después se <b>une</b> con su arista y se inserta.</p>',pre:p,hl:h,note:NF},
+    {t:'<p>Se hace así: '+K("R U R' U' R U R'")+'. Primero '+K("R U R'")+' <b>saca la esquina</b> atascada del hueco, '+K("U'")+' <b>coloca</b> las piezas y '+K("R U R'")+' las <b>une y las inserta</b>, como en la lección anterior.</p>',pre:p,demo:F2L5,hl:h},
+    {t:'<p>Si la esquina tiene el blanco mirando <b>arriba</b>, se usa <b>media vuelta</b> antes: '+K("R U2 R' U' R U R'")+'. Es el mismo atajo cambiando el primer '+K('U')+' por '+K('U2')+'.</p>',pre:X2.concat(invert(F2L6)),demo:F2L6,hl:h},
+    {t:'<p>Si el par no está encima de su hueco, <b>gira '+K('U')+' primero</b> hasta ponerlo en su sitio.</p>',pre:X2.concat(invert(['U'].concat(F2L5))),demo:['U'].concat(F2L5),hl:h}];
+
+  p=LLA('V4').pre;
+  PGA['V4']=[
+    {t:'<p>Con los pares ocurre como con las esquinas del 3×3: cuando acabas uno, <b>giras el cubo entero con '+K('y')+'</b> y trabajas el siguiente hueco. Son <b>cuatro huecos</b> en total.</p>',pre:p,hl:h,note:NF},
+    {t:'<p>Primero inserta el par de este hueco...</p>',pre:p,demo:P("R U R'"),hl:h},
+    {t:'<p>...gira el cubo con '+K('y')+' para traer el siguiente hueco delante...</p>',pre:p.concat(P("R U R'")),demo:['y'],hl:h},
+    {t:'<p>...e inserta el siguiente par. Así hasta completar las dos primeras capas.</p>',pre:p.concat(P("R U R'"),['y']),demo:P("F' U F"),hl:h}];
+
+  p=LLA('V5').pre;var hc='g:ycross',hy='g:yface';
+  PGA['V5']=[
+    {t:'<p>El <b>OLL</b> se hace en dos pasos. El primero es la <b>cruz amarilla</b>: las aristas con borde morado todavía no tienen el amarillo arriba.</p><p>Aquí hay una <b>línea</b>: dos aristas amarillas enfrentadas.</p>',pre:p,hl:hc,note:NF},
+    {t:'<p>Con una <b>línea</b> (horizontal): '+K("F R U R' U' F'")+'.</p>',pre:p,demo:YA,hl:hc},
+    {t:'<p>Con una <b>L</b> (atrás a la izquierda): '+K("F U R U' R' F'")+'.</p>',pre:X2.concat(invert(YB)),demo:YB,hl:hc},
+    {t:'<p>Con el <b>punto</b> (ninguna arista arriba) se encadenan los dos: primero uno, que deja una L, y después el otro. Ya los conoces del 3×3.</p>',pre:X2.concat(invert(YA.concat(['U2'],YB))),demo:YA.concat(['U2'],YB),hl:hc}];
+
+  p=LLA('V6').pre;
+  PGA['V6']=[
+    {t:'<p>Segundo paso del OLL: orientar las <b>esquinas</b> (amarillo arriba en las cuatro). Las esquinas con borde morado todavía no lo tienen.</p><p>Aquí hay <b>una</b> bien: un pez.</p>',pre:p,hl:hy,note:NF},
+    {t:'<p>Gira '+K('U')+' hasta poner esa esquina <b>delante a la izquierda</b> (aquí ya lo está) y aplica el <b>Sune</b>: '+K("R U R' U R U2 R'")+'.</p>',pre:p,demo:SUNE,hl:hy},
+    {t:'<p>Si el pez mira al otro lado (aquí, la esquina amarilla está <b>atrás a la derecha</b>), el <b>Anti-Sune</b> hace lo contrario: '+K("R U2 R' U' R U' R'")+'.</p>',pre:X2.concat(invert(ANTI)),demo:ANTI,hl:hy}];
+
+  p=LLA('V7').pre;
+  PGA['V7']=[
+    {t:'<p>Hay formas de esquinas que se resuelven <b>de una sola vez</b> con un atajo, según lo que dibujen los amarillos de los lados.</p><p><b>H:</b> '+K("F R U R' U' R U R' U' R U R' U' F'")+'</p>',pre:p,demo:HOLL,hl:hy,note:NF},
+    {t:'<p><b>Pi:</b> '+K("R U2 R2 U' R2 U' R2 U2 R")+'</p>',pre:X2.concat(invert(PIOLL)),demo:PIOLL,hl:hy},
+    {t:'<p><b>U:</b> '+K("R2 D R' U2 R D' R' U2 R'")+'</p>',pre:X2.concat(invert(UOLL)),demo:UOLL,hl:hy}];
+
+  p=LLA('V8').pre;
+  PGA['V8']=[
+    {t:'<p>Los dos casos que quedan llevan <b>'+K('Rw')+'</b>: las <b>dos capas de la derecha a la vez</b> (la capa exterior y la del medio). Es como hacer '+K('R')+' y '+K("M'")+' a la vez.</p>',pre:[],demo:['Rw'],hl:{layer:'Rw'},note:'Rw gira la capa derecha y la del medio juntas. Con apóstrofo, '+K("Rw'")+', gira al revés.'},
+    {t:'<p><b>T:</b> '+K("Rw U R' U' Rw' F R F'")+'</p>',pre:p,demo:TOLL,hl:hy,note:NF},
+    {t:'<p><b>L:</b> '+K("F R' F' Rw U R U' Rw'")+'</p>',pre:X2.concat(invert(LOLL)),demo:LOLL,hl:hy}];
+
+  p=LLA('V9').pre;var hk='g:corners';
+  PGA['V9']=[
+    {t:'<p>El <b>PLL</b> también se hace en dos pasos. Primero, las <b>esquinas</b>: las de borde morado no están en su sitio.</p>',pre:p,hl:hk,note:NF},
+    {t:'<p><b>A:</b> una esquina ya está bien (delante a la izquierda) y las otras tres rotan:</p><p>'+K("R' F R' B2 R F' R' B2 R2")+'</p>',pre:p,demo:APERM,hl:hk},
+    {t:'<p><b>Y:</b> dos esquinas en diagonal intercambiadas:</p><p>'+K("F R U' R' U' R U R' F' R U R' U' R' F R F'")+'</p>',pre:X2.concat(invert(YPERM)),demo:YPERM,hl:hk},
+    {t:'<p>Con otras posiciones, gira '+K('U')+' antes de empezar.</p>',pre:p.concat(APERM),hl:hk}];
+
+  p=LLA('V10').pre;
+  PGA['V10']=[
+    {t:'<p>Con las esquinas ya colocadas, las <b>aristas</b> tienen cuatro casos. Las de borde morado no están en su sitio.</p><p><b>Ua:</b> una arista ya está bien (atrás) y las otras tres rotan:</p><p>'+K("R U' R U R U R U' R' U' R2")+'</p>',pre:p,demo:UA,hl:'g:solved',note:NF},
+    {t:'<p><b>Ub:</b> igual, pero rotan en el otro sentido:</p><p>'+K("R2 U R U R' U' R' U' R' U R'")+'</p>',pre:X2.concat(invert(UB)),demo:UB,hl:'g:solved'},
+    {t:'<p><b>H:</b> dos pares de aristas opuestas intercambiadas. Usa la capa del medio, M (la que aprendiste en las capas del medio):</p><p>'+K('M2 U M2 U2 M2 U M2')+'</p>',pre:X2.concat(invert(HPERM)),demo:HPERM,hl:'g:solved'},
+    {t:'<p><b>Z:</b> dos pares de aristas contiguas intercambiadas:</p><p>'+K("M2 U M2 U M' U2 M2 U2 M'")+'</p>',pre:X2.concat(invert(ZPERM)),demo:ZPERM,hl:'g:solved'}];
+
+  PGA['V11']=[
+    {t:'<p>Ya conoces el método completo:</p><ol class="plan"><li>La <b>cruz</b> blanca.</li><li><b>F2L</b>: los pares, uno a uno.</li><li><b>OLL</b>: la cruz amarilla y las esquinas.</li><li><b>PLL</b>: las esquinas y las aristas.</li></ol>',pre:X2,hl:'g:solved'},
+    {t:'<p>Si te atascas, pulsa «Pista». Cada ejercicio marca con borde lo que falta y en color lo que ya está bien.</p>',pre:X2,hl:'g:solved'}];
+  setPages(LESSONSA,PGA);
+})();
+
+/* ======================= 4×4 ======================= */
+(function(){
+  var NF='El <b>borde morado</b> marca lo que falta por colocar. En color, lo que ya está bien; en gris, lo que ahora no importa.';
+  PG4['A1']=[
+    {t:'<p>Un 4×4 tiene tres tipos de pieza. Primero, las <b>esquinas</b>: 8, con tres colores, igual que en el 3×3.</p>',pre:[],hl:'corner',note:'Se iluminan las 8 esquinas.'},
+    {t:'<p>Las <b>piezas de arista</b>: cada arista del 3×3 está <b>partida en dos piezas</b> de dos colores. Hay 24.</p>',pre:[],hl:'edge'},
+    {t:'<p>Los <b>centros</b>: cada cara tiene 4, formando un cuadrado de 2×2. Hay 24.</p>',pre:[],hl:'center'}];
+  PG4['A2']=[
+    {t:'<p>En el 4×4 los <b>centros se mueven</b>: no hay una pieza fija que diga de qué color es cada cara. Mira cómo una capa interna se los lleva.</p>',pre:[],demo:['2R'],hl:'center',note:'Los centros iluminados cambian de cara.'},
+    {t:'<p>Lo marcan las <b>esquinas</b>: sus colores van siempre juntos y siempre en el mismo orden.</p>',pre:[],hl:'corner'},
+    {t:'<p>El esquema: con el <b>blanco arriba</b> y el <b>verde delante</b>, el <b>rojo</b> queda a la derecha. Los colores opuestos son los de siempre: blanco–amarillo, verde–azul y rojo–naranja.</p>',pre:[],hl:'corner'}];
+  PG4['A3']=[
+    {t:'<p>En un 4×4 hay <b>cuatro capas</b>. La letra normal, como '+K('R')+', gira solo la capa <b>exterior</b> de ese lado.</p>',pre:[],demo:['R'],hl:{layer:'R'}},
+    {t:'<p>Con una <b>w</b> (de <i>wide</i>, ancho) giras las <b>dos capas</b> de ese lado a la vez: '+K('Rw')+', '+K('Uw')+', '+K('Fw')+'…</p>',pre:[],demo:['Rw'],hl:{layer:'Rw'}},
+    {t:'<p>El sentido, el apóstrofo y el 2 funcionan igual: '+K("Rw'")+' gira al revés y '+K('Rw2')+' da media vuelta.</p>',pre:[],demo:["Uw'",'Fw2'],hl:{layer:'Uw'}}];
+  PG4['A4']=[
+    {t:'<p>Las capas <b>internas</b> son las del interior. La <b>segunda</b> capa empezando por una cara se escribe con un <b>2 delante</b>: '+K('2R')+' gira solo la capa que queda justo debajo de '+K('R')+'.</p>',pre:[],demo:['2R'],hl:{layer:'2R'}},
+    {t:'<p>No confundas '+K('2R')+' (capa interna) con '+K('R2')+' (<b>media vuelta</b> de la capa exterior).</p>',pre:[],demo:['R2'],hl:{layer:'R'}},
+    {t:'<p>Y recuerda: '+K('Rw')+' es lo mismo que '+K('R')+' más '+K('2R')+'.</p>',pre:[],demo:['R','2R'],hl:{layer:'Rw'}}];
+  PG4['A5']=[
+    {t:'<p>El 4×4 se resuelve <b>reduciéndolo a un 3×3</b>. Primero, los <b>centros</b>: cada cara con sus 4 centros del mismo color.</p>',pre:[],hl:'center'},
+    {t:'<p>Después, las <b>aristas</b>: unir las dos piezas de cada arista.</p>',pre:[],hl:'edge'},
+    {t:'<p>Con centros y aristas listos, el cubo se resuelve <b>como un 3×3</b>, con las capas exteriores.</p>',pre:[],hl:'g:solved'},
+    {t:'<p>Por último, las <b>paridades</b>: dos casos que solo existen en el 4×4 y se arreglan con un algoritmo cada uno.</p>',pre:[],hl:'g:solved'}];
+
+  var hcen='g:centers';
+  function B(id,alg,texts){var l=LL4(id),pre=invert(alg),pg=[];
+    texts.forEach(function(x,i){pg.push({t:x.t,pre:x.pre||pre,demo:x.demo,hl:x.hl||hcen,note:i===0?NF:x.note});});PG4[id]=pg;}
+  B('B1',['2R'],[
+    {t:'<p>Resolver los centros es dejar cada cara con sus 4 centros del <b>mismo color</b>. Las capas <b>internas</b> son tu herramienta. Aquí una capa interna los ha movido (borde morado).</p>'},
+    {t:'<p>'+K('2R')+' sube a la cara de arriba la columna de centros que hay <b>en el frente</b>. Como esta capa los había movido, para arreglarlo basta deshacerla.</p>',demo:['2R']},
+    {t:'<p>Las capas <b>exteriores</b> no cambian qué centros hay en cada cara: solo los giran. Las internas sí.</p>',pre:[]}]);
+  B('B2',P("2R' 2U 2R 2U'"),[
+    {t:'<p>Una capa interna mueve muchas piezas. Para mover solo <b>unos pocos centros</b> se usa un <b>conmutador</b>: una capa interna, otra en otro eje y las dos al revés.</p>'},
+    {t:'<p>'+K("2R' 2U 2R 2U'")+'. Cambia <b>6 centros</b> de sitio y deja intactas esquinas y aristas.</p>',demo:P("2R' 2U 2R 2U'")},
+    {t:'<p>Los conmutadores también se pueden hacer al revés o con otras capas: '+K("2U 2R' 2U' 2R")+' o '+K("2L 2F 2L' 2F'")+'.</p>',pre:invert(P("2L 2F 2L' 2F'")),demo:P("2L 2F 2L' 2F'")}]);
+  B('B3',P("U 2R' 2U 2R 2U' U'"),[
+    {t:'<p>Los giros de cara exteriores (U, D, R…) giran los 4 centros de su cara. Úsalos para <b>preparar</b> una pieza.</p>'},
+    {t:'<p>Primero un giro de <b>preparación</b> ('+K('U')+'), luego el conmutador...</p>',demo:['U']},
+    {t:'<p>...y al final el <b>giro inverso</b> ('+K("U'")+') para deshacer la preparación. Así el conmutador actúa sobre los centros que quieres.</p>',pre:invert(P("U 2R' 2U 2R 2U' U'")).concat(['U']),demo:P("2R' 2U 2R 2U' U'")}]);
+  B('B4',P("2R' 2U 2R 2U' 2U 2L 2U' 2L'"),[
+    {t:'<p>Cuando hay más centros descolocados, <b>encadena conmutadores</b>: cada uno arregla seis.</p>'},
+    {t:'<p>Primer conmutador:</p>',demo:P("2R' 2U 2R 2U'")},
+    {t:'<p>Segundo conmutador, con otras capas. Entre uno y otro puedes preparar con giros de cara.</p>',pre:invert(P("2R' 2U 2R 2U' 2U 2L 2U' 2L'")).concat(P("2R' 2U 2R 2U'")),demo:P("2U 2L 2U' 2L'")}]);
+  B('B5',LL4('B5').demo,[
+    {t:'<p>Los centros terminan cuando cada cara tiene sus 4 centros del mismo color, con el <b>esquema correcto</b> (blanco opuesto al amarillo, etc.).</p>'},
+    {t:'<p>Combina capas internas, conmutadores y giros de preparación hasta lograrlo.</p>',demo:LL4('B5').demo}]);
+  B('B6',['2R','2L'],[
+    {t:'<p>Para completar <b>un centro</b> (los 4 del mismo color en una cara), junta dos piezas de ese color en una <b>columna</b> y súbela con una capa interna.</p>',hl:'g:cf:w'},
+    {t:'<p>Aquí falta una columna: '+K('2R')+' la sube y el centro queda hecho.</p>',pre:invert(['2R']),demo:['2R'],hl:'g:cf:w'},
+    {t:'<p>Si la columna está en otra cara, <b>gira esa cara</b> con un giro exterior para llevarla a la posición adecuada. Repite con la otra columna.</p>',pre:invert(['2R','2L']),demo:['2R','2L'],hl:'g:cf:w'}]);
+  B('B7',['2U','2D2'],[
+    {t:'<p>Con un centro hecho, completa el siguiente <b>sin romperlo</b>. Una capa interna <b>paralela</b> al centro ya hecho no lo toca.</p>',hl:'g:cf:w,g'},
+    {t:'<p>Con el centro de arriba hecho, '+K('2U')+' y '+K('2D')+' no lo mueven. Úsalas para completar los centros de las caras laterales.</p>',demo:['2U','2D2'],hl:'g:cf:w,g'}]);
+  B('B8',LL4('B8').demo,[
+    {t:'<p>Los <b>últimos centros</b> no se pueden hacer solo con capas paralelas.</p>'},
+    {t:'<p>Aquí entra el <b>conmutador</b>: arregla seis centros sin romper los que ya están bien. Prepáralo con un giro de cara cuando haga falta.</p>',demo:LL4('B8').demo}]);
+
+  var hp='g:paired',pc=LL4('C2').pre;
+  PG4['C1']=[
+    {t:'<p>Con los centros resueltos, el siguiente paso es <b>emparejar las aristas</b>: unir las dos piezas de cada arista para formar una sola, como en el 3×3. Hay 12 aristas que emparejar.</p>',pre:pc,hl:'edge',note:'Se iluminan todas las piezas de arista.'},
+    {t:'<p>Las piezas con borde morado están <b>sueltas</b>: su pareja está en otro sitio. Hay un algoritmo que une dos piezas sin deshacer los centros. Lo vemos en la siguiente lección.</p>',pre:pc,hl:hp}];
+  PG4['C2']=[
+    {t:'<p>Para unir dos piezas de arista sueltas se usa este algoritmo:</p><p>'+K("Rw U R' U' Rw' F R F'")+'</p><p>Lo importante: <b>deja los centros intactos</b>, así no deshace lo que ya has hecho.</p>',pre:pc,demo:LL4('C2').demo,hl:hp,note:NF},
+    {t:'<p>Gira '+K('U')+' <b>antes</b> si hace falta para colocar bien las dos piezas, y repítelo hasta emparejar todas.</p>',pre:pc.concat(LL4('C2').demo),hl:hp}];
+  var pc3=LL4('C3').pre;
+  PG4['C3']=[
+    {t:'<p>Para emparejar la <b>siguiente</b> arista, gira el cubo entero con '+K('y')+' y repite el algoritmo. Así recorres las aristas una por una.</p>',pre:pc3,hl:hp,note:NF},
+    {t:'<p>Primera arista:</p>',pre:pc3,demo:LL4('C2').demo,hl:hp},
+    {t:'<p>Gira el cubo con '+K('y')+':</p>',pre:pc3.concat(LL4('C2').demo),demo:['y'],hl:hp},
+    {t:'<p>Y la siguiente arista, con el mismo algoritmo.</p>',pre:pc3.concat(LL4('C2').demo,['y']),demo:LL4('C2').demo,hl:hp}];
+  var pc4=LL4('C4').pre;
+  PG4['C4']=[
+    {t:'<p>Cuando las piezas están en el <b>lado izquierdo</b>, usa el espejo del algoritmo:</p><p>'+K("Lw' U' L U Lw F' L' F")+'</p>',pre:pc4,hl:hp,note:NF},
+    {t:'<p>Es el mismo movimiento, <b>reflejado</b>. También deja los centros intactos.</p>',pre:pc4,demo:LL4('C4').demo,hl:hp}];
+
+  var h1='g:layer1',pd=LL4('D1').pre;
+  PG4['D1']=[
+    {t:'<p>Cuando tienes los centros resueltos y todas las aristas emparejadas, el 4×4 se comporta como un <b>3×3</b>.</p>',pre:pd,hl:h1,note:NF},
+    {t:'<p>Usa solo las <b>capas exteriores</b> ('+K('R')+', '+K('L')+', '+K('U')+'…) y todo lo que sabes del 3×3 sirve: la cruz blanca, las esquinas, la capa del medio…</p>',pre:pd,demo:SEX,hl:h1}];
+  PG4['D2']=[
+    {t:'<p>La primera capa va igual que en el 3×3: coloca la esquina encima de su hueco, mira hacia dónde apunta el blanco y repite '+K("R U R' U'")+' una, tres o cinco veces. Cambia de esquina con '+K('y')+'.</p>',pre:LL4('D2').pre,demo:LL4('D2').demo,hl:h1,note:NF}];
+  PG4['D3']=[
+    {t:'<p>La capa del medio también va como en el 3×3: pon la arista delante, mira su color de arriba y usa el algoritmo de la derecha ('+K("U R U' R' U' F' U F")+') o el de la izquierda ('+K("U' L' U L U F U' F'")+').</p>',pre:LL4('D3').pre,demo:LL4('D3').demo,hl:'g:layer2',note:NF}];
+  var pd4=LL4('D4').pre;
+  PG4['D4']=[
+    {t:'<p>La capa de arriba también va como en el 3×3: la <b>cruz amarilla</b>...</p>',pre:pd4,demo:YA,hl:'g:ycross',note:NF},
+    {t:'<p>...el <b>Sune</b> para orientar las esquinas...</p>',pre:pd4.concat(YA),demo:SUNE,hl:'g:yface'},
+    {t:'<p>...el algoritmo de colocar las esquinas y el de las aristas. Usa solo capas exteriores.</p>',pre:pd4.concat(YA,SUNE),hl:'g:corners'}];
+
+  var hs='g:solved';
+  PG4['E1']=[
+    {t:'<p>Al resolver como un 3×3 puede aparecer algo <b>imposible en un 3×3</b>: una <b>paridad</b>. Hay dos casos.</p>',pre:[],hl:hs},
+    {t:'<p>Una <b>arista girada</b> (con sus colores al revés), o dos <b>aristas intercambiadas</b>.</p>',pre:[],hl:hs},
+    {t:'<p>Se arreglan con un algoritmo cada uno. Lo normal es descubrirlas <b>al final</b>, en la última capa.</p>',pre:[],hl:hs}];
+  PG4['E2']=[
+    {t:'<p>Si en la última capa hay una <b>arista girada</b> (con los colores al revés) y todo lo demás está bien, ponla en la posición de <b>delante arriba</b>.</p>',pre:LL4('E2').pre,hl:hs,note:NF},
+    {t:'<p>Y aplica el algoritmo (largo, no hace falta entenderlo paso a paso):</p><p>'+K("Rw2 B2 U2 2L U2 2R' U2 2R U2 F2 2R F2 2L' B2 Rw2")+'</p>',pre:LL4('E2').pre,demo:LL4('E2').demo,hl:hs},
+    {t:'<p>Si la arista girada está en <b>otro sitio</b>, gira el cubo con '+K('y')+' primero.</p>',pre:LL4('E2').pre.concat(LL4('E2').demo),hl:hs}];
+  PG4['E3']=[
+    {t:'<p>Si en la última capa hay <b>dos aristas intercambiadas</b> (delante y detrás) y el resto está bien:</p><p>'+K("2R2 U2 2R2 Uw2 2R2 2U2")+'</p>',pre:LL4('E3').pre,demo:LL4('E3').demo,hl:hs,note:NF},
+    {t:'<p>Si están en los <b>lados</b>, gira el cubo con '+K('y')+' antes. Si están una junto a otra, aplica el mismo algoritmo y resuelve lo que quede como un 3×3.</p>',pre:LL4('E3').pre.concat(LL4('E3').demo),hl:hs}];
+  PG4['E4']=[
+    {t:'<p>Las paridades solo aparecen <b>al final</b>, al resolver la última capa. Cuando salen, arréglalas con su algoritmo y sigue con los pasos del 3×3.</p>',pre:LL4('E4').pre,hl:hs,note:NF},
+    {t:'<p>A veces hace falta una paridad y luego los algoritmos de esquinas o aristas.</p>',pre:LL4('E4').pre,demo:LL4('E4').demo,hl:hs}];
+  setPages(LESSONS4,PG4);
+})();
+
+
+/* ---- lecciones de reconocer (3.6, 4.5, 5.9): páginas con un caso cada una ---- */
+(function(){
+  var NF='El <b>borde morado</b> marca la pieza que hay que mirar. En color, lo que ya está bien; en gris, lo que ahora no importa.';
+  function ex(id,i){var e=LL(id).exercises[i];return (e.pre||[]).concat(e.setup||[]);}
+  var h='g:layer1';
+  PG['3.6']=[
+    {t:'<p>Antes de mover nada, <b>mira</b>. Con una esquina blanca encima de su hueco, lo que decide cuántas veces repites '+K("R U R' U'")+' es <b>hacia dónde apunta el blanco</b>.</p><p>Aquí apunta a la <b>derecha</b>: <b>1</b> vez.</p>',pre:X2.concat(invert(SEX)),hl:h,note:NF},
+    {t:'<p>Si el blanco apunta hacia <b>arriba</b>: <b>3</b> veces.</p>',pre:X2.concat(invert(rep(SEX,3))),hl:h},
+    {t:'<p>Si el blanco apunta al <b>frente</b>: <b>5</b> veces.</p>',pre:X2.concat(invert(rep(SEX,5))),hl:h}];
+  h='g:layer2';
+  PG['4.5']=[
+    {t:'<p>Para saber qué algoritmo usar con una arista de arriba <b>sin amarillo</b> (borde morado), ponla <b>delante</b> girando '+K('U')+' y mira su <b>color de arriba</b>.</p><p>Aquí el color de arriba (rojo) coincide con el centro de la <b>derecha</b>: la arista va a la <b>derecha</b>.</p>',pre:X2.concat(invert(AR)),hl:h,note:NF},
+    {t:'<p>Aquí el color de arriba (naranja) coincide con el centro de la <b>izquierda</b>: la arista va a la <b>izquierda</b>.</p>',pre:X2.concat(invert(AL)),hl:h},
+    {t:'<p>Si la arista <b>no está delante</b>, primero gira '+K('U')+' hasta ponerla delante y después decide el lado.</p>',pre:ex('4.5',2),hl:h}];
+  PG['5.9']=[
+    {t:'<p>Mira primero y decide después. En la <b>cruz amarilla</b>, ¿qué forma tienen las aristas amarillas de arriba? Las de borde morado aún no tienen el amarillo arriba.</p><p>Aquí hay una <b>línea</b>.</p>',pre:X2.concat(invert(YA)),hl:'g:ycross',note:NF},
+    {t:'<p>Aquí hay una <b>L</b>.</p>',pre:X2.concat(invert(YB)),hl:'g:ycross'},
+    {t:'<p>Aquí solo está el <b>punto</b>: ninguna arista tiene el amarillo arriba.</p>',pre:X2.concat(invert(YA.concat(['U2'],YB))),hl:'g:ycross'},
+    {t:'<p>En las <b>esquinas</b>, cuenta cuántas tienen el amarillo hacia arriba. Aquí hay <b>una</b>.</p>',pre:X2.concat(invert(SUNE)),hl:'g:yface'},
+    {t:'<p>Aquí hay <b>ninguna</b>.</p>',pre:X2.concat(invert(SUNE.concat(SUNE))),hl:'g:yface'},
+    {t:'<p>Y aquí hay <b>dos</b>.</p>',pre:ex('5.9',5),hl:'g:yface'}];
+  ['3.6','4.5','5.9'].forEach(function(id){var l=LL(id);l.pages=PG[id];l.hl=PG[id][0].hl;});
+})();
+
+/* Ejercicios de reconocer: se resalta lo que hay que mirar */
+(function(){
+  function setHlAll(id,idxs,spec){var l=LESSONS3.filter(function(x){return x.id===id})[0];l.exercises.forEach(function(e,i){if(!idxs||idxs.indexOf(i)>=0)e.hl=spec;});}
+  setHlAll('3.6',null,'g:layer1');setHlAll('4.5',null,'g:layer2');setHlAll('5.9',[0,1,2],'g:ycross');setHlAll('5.9',[3,4,5],'g:yface');
+})();
+/* Todo ejercicio de resolver marca lo que falta (borde), lo que ya está bien (color) y deja en gris lo que no importa */
+[LESSONS3,LESSONS4,LESSONS2,LESSONSA].forEach(function(L){L.forEach(function(l){(l.exercises||[]).forEach(function(e){
+  if(e.t==='solve'&&e.goal)e.hl='g:'+e.goal;});});});
 /*DATA-END*/
 
 var INTRO={
@@ -1888,6 +2396,7 @@ INTRO['e3']='Vas a comprobar que reconoces cada caso de esquina y repites el alg
 INTRO['e4']='Vas a comprobar que haces la cruz amarilla en cualquiera de sus casos.';
 INTRO['e5']='Vas a comprobar que orientas y colocas las esquinas amarillas.';
 INTRO['0.6']='Vas a comprobar que dominas las piezas, los colores y las caras del cubo.';
+INTRO['S1']='Vas a aprender M, E y S: las letras de las capas de en medio.';
 INTRO['1.12']='Vas a comprobar que lees y haces bien cualquier secuencia de movimientos.';
 INTRO['F1']='Vas a aprender qué es la flor, el paso previo a la cruz blanca.';
 INTRO['F2']='Vas a aprender a subir una arista blanca de abajo cuando su blanco mira a un lado.';
@@ -1917,6 +2426,7 @@ var QUICK={
  '1.9':['¿Qué equivale a R R?','R2',["R'",'L2','U2']],
  '1.10':["¿En qué orden se lee R U F'?",'De izquierda a derecha',['De derecha a izquierda','Todo a la vez','De arriba abajo']],
  '1.11':["¿Cuántos movimientos tiene R U2 R' U R U2 R'?",'7',['5','6','8']],
+ 'S1':['¿Qué letra gira la capa de en medio entre U y D?','E',['M','S','D']],
  '2.1':['¿Qué color va abajo en el método por capas?','Blanco',['Amarillo','Verde','Rojo']],
  '2.2':['¿Qué hace x2?','Voltea el cubo entero',['Gira solo la cara derecha','Gira solo la de arriba','Mezcla el cubo']],
  '2.3':['Una arista blanca está abajo con el blanco hacia abajo. ¿Cómo la subes a la flor?','Media vuelta de su cara',['Un cuarto de U','Con y','Con x2']],
@@ -2049,7 +2559,12 @@ function initGL(){
   var down=null,ptrs={},pinch=null;
   function ptrCount(){return Object.keys(ptrs).length;}
   function endPtr(e,cancel){delete ptrs[e.pointerId];if(ptrCount()<2){if(pinch&&pinch.cube)finishCube(pinch.cube,cancel);pinch=null;}}
+  var rg=null;
+  cv.addEventListener('contextmenu',function(e){e.preventDefault();});
   cv.addEventListener('pointerdown',function(e){
+    if(e.button===2&&e.pointerType==='mouse'){
+      if(cubeGestureOK()){rg={x:e.clientX,y:e.clientY,mode:null,cube:null,sh:e.shiftKey};try{cv.setPointerCapture(e.pointerId)}catch(_){}}
+      return;}
     ptrs[e.pointerId]={x:e.clientX,y:e.clientY};
     if(ptrCount()===2){
       if(down&&down.turn&&down.turn.active){settleTurn(down.turn.t,0,null);}
@@ -2063,6 +2578,11 @@ function initGL(){
         dd0.turn=null;dd0.moved=true;dd0.hold=null;holdCue();},180);}}}
     try{cv.setPointerCapture(e.pointerId)}catch(_){}});
   cv.addEventListener('pointermove',function(e){
+    if(rg){
+      var rx=e.clientX-rg.x,ry=e.clientY-rg.y;
+      if(!rg.mode&&Math.hypot(rx,ry)>14){rg.mode=e.shiftKey?'tw':(Math.abs(ry)>=Math.abs(rx)?'v':'h');rg.cube=startCube(rg.mode);}
+      if(rg.cube){var Q3=Math.PI/2,u3=rg.mode==='v'?-ry/110:(rg.mode==='h'?-rx/110:rx/110);setTurnAngle(rg.cube,u3*Q3);}
+      return;}
     if(ptrs[e.pointerId]){ptrs[e.pointerId].x=e.clientX;ptrs[e.pointerId].y=e.clientY;}
     if(pinch&&ptrCount()===2){var k=Object.keys(ptrs),a=ptrs[k[0]],b=ptrs[k[1]];zoom=Math.max(.7,Math.min(1.3,pinch.z0*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d0));
       var mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dd=Math.hypot(a.x-b.x,a.y-b.y);
@@ -2093,11 +2613,13 @@ function initGL(){
     if(down.moved){az-=(e.clientX-down.px)*.009;el=Math.max(-1.35,Math.min(1.35,el+(e.clientY-down.py)*.009));setCam();}
     down.px=e.clientX;down.py=e.clientY;});
   cv.addEventListener('pointerup',function(e){
+    if(rg){var r0=rg;rg=null;if(r0.cube)finishCube(r0.cube,false);return;}
     endPtr(e);if(down&&down.hold){clearTimeout(down.hold);down.hold=null;}
     if(down&&down.turn&&down.turn.active){finishTurn(down);down=null;return;}
     if(down&&!down.moved&&!anim){var p=pick(e.clientX,e.clientY);if(p&&onTap)onTap(p);}
     down=null;});
   cv.addEventListener('pointercancel',function(e){
+    if(rg){var r1=rg;rg=null;if(r1.cube)finishCube(r1.cube,true);return;}
     endPtr(e,true);if(down&&down.hold){clearTimeout(down.hold);down.hold=null;}
     if(down&&down.turn&&down.turn.active){settleTurn(down.turn.t,0,null);}
     down=null;});
@@ -2130,8 +2652,10 @@ function build(){
     var g=new THREE.Group();g.position.set(c.p[0]*PS,c.p[1]*PS,c.p[2]*PS);
     var b=new THREE.Mesh(bodyGeo,new THREE.MeshBasicMaterial({color:bodyCol}));
     b.userData={kind:'body',ci:i};g.add(b);
-    var lit=!hlFn||hlFn(c);
+    var hv=hlFn?hlFn(c):1,lvl=hv===2?2:(hv?1:0),lit=lvl>0;
     c.s.forEach(function(s,si){
+      if(lvl===2){var fr=new THREE.Mesh(stickGeo,new THREE.MeshBasicMaterial({color:0xd11bd1,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));
+        fr.position.set(s.n[0]*(off-.002),s.n[1]*(off-.002),s.n[2]*(off-.002));fr.quaternion.setFromUnitVectors(z,new THREE.Vector3(s.n[0],s.n[1],s.n[2]));fr.scale.set(1.3,1.3,1);fr.userData={kind:'st',ci:i,si:si};g.add(fr);}
       var m=new THREE.Mesh(stickGeo,new THREE.MeshBasicMaterial({color:lit?HEX[s.c]:dimCol,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));
       m.position.set(s.n[0]*off,s.n[1]*off,s.n[2]*off);
       m.quaternion.setFromUnitVectors(z,new THREE.Vector3(s.n[0],s.n[1],s.n[2]));
@@ -2172,6 +2696,65 @@ function pieceItems(ci){return state[ci].s.map(function(_,si){return {ci:ci,si:s
 function faceItems(n){var r=[],k=n.join();state.forEach(function(c,ci){c.s.forEach(function(s,si){if(s.n.join()===k)r.push({ci:ci,si:si});});});return r;}
 function stageFlash(kind){sfx(kind);var st=$('#stage');st.classList.remove('fl-ok','fl-bad');void st.offsetWidth;st.classList.add('fl-'+kind);}
 function setState(cs){clearFlashes();epoch++;if(anim){var r0=anim.res;anim=null;r0();}state=cs;build();}
+
+/* ---- resaltado por objetivo: 2 = falta (borde), 1 = ya está bien (color), 0 = no importa (gris) ---- */
+var GH={st:null,g:null,map:null};
+var ROTC=null;
+function rotCenterMaps(){
+  if(ROTC&&ROTC.n===NSZ)return ROTC.a;
+  var a=[],tops=[[],['x'],['x2'],["x'"],['z'],["z'"]];
+  tops.forEach(function(t){for(var k=0;k<4;k++){var seq=t.slice();for(var i=0;i<k;i++)seq.push('y');
+    var m={};seqState(seq).forEach(function(c){if(c.s.length===1)m[c.p.join()+'|'+c.s[0].n.join()]=c.s[0].c;});a.push(m);}});
+  ROTC={n:NSZ,a:a};return a;}
+function pairedOf(cs){
+  var m={};cs.forEach(function(c){if(c.s.length===2)m[c.p.join()]=c;});
+  return function(c){
+    var q=c.p.map(function(v){return Math.abs(v)===1?-v:v}),d=m[q.join()],a={};
+    c.s.forEach(function(s){a[s.n.join()]=s.c});
+    return !!d&&d.s.every(function(s){return a[s.n.join()]===s.c});};}
+function stickerGoal(cs,f,map){
+  var cnt0={},maj={};
+  cs.forEach(function(c){c.s.forEach(function(s){if(!f(c,s))return;var k=s.n.join();(cnt0[k]=cnt0[k]||{});cnt0[k][s.c]=(cnt0[k][s.c]||0)+(c.p[1]<0?1.01:1);});});
+  Object.keys(cnt0).forEach(function(k){var best=null;Object.keys(cnt0[k]).forEach(function(x){if(!best||cnt0[k][x]>cnt0[k][best])best=x;});maj[k]=best;});
+  cs.forEach(function(c){var t=c.s.filter(function(s){return f(c,s)});if(!t.length)return;
+    map.set(c,t.every(function(s){return s.c===maj[s.n.join()]})?1:2);});}
+function goalLevels(g,cs){
+  var map=new Map(),C=centers(cs),top=C['0,1,0'],bot=C['0,-1,0'];
+  function has(c,col){return c.s.some(function(s){return s.c===col});}
+  function put(c,ok){map.set(c,ok?1:2);}
+  if(g==='flower'){var wc=OPP[top];
+    cs.forEach(function(c){
+      if(c.s.length===1){if(c.s[0].c===top)map.set(c,1);return;}
+      if(c.s.length===2&&has(c,wc))put(c,c.p[1]===LIM&&c.s.some(function(s){return isUp(s)&&s.c===wc}));});}
+  else if(g==='cross'){cs.forEach(function(c){
+      if(c.s.length===1){if(c.s[0].c===bot)map.set(c,1);return;}
+      if(c.s.length===2&&has(c,bot))put(c,pieceOK(c,C));});}
+  else if(g==='layer1'){cs.forEach(function(c){if(has(c,bot))put(c,pieceOK(c,C));});}
+  else if(g==='layer2'){cs.forEach(function(c){if(!has(c,top))put(c,pieceOK(c,C));});}
+  else if(g==='ycross'){cs.forEach(function(c){
+      if(c.s.length===1){if(c.s[0].c===top)map.set(c,1);return;}
+      if(c.s.length===2&&has(c,top))put(c,upOK(c,C));});}
+  else if(g==='yface'){cs.forEach(function(c){if(has(c,top))put(c,c.s.length===1||upOK(c,C));});}
+  else if(g==='corners'){cs.forEach(function(c){
+      if(c.s.length===1){if(c.s[0].c===top)map.set(c,1);return;}
+      if(c.s.length===3&&has(c,top))put(c,pieceOK(c,C));});}
+  else if(g==='solved'){
+    if(NSZ===4){stickerGoal(cs,function(){return true},map);}
+    else cs.forEach(function(c){put(c,pieceOK(c,C));});}
+  else if(g==='layer1x2'){stickerGoal(cs,function(c,s){return s.n.join()==='0,-1,0'||(c.p[1]===-1&&s.n[1]===0);},map);}
+  else if(g==='oll2'){stickerGoal(cs,function(c,s){return s.n.join()==='0,-1,0'||s.n.join()==='0,1,0'||(c.p[1]===-1&&s.n[1]===0);},map);}
+  else if(g==='solved2'){stickerGoal(cs,function(){return true},map);}
+  else if(g==='centers'||g==='reduced'){
+    var best=null;rotCenterMaps().forEach(function(m){var bad=0;cs.forEach(function(c){if(c.s.length===1&&m[c.p.join()+'|'+c.s[0].n.join()]!==c.s[0].c)bad++;});if(!best||bad<best.bad)best={bad:bad,m:m};});
+    cs.forEach(function(c){if(c.s.length===1)put(c,best.m[c.p.join()+'|'+c.s[0].n.join()]===c.s[0].c);});
+    if(g==='reduced'){var po=pairedOf(cs);cs.forEach(function(c){if(c.s.length===2)put(c,po(c));});}}
+  else if(g==='paired'){var po2=pairedOf(cs);cs.forEach(function(c){if(c.s.length===1)map.set(c,1);else if(c.s.length===2)put(c,po2(c));});}
+  else if(g.indexOf('cf:')===0){
+    g.slice(3).split(',').forEach(function(col){
+      var cnt={};cs.forEach(function(c){if(c.s.length===1&&c.s[0].c===col){var k=c.s[0].n.join();cnt[k]=(cnt[k]||0)+1;}});
+      var fk=null;Object.keys(cnt).forEach(function(k){if(!fk||cnt[k]>cnt[fk])fk=k;});
+      cs.forEach(function(c){if(c.s.length===1&&c.s[0].c===col)put(c,c.s[0].n.join()===fk);});});}
+  return map;}
 function setHl(spec){
   if(!spec)hlFn=null;
   else if(spec==='center')hlFn=function(c){return c.s.length===1};
@@ -2181,6 +2764,7 @@ function setHl(spec){
     var isW=function(c){return c.s.length===2&&c.s.some(function(s){return s.c==='w'})},
         isBad=function(c){return isW(c)&&!(c.p[1]===1&&c.s.some(function(s){return s.c==='w'&&s.n[1]===1}));};
     hlFn=function(c){return state.some(isBad)?isBad(c):isW(c);};}
+  else if(typeof spec==='string'&&spec.indexOf('g:')===0){var gname=spec.slice(2);hlFn=function(c){if(GH.st!==state||GH.g!==gname){GH.st=state;GH.g=gname;GH.map=goalLevels(gname,state);}var v=GH.map.get(c);return v===undefined?0:v;};}
   else if(spec.edge){var ec=spec.edge,cc=spec.center;hlFn=function(c){return (c.s.length===2&&c.s.some(function(s){return s.c===ec}))||(!!cc&&c.s.length===1&&c.s[0].c===cc);};}
   else if(spec.has){var col=spec.has;hlFn=function(c){return c.s.some(function(s){return s.c===col})};}
   else if(spec.layer){var f=mvSpec(parseMove(spec.layer));hlFn=function(c){return f.ls===null||f.ls.indexOf(c.p[f.a])>=0};}
@@ -2242,6 +2826,12 @@ function finishTurn(d){
 function camBasis(){camera.updateMatrixWorld();var m=camera.matrixWorld.elements;return {r:[m[0],m[1],m[2]],u:[m[4],m[5],m[6]],b:[m[8],m[9],m[10]]};}
 function argmax3(v){var i=0;if(Math.abs(v[1])>Math.abs(v[i]))i=1;if(Math.abs(v[2])>Math.abs(v[i]))i=2;return i;}
 function cubeGestureOK(){return NSZ===3&&!anim&&acceptsMoves();}
+document.addEventListener('keydown',function(e){
+  if(e.ctrlKey||e.metaKey||e.altKey||e.repeat)return;
+  var t=e.target&&e.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT')return;
+  var k=(e.key||'').toLowerCase();if(k!=='x'&&k!=='y'&&k!=='z')return;
+  if(!cubeGestureOK())return;
+  e.preventDefault();tlUserMoved();pushGroup(1);ex.queued++;move(k+(e.shiftKey?"'":''),{user:true});});
 /* modo: 'v' deslizar arriba/abajo, 'h' izquierda/derecha, 'tw' girar los dedos. El eje sale de cómo se ve el cubo. */
 function startCube(mode){
   var B=camBasis(),vec=mode==='v'?B.r:(mode==='h'?B.u:B.b),a=argmax3(vec),sg=vec[a]>=0?1:-1;
@@ -2256,7 +2846,7 @@ function finishCube(t,cancel){
   if(q!==0){var L='xyz'[t.a],pos=t.s*q<0;mv=Math.abs(q)===2?L+'2':L+(pos?'':"'");}
   if(mv){tlUserMoved();pushGroup(1);ex.queued++;}
   settleTurn(t,q,mv);}
-function updateTip(){var t=$('#view .tip');if(!t)return;var on=!!(settings.dragTurn&&NSZ===3&&acceptsMoves());t.textContent='Arrastra una pieza para girar la capa · desliza con 2 dedos para girar el cubo';t.hidden=on;}
+function updateTip(){var t=$('#view .tip');if(!t)return;var on=!!(settings.dragTurn&&NSZ===3&&acceptsMoves());t.textContent='Arrastra una pieza para girar la capa · 2 dedos (o clic derecho) para girar el cubo';t.hidden=on;}
 
 function pick(cx,cy){
   if(!renderer)return null;
@@ -2555,7 +3145,7 @@ function applyStep(){
 function gestureOn(){return !!(settings.dragTurn&&NSZ===3);}
 function gestureDo(e){return gestureOn()&&e.seq.every(function(m){return /^[RLUDFBMESxyz][2']?$/.test(m)});}
 var gestureOpen=false;
-function gestureHint(big){return '<details class="fb info gesturehint'+(big?'':' compact')+'"'+(gestureOpen?' open':'')+'><summary>¿Cómo mover el cubo?</summary><p>Arrastra una pieza para girar su capa. Con dos dedos giras el cubo entero: desliza hacia arriba o abajo (x), hacia los lados (y) o gira los dedos (z); separarlos o juntarlos hace zoom. Para mover la vista, arrastra el fondo o mantén pulsado sobre el cubo.</p></details>';}
+function gestureHint(big){return '<details class="fb info gesturehint'+(big?'':' compact')+'"'+(gestureOpen?' open':'')+'><summary>¿Cómo mover el cubo?</summary><p>Arrastra una pieza para girar su capa. Con dos dedos giras el cubo entero: desliza hacia arriba o abajo (x), hacia los lados (y) o gira los dedos (z); separarlos o juntarlos hace zoom. En el ordenador: clic derecho y arrastra (o las teclas <b>X</b>, <b>Y</b>, <b>Z</b>; con Mayús van al revés). Para mover la vista, arrastra el fondo o mantén pulsado sobre el cubo.</p></details>';}
 function REPLAY_BTN(act){return '<button class="btn icon outline" data-act="'+act+'" aria-label="Ver otra vez" title="Ver otra vez">'+I_REPLAY+'</button>';}
 function stepName(k){
   if(k==='intro')return lesson.exam?'Intro':'Objetivo';
@@ -2599,6 +3189,30 @@ function histHtml(){var sq=simplify(ex.moves);return ex.moves.length?'Tu secuenc
 function fbHtml(){return '<div id="fb" class="fb '+(ex.fb?ex.fb.kind:'')+'" role="status" aria-live="polite">'+(ex.fb?ex.fb.html:'')+'</div>';}
 function setFb(kind,html){ex.fb={kind:kind,html:html};var f=$('#fb');if(f){f.className='fb '+kind;f.innerHTML=html;}}
 
+
+var GOALTXT={
+  flower:'las cuatro aristas blancas arriba, con el <b>blanco mirando hacia arriba</b>. Los pétalos que ya están bien <b>deben seguir así al terminar</b>.',
+  cross:'las cuatro aristas blancas abajo, cada una con su color de lado igual al del centro de esa cara.',
+  layer1:'toda la capa blanca (abajo) resuelta: esquinas y aristas con los colores de lado iguales a sus centros.',
+  layer2:'las dos primeras capas completas, <b>sin estropear</b> la capa blanca ni lo que ya está bien.',
+  ycross:'las cuatro aristas de arriba con el amarillo hacia arriba. Las dos capas de abajo deben quedar igual.',
+  yface:'toda la cara de arriba amarilla. Las dos capas de abajo deben quedar igual.',
+  corners:'las cuatro esquinas de arriba en su sitio (sus colores de lado coinciden con los centros).',
+  solved:'el cubo entero resuelto.',
+  centers:'cada cara con sus cuatro centros del mismo color.',
+  paired:'cada arista unida con su pareja (las dos piezas del mismo color, juntas).',
+  reduced:'centros resueltos y aristas emparejadas.',
+  layer1x2:'la capa de abajo completa: la cara de abajo de un solo color y los lados de esa capa iguales.',
+  oll2:'toda la cara de arriba de un solo color, sin estropear la capa de abajo.',
+  solved2:'las seis caras de un solo color.'};
+function goalNote(e){
+  if(e.t!=='solve'||!e.goal)return '';
+  var g=e.goal,tx=GOALTXT[g]||(g.indexOf('cf:')===0?'los centros de ese color juntos en una misma cara.':'');
+  if(!tx)return '';
+  var gh=typeof e.hl==='string'&&e.hl.indexOf('g:')===0;
+  return '<div class="goalnote"><b>Objetivo:</b> '+tx+(gh?'<span class="lgd"><i class="lg f"></i>borde: lo que falta <i class="lg c"></i>en color: ya está bien <i class="lg d"></i>gris: ahora no importa</span>':'')+'</div>';}
+function padHidden(e){return (e.t==='do'&&gestureDo(e))||(settings.hidePad&&gestureOn());}
+function hintTxt(e){var h=e.hint||'';return padHidden(e)?h.replace(/\b([Pp])ulsa(?!\s*«)/g,function(m,a){return a==='P'?'Haz':'haz';}):h;}
 function renderPanel(){
   var kind=curKind(),e=curExercise(),E=lesson.exercises.length;
   var h='<div class="meta"><span>'+BLOCKS[lesson.block]+'</span><span>'+dl(lesson)+'</span></div><h2>'+lesson.title+'</h2>'+stepper()+'<div class="body">';
@@ -2642,7 +3256,7 @@ function renderPanel(){
        '<button class="btn primary" id="cont" data-act="next" style="margin-left:auto"'+(ex.interacted?'':' disabled')+'>Continuar →</button></div>';
   }else if(e){
     var n=parseInt(kind.slice(2),10)+1;
-    h+='<div class="mono" style="font-size:.8rem;color:var(--muted);margin-bottom:6px">EJERCICIO '+n+' DE '+E+(e.mixed?' · <span class="mixtag">MEZCLADO CON LECCIONES ANTERIORES</span>':'')+'</div><div class="q">'+e.q+'</div></div>';
+    h+='<div class="mono" style="font-size:.8rem;color:var(--muted);margin-bottom:6px">EJERCICIO '+n+' DE '+E+(e.mixed?' · <span class="mixtag">MEZCLADO CON LECCIONES ANTERIORES</span>':'')+'</div><div class="q">'+e.q+'</div>'+goalNote(e)+'</div>';
     if(e.t==='do'){
       h+=(gestureDo(e)?(ex.status==='pending'?gestureHint(true):'')+'<div class="hist" id="hist">'+histHtml()+'</div>':'<div class="hist" id="hist">'+histHtml()+'</div>'+padHtml(e.pad||lesson.pad,ex.status!=='pending'));
     }else if(e.t==='solve'){
@@ -2684,7 +3298,7 @@ function handleMove(mv){
   if(!e||ex.status!=='pending')return;
   if(e.t==='do'&&qturns(ex.moves)>=qturns(e.seq)){
     if(key(state)===key(seqState(e.seq))){ex.status='ok';stageFlash('ok');ex.fb={kind:'ok',html:okFb()};}
-    else{ex.status='bad';stageFlash('bad');lessonErrors++;ex.fb={kind:'bad',html:'No es esa.'+(e.nohint?'':' '+e.hint)};}
+    else{ex.status='bad';stageFlash('bad');lessonErrors++;ex.fb={kind:'bad',html:'No es esa.'+(e.nohint?'':' '+hintTxt(e))};}
     renderPanel();
   }else if(e.t==='solve'&&goalFn(e.goal)(state)){
     ex.status='ok';epoch++;stageFlash('ok');if(lesson.practice){prog.prac=prog.prac||{};prog.prac[lesson.st.key]=(prog.prac[lesson.st.key]||0)+1;saveProg();}ex.fb={kind:'ok',html:okFb()+' Lo has conseguido en '+ex.moves.length+' movimientos.'};renderPanel();}}
@@ -2726,7 +3340,7 @@ panel.addEventListener('click',function(ev){
   else if(a==='redo'){redoLast();}
   else if(a==='hint'&&e){
     ex.hints++;
-    if(ex.hints===1){lessonErrors++;setFb('info','Pista: '+e.hint);}
+    if(ex.hints===1){lessonErrors++;setFb('info','Pista: '+hintTxt(e));}
     else{setFb('info','Una solución posible: '+K(simplify(e.sol).join(' '))+'. Dale al play de la línea de tiempo para verla, o pulsa «Reiniciar» y hazla tú.');tlSet(simplify(e.sol),(e.pre||[]).concat(e.setup||[]));}}
   else if(a==='replay'&&e&&e.anim){playSeq(e.anim,e.pre,ex.status!=='ok');}
   else if(a==='opt'&&e){

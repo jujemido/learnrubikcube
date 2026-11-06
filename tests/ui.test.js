@@ -121,7 +121,7 @@ S.test('dos dedos: el eje sigue a la vista (al verlo desde el lado, deslizar arr
 });
 
 S.test('con dos dedos se puede completar un ejercicio de giro del cubo entero (x2)', async c => {
-  const pg = await c.lesson('3x3', '2.2'); await goTo(pg, 'ex0');
+  const pg = await c.lesson('3x3', '2.2'); await goTo(pg, 'ex3');
   eq((await twoFingers(pg, slide(0, -230), 24)).mv, 'x2');
   eq(await T(pg, 'status'), 'ok', 'el ejercicio debe darse por bueno');
 });
@@ -179,7 +179,7 @@ S.test('sin botonera cuando el ejercicio se puede hacer con gestos (incluido x2)
   const pg = await c.lesson('3x3', '1.10'); await goTo(pg, 'ex2');
   eq((await pg.$$('.mvbtn')).length, 0, 'ejercicio con medios giros: sin botonera');
   assert(await pg.$('.gesturehint'), 'debería haber ayuda de gestos');
-  const pg2 = await c.lesson('3x3', '2.2'); await goTo(pg2, 'ex0');
+  const pg2 = await c.lesson('3x3', '2.2'); await goTo(pg2, 'ex3');
   eq((await pg2.textContent('.q')).includes('x2'), true, 'no es el ejercicio de x2');
   eq((await pg2.$$('.mvbtn')).length, 0, 'x2 también se hace con dos dedos: sin botonera');
   const pg3 = await c.lesson('4x4', 'B1'); await goTo(pg3, 'try');
@@ -343,6 +343,83 @@ S.test('bloque 2: el mini-examen no enseña ayudas y mantiene sus 10 ejercicios'
   const kinds = (await T(pg, 'kinds')).split(',');
   eq(kinds.filter(k => k.indexOf('ex') === 0).length, 10);
   eq((await pg.$$('[data-act=hint]')).length, 0, 'sin botón de pista en el examen');
+});
+
+
+/* ---------- ordenador: clic derecho + arrastrar y teclas X, Y, Z ---------- */
+async function rightDrag(pg, dx, dy, shift) {
+  const c = await pg.$eval('#view canvas', e => { const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+  const before = await T(pg, 'hist');
+  if (shift) await pg.keyboard.down('Shift');
+  await pg.mouse.move(c.x, c.y); await pg.mouse.down({ button: 'right' });
+  for (let i = 1; i <= 14; i++) { await pg.mouse.move(c.x + dx * i / 14, c.y + dy * i / 14); await pg.waitForTimeout(15); }
+  await pg.mouse.up({ button: 'right' });
+  if (shift) await pg.keyboard.up('Shift');
+  await pg.waitForTimeout(800);
+  return (await T(pg, 'hist')).slice(before.length).trim();
+}
+
+S.test('ordenador: clic derecho y arrastrar = x / y; con Mayús = z', async c => {
+  const pg = await c.lesson('3x3', '1.1'); await goTo(pg, 'try');
+  const got = [await rightDrag(pg, 0, -130), await rightDrag(pg, 0, 130), await rightDrag(pg, -130, 0), await rightDrag(pg, 130, 0), await rightDrag(pg, 130, 0, true), await rightDrag(pg, -130, 0, true)];
+  eq(got.join(' '), "x x' y y' z z'");
+});
+
+S.test('ordenador: las teclas x, y, z giran el cubo (Mayús = al revés)', async c => {
+  const pg = await c.lesson('3x3', '1.1'); await goTo(pg, 'try');
+  for (const k of ['x', 'y', 'z']) { await pg.keyboard.press(k); await pg.waitForTimeout(500); }
+  await pg.keyboard.press('Shift+X'); await pg.waitForTimeout(500);
+  eq(await T(pg, 'hist'), "x y z x'");
+});
+
+S.test('x, y, z: la lección tiene páginas y se puede hacer cada giro con teclas', async c => {
+  const pg = await c.lesson('3x3', '2.2'); await goTo(pg, 'learn');
+  assert((await T(pg, 'pages')) >= 5, 'varias páginas');
+  await goTo(pg, 'ex0');
+  await pg.keyboard.press('x'); await pg.waitForSelector('[data-act=next]', { timeout: 6000 });
+  await goTo(pg, 'ex1'); await pg.keyboard.press('y'); await pg.waitForSelector('[data-act=next]', { timeout: 6000 });
+  await goTo(pg, 'ex2'); await pg.keyboard.press('z'); await pg.waitForSelector('[data-act=next]', { timeout: 6000 });
+});
+
+S.test('M, E y S: lección nueva, con páginas y ejercicios que se completan', async c => {
+  const pg = await c.lesson('3x3', 'S1');
+  assert((await pg.evaluate(() => window.__T.disp('3x3', 1))).indexOf('1.12') >= 0, 'se numera como 1.12');
+  await goTo(pg, 'learn');
+  assert((await T(pg, 'pages')) >= 5);
+  await goTo(pg, 'ex0'); await T(pg, 'solveStep'); await pg.waitForSelector('[data-act=next]', { timeout: 6000 });
+  eq(await T(pg, 'hist'), 'M');
+  await goTo(pg, 'ex1'); await T(pg, 'solveStep'); await pg.waitForSelector('[data-act=next]', { timeout: 6000 });
+  await goTo(pg, 'ex2'); await T(pg, 'solveStep'); await pg.waitForSelector('[data-act=next]', { timeout: 6000 });
+  eq(await T(pg, 'hist'), "S'");
+});
+
+
+/* ---------- ejercicios claros: objetivo, leyenda y pistas coherentes ---------- */
+S.test('ejercicio de resolver: muestra el objetivo y la leyenda del resaltado, con la flor ya hecha a la vista', async c => {
+  const pg = await c.lesson('3x3', '2.3'); await goTo(pg, 'ex1');
+  const t = await pg.textContent('.goalnote');
+  assert(t.includes('Objetivo') && t.includes('borde') && t.includes('gris'), 'falta el objetivo o la leyenda: ' + t);
+  assert(t.includes('deben seguir así'), 'debe decir que los pétalos hechos no se estropeen');
+  eq((await pg.$$('.goalnote .lg')).length, 3, 'tres muestras de la leyenda');
+});
+
+S.test('pista sin botonera: no dice «Pulsa»', async c => {
+  const pg = await c.lesson('3x3', '1.7'); await goTo(pg, 'ex0');
+  eq((await pg.$$('.mvbtn')).length, 0, 'este ejercicio no tiene botonera');
+  await T(pg, 'play', ['U']); await pg.waitForTimeout(900);
+  const fb = await pg.textContent('#fb');
+  assert(fb.includes('No es esa'), 'debería dar un fallo: ' + fb);
+  assert(!/Pulsa/.test(fb), 'la pista no debe decir «Pulsa» si no hay botonera: ' + fb);
+});
+
+S.test('las páginas de F2L, 2×2 y 4×4 existen y se recorren hasta «Continuar»', async c => {
+  for (const [course, id] of [['adv', 'V2'], ['2x2', 'T4'], ['4x4', 'B2']]) {
+    const pg = await c.lesson(course, id); await goTo(pg, 'learn');
+    const n = await T(pg, 'pages');
+    assert(n >= 2, course + ' ' + id + ': debería tener páginas');
+    for (let i = 1; i < n; i++) { await pg.click('[data-act=lpnext]'); await pg.waitForTimeout(150); }
+    assert(await pg.$('[data-act=next]'), course + ' ' + id + ': la última página debe tener «Continuar»');
+  }
 });
 
 /* ---------- ajustes ---------- */
