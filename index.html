@@ -254,6 +254,10 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
   .opts{grid-template-columns:minmax(0,1fr)}
   .facelist{grid-template-columns:minmax(0,1fr)}
 }
+.pgdots{display:flex;gap:6px;margin:0 0 12px}
+.pgdots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.pgdots i.done{background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.pgdots i.on{background:var(--accent)}
 .plan{margin:6px 0 10px;padding-left:1.3em;display:grid;gap:4px}
 .recap{background:var(--accent-soft);border-radius:12px;padding:14px 16px}
 .recap p{margin:6px 0 0}
@@ -495,7 +499,7 @@ function doEx(seq,q,hint,pad){return {t:'do',seq:seq,q:q,hint:hint,pad:pad};}
 function tapEx(q,test,hint,wrong){return {t:'tap',q:q,test:test,hint:hint,wrong:wrong};}
 function choiceEx(q,options,answer,hint,anim,mono){return {t:'choice',q:q,options:options,answer:answer,hint:hint,anim:anim,mono:mono};}
 var X2=['x2'];
-function solveEx(o){return {t:'solve',q:o.q,pre:o.pre||X2,setup:o.setup||invert(o.sol),sol:o.sol,goal:o.goal,hint:o.hint,expect:o.expect,prereq:o.prereq};}
+function solveEx(o){return {t:'solve',q:o.q,pre:o.pre||X2,setup:o.setup||invert(o.sol),sol:o.sol,goal:o.goal,hint:o.hint,expect:o.expect,prereq:o.prereq,hl:o.hl};}
 
 /* ---- Bloque 0 ---- */
 function tapCenter(c,hid){return tapEx('Toca el centro <b>'+NAME[c]+'</b>.',function(p){return p.type===1&&p.color===c},'Un centro es la pieza del medio de una cara y tiene un solo color.'+(hid?' Está en una cara que no ves: arrastra para girar el cubo.':''));}
@@ -668,39 +672,137 @@ LESSONS.push({id:'2.2',block:2,title:'Girar el cubo entero',sub:'x, y y z',
   demo:['x2'],demoNote:'x2 voltea el cubo: el blanco pasa abajo.',
   pad:PALL,tryKind:'moves',tryText:'Prueba x, y y z. Mira que ninguna pieza se mezcla.',
   exercises:[
-    doEx(['x2'],'Deja el centro blanco abajo con '+K('x2')+'.','Pulsa x2 (en la fila de abajo): voltea el cubo.'),
+    doEx(['x2'],'Deja el centro blanco abajo con '+K('x2')+'.','Con dos dedos, desliza hacia arriba hasta que el cubo dé media vuelta: eso es x2.'),
     choiceEx('Mira el giro y elige su notación.',fmtOpts(['x','y','z',"y'"]),'y','El cubo gira como la cara de arriba: el frente se va hacia la izquierda. Eso es y.',['y'],true),
     doEx(['y',"x'"],'Haz '+K("y x'")+'.',"Pulsa y y luego x'.")]});
 
-LESSONS.push({id:'2.3',block:2,title:'La flor: aristas de abajo',sub:'Subir la arista blanca con media vuelta',
-  recap:'La <b>flor</b> son las 4 aristas blancas alrededor del centro amarillo, con el blanco mirando arriba. Una arista blanca de abajo sube con media vuelta ('+K('F2')+', '+K('R2')+', '+K('B2')+' o '+K('L2')+').',
-  learn:'<p>Pon el cubo con el <b>amarillo arriba</b> ('+K('x2')+' desde la posición inicial). El primer objetivo es la <b>flor</b>: las 4 aristas blancas alrededor del centro amarillo, con el blanco mirando <b>hacia arriba</b>.</p><p>Si una arista blanca está en la capa de abajo con el blanco hacia abajo, súbela con una <b>media vuelta</b> de la cara donde está: '+K('F2')+', '+K('R2')+', '+K('B2')+' o '+K('L2')+'.</p><p>Si el hueco de arriba ya tiene una arista blanca, gira '+K('U')+' antes para apartarla.</p>',
-  hl:{has:'w'},pre:FLOWER.concat(['F2']),demo:['F2'],demoNote:'Una arista blanca baja y otra sube con F2.',
+/* ---- Bloque 2 paso a paso: la flor y la cruz blanca ---- */
+function FLO(sol){return FLOWER.concat(invert(sol));}   /* flor con una arista fuera de sitio; «sol» la devuelve a su sitio */
+/* una página por movimiento: cada una parte del cubo tal como queda tras los movimientos anteriores */
+function stepPages(sol,texts,from){
+  from=from||0;
+  return sol.slice(from).map(function(m,i){var k=i+from;return {t:texts[i],pre:FLO(sol).concat(sol.slice(0,k)),demo:[m],hl:'wbad'};});}
+function isWbad(p){var c=state[p.ci];return c.s.length===2&&c.s.some(function(s){return s.c==='w'})&&!(c.p[1]===1&&c.s.some(function(s){return s.c==='w'&&s.n[1]===1}));}
+function wbadTap(q,hint,pre){var e=tapEx(q,isWbad,hint);e.pre=pre;e.hl='wbad';return e;}
+function withPre(e,pre,hl){e.pre=pre;if(hl)e.hl=hl;return e;}
+var S_BD=['F2'],S_OC=['U','R2'],S_BS=P("R F' R'"),S_BS2=P("L B' L'"),S_BS3=P("R' B R"),S_MD=['R'],S_MD2=["F'"],S_MD3=['U','R'],S_TS=P("R' U F'"),S_TS2=P("L U' F");
+var CASES4=[
+  {v:'a',label:'Abajo, con el blanco hacia abajo'},
+  {v:'b',label:'Abajo, con el blanco de lado'},
+  {v:'c',label:'En la capa del medio'},
+  {v:'d',label:'Arriba, con el blanco de lado'}];
+function caseEx(ans,sol,hint){return withPre(choiceEx('¿En cuál de las cuatro situaciones está la arista blanca que falta?',shuffle(CASES4.map(function(c){return opt(c.v,c.label);})),ans,hint),FLO(sol),'wbad');}
+
+LESSONS.push({id:'F1',block:2,title:'¿Qué es la flor?',sub:'Cuatro pétalos blancos alrededor del amarillo',
+  recap:'La <b>flor</b> es el paso previo a la cruz blanca: el centro amarillo con las 4 aristas blancas alrededor, con el blanco mirando <b>hacia arriba</b>.',
+  learn:'<p>La <b>flor</b> tiene el centro amarillo en medio y cuatro <b>pétalos</b> (aristas blancas) alrededor, con el blanco mirando arriba.</p>',
+  hl:{edge:'w'},pre:FLOWER,
+  pages:[
+    {t:'<p>Para hacer la <b>cruz blanca</b> primero se forma una <b>flor</b>, y después se baja. Vamos por partes.</p><p>Así se ve una flor terminada: el <b>centro amarillo</b> en medio y, a su alrededor, <b>cuatro pétalos</b>.</p>',pre:FLOWER,hl:{edge:'w'},note:'Con «Resaltar en el cubo» se iluminan las aristas blancas.'},
+    {t:'<p>Cada <b>pétalo</b> es una <b>arista</b> (una pieza de dos colores) que lleva blanco. El otro color queda en el lado.</p><p>Lo importante: el <b>blanco</b> de cada pétalo mira <b>hacia arriba</b>, hacia el amarillo. No importa qué color tengan al lado.</p>',pre:FLOWER,hl:{edge:'w'}},
+    {t:'<p>Trabajamos con el <b>amarillo arriba</b> y el <b>blanco abajo</b> (lo hiciste con <b>x2</b>). La flor se forma en la capa de arriba, alrededor del centro amarillo.</p><p>Los centros no se mueven nunca, así que el centro amarillo es tu guía.</p>',pre:FLOWER,hl:'center'},
+    {t:'<p>Al empezar, las aristas blancas pueden estar en <b>cuatro situaciones</b>:</p><ul><li>Abajo, con el blanco <b>hacia abajo</b>.</li><li>Abajo, con el blanco <b>de lado</b>.</li><li>En la <b>capa del medio</b>.</li><li>Arriba, pero con el blanco <b>de lado</b>.</li></ul><p>Cada situación tiene su movimiento. Las vemos una por una en las próximas lecciones.</p>',pre:FLO(S_BS),hl:'wbad',note:'Aquí hay una arista blanca fuera de sitio: la que está abajo a la derecha.'}],
+  tryKind:'tap',tryText:'Toca el centro amarillo y después uno de los pétalos.',
+  exercises:[
+    withPre(tapCenter('y'),FLOWER),
+    withPre(tapEx('Toca <b>un pétalo</b>: una arista con blanco.',function(p){return p.type===2&&p.cols.indexOf('w')>=0},'Un pétalo es una pieza de dos colores: uno de ellos es el blanco.'),FLOWER),
+    withPre(choiceEx('¿Hacia dónde mira el blanco de un pétalo en la flor?',shuffle([opt('a','Hacia arriba'),opt('b','Hacia los lados'),opt('c','Hacia abajo'),opt('d','Hacia dentro')]),'a','En la flor todos los blancos miran hacia arriba, a la cara del centro amarillo.'),FLOWER),
+    withPre(choiceEx('A este cubo le falta un pétalo. ¿Qué hay que hacer?',shuffle([opt('a','Subir la arista blanca que está abajo'),opt('b','Cambiar el centro amarillo'),opt('c','Girar todo el cubo con y'),opt('d','Nada: ya está la flor')]),'a','Hay una arista blanca fuera de la flor, abajo. Hay que subirla.'),FLO(S_BD),'wbad')]});
+
+LESSONS.push({id:'2.3',block:2,title:'La flor: arista abajo',sub:'El blanco mira hacia abajo: media vuelta',
+  recap:'Una arista blanca de abajo con el blanco hacia <b>abajo</b> sube con una media vuelta de su cara ('+K('F2')+', '+K('R2')+', '+K('B2')+' o '+K('L2')+'). Si el hueco de arriba está ocupado, aparta antes con '+K('U')+'.',
+  learn:'<p>Una arista blanca de la capa de abajo, con el blanco hacia abajo, sube con una <b>media vuelta</b> de la cara donde está: '+K('F2')+', '+K('R2')+', '+K('B2')+' o '+K('L2')+'.</p><p>Si el hueco de arriba ya tiene un pétalo, gira '+K('U')+' antes para apartarlo.</p>',
+  hl:'wbad',pre:FLO(S_BD),demo:S_BD,demoNote:'Media vuelta de la cara donde está: la arista sube con el blanco hacia arriba.',
+  pages:[
+    {t:'<p>Busca una arista blanca en la <b>capa de abajo</b>. Esta es una: está abajo y su <b>blanco mira hacia abajo</b>.</p><p>La otra cara de la arista es azul, hacia el frente.</p>',pre:FLO(S_BD),hl:'wbad',view:[0.62,-0.75],note:'Estamos mirando el cubo desde abajo para ver el blanco. La arista iluminada es la que falta para completar la flor.'},
+    {t:'<p>Mira <b>justo encima</b> de ella: el hueco de arriba está <b>libre</b> (no hay ningún pétalo). Entonces puede subir directamente.</p>',pre:FLO(S_BD),hl:'wbad'},
+    {t:'<p>Se sube con una <b>media vuelta de la cara donde está la arista</b>: aquí la cara frontal, '+K('F2')+'.</p><p>El blanco queda mirando arriba: ¡un pétalo más!</p>',pre:FLO(S_BD),demo:S_BD,hl:'wbad'},
+    {t:'<p>¿Y si el hueco de arriba <b>ya tiene un pétalo</b>? Aquí la arista roja está abajo a la derecha, pero encima hay otro pétalo. Si das media vuelta, estropeas ese pétalo.</p><p>Primero <b>aparta</b> la flor con '+K('U')+' hasta que encima quede un hueco libre.</p>',pre:FLO(S_OC),demo:['U'],hl:'wbad'},
+    {t:'<p>Ahora el hueco de arriba está libre. Media vuelta de la cara derecha, '+K('R2')+', y la arista sube.</p>',pre:FLO(S_OC).concat(['U']),demo:['R2'],hl:'wbad'}],
   pad:PALL,tryKind:'moves',tryText:'Haz subir la arista blanca que está abajo.',
   exercises:[
-    solveEx({q:'Completa la flor: sube la arista blanca que está abajo.',pre:FLOWER,sol:['F2'],goal:'flower',hint:'Mira abajo: la arista blanca con el blanco hacia abajo sube con media vuelta de su cara.'}),
-    solveEx({q:'Completa la flor. Ojo: el hueco de arriba está ocupado.',pre:FLOWER,sol:['U','R2'],goal:'flower',hint:'Gira U para apartar la arista de arriba y luego sube la blanca con media vuelta.'}),
-    solveEx({q:'Completa la flor: hay dos aristas blancas abajo.',pre:FLOWER,sol:['L2','B2'],goal:'flower',hint:'Cada arista de abajo sube con la media vuelta de su cara.'})]});
+    wbadTap('Toca la arista blanca que falta por subir.','Es la que está en la capa de abajo, con el blanco mirando hacia abajo.',FLO(S_BD)),
+    solveEx({q:'Completa la flor: sube la arista blanca que está abajo.',pre:FLOWER,sol:S_BD,goal:'flower',hint:'Sube con media vuelta de la cara donde está la arista.',hl:'wbad'}),
+    solveEx({q:'Completa la flor. Ojo: el hueco de arriba está ocupado.',pre:FLOWER,sol:S_OC,goal:'flower',hint:'Gira U hasta que encima de la arista quede un hueco libre y entonces media vuelta.',hl:'wbad'}),
+    solveEx({q:'Completa la flor: hay dos aristas blancas abajo.',pre:FLOWER,sol:['L2','B2'],goal:'flower',hint:'Cada arista de abajo sube con la media vuelta de su cara.',hl:'wbad'})]});
 
-LESSONS.push({id:'2.4',block:2,title:'La flor: aristas del medio',sub:'Subir una arista de la capa del medio',
-  recap:'Una arista blanca de la <b>capa del medio</b> se sube con un cuarto de vuelta de la cara que la deja arriba, sin llevarte otra arista de la flor.',
-  learn:'<p>Si la arista blanca está en la <b>capa del medio</b> (entre dos caras), la subes con un cuarto de vuelta de la cara que la deja arriba.</p><p>Elige el giro (R, L, F, B o su contrario) que la sube <b>sin llevarse</b> una arista blanca que ya esté en la flor. Si pasa, aparta antes esa arista con '+K('U')+'.</p>',
-  hl:{has:'w'},pre:FLOWER.concat(["R'"]),demo:['R'],demoNote:'R sube la arista blanca de la capa del medio.',
+LESSONS.push({id:'F2',block:2,title:'La flor: arista abajo de lado',sub:'El blanco mira a un lado: súbela en tres pasos',
+  recap:'Si el blanco de una arista de abajo mira a un <b>lado</b>, primero se sube a la capa del medio con un cuarto de vuelta, después se sube a la flor y por último se deshace el primer giro: '+K("R F' R'")+'.',
+  learn:'<p>Si la arista está abajo pero con el blanco mirando a un lado, súbela primero a la capa del medio, luego a la flor, y deshaz el primer giro.</p>',
+  hl:'wbad',pre:FLO(S_BS),demo:S_BS,demoNote:'Tres movimientos: subir al medio, subir a la flor y deshacer el primero.',
+  pages:[{t:'<p>A veces la arista blanca está abajo, pero con el <b>blanco mirando a un lado</b> y no hacia abajo.</p><p>Aquí: la arista blanca y azul está abajo a la derecha, con el blanco mirando a la <b>derecha</b>. Una media vuelta no sirve: el blanco acabaría de lado.</p>',pre:FLO(S_BS),hl:'wbad',note:'Se arregla en tres movimientos. Vamos uno a uno.'}].concat(stepPages(S_BS,[
+    '<p><b>Paso 1.</b> Súbela a la <b>capa del medio</b> con un cuarto de vuelta de la cara donde está el blanco: '+K('R')+'. El blanco sigue mirando a la derecha.</p><p>Ojo: '+K('R')+' también mueve otras aristas de esa cara. Lo arreglamos al final.</p>',
+    '<p><b>Paso 2.</b> Ahora es una arista de la <b>capa del medio</b>, como en la lección anterior. Gira la cara <b>del otro color</b> (el azul, el frente) hacia arriba: '+K("F'")+'. El blanco queda mirando arriba.</p>',
+    '<p><b>Paso 3.</b> Deshaz el primer giro con '+K("R'")+' para devolver a su sitio lo que se había movido. ¡Flor completa!</p>'])),
+  pad:PALL,tryKind:'moves',tryText:'Prueba los tres pasos: R, F\' y R\'.',
+  exercises:[
+    solveEx({q:'Completa la flor: la arista de abajo tiene el blanco mirando a la derecha.',pre:FLOWER,sol:S_BS,goal:'flower',hint:'Primero R para subirla al medio, después F\' para llevarla arriba y por último R\' para deshacer.',hl:'wbad'}),
+    withPre(choiceEx('Una arista blanca está abajo con el blanco hacia un lado. ¿Qué haces primero?',shuffle([opt('a','La subo a la capa del medio con un cuarto de vuelta'),opt('b','Le doy media vuelta a su cara'),opt('c','Giro D hasta que mire arriba'),opt('d','Giro todo el cubo con z')]),'a','Con media vuelta el blanco acabaría de lado. Hay que subirla antes al medio.'),FLO(S_BS),'wbad'),
+    solveEx({q:'Completa la flor: esta vez la arista está abajo a la izquierda.',pre:FLOWER,sol:S_BS2,goal:'flower',hint:'Es el mismo truco al otro lado: L, B\' y L\'.',hl:'wbad'}),
+    solveEx({q:'Completa la flor: otra arista con el blanco de lado.',pre:FLOWER,sol:S_BS3,goal:'flower',hint:'Primero R\' para subirla al medio, luego B y R.',hl:'wbad'})]});
+
+LESSONS.push({id:'2.4',block:2,title:'La flor: arista del medio',sub:'Gira la cara del otro color hacia arriba',
+  recap:'Una arista blanca de la <b>capa del medio</b> se sube girando la cara <b>del otro color</b> (no la del blanco) hacia arriba. Si tropieza con un pétalo, aparta antes con '+K('U')+'.',
+  learn:'<p>Si la arista blanca está en la <b>capa del medio</b>, gira la cara <b>del otro color</b> en el sentido que la sube. El blanco queda mirando arriba.</p>',
+  hl:'wbad',pre:FLO(S_MD),demo:S_MD,demoNote:'R gira la cara roja y sube la arista: el blanco queda arriba.',
+  pages:[
+    {t:'<p>Ahora la arista blanca está en la <b>capa del medio</b>: ni arriba ni abajo, entre dos caras.</p><p>Aquí, el <b>blanco mira al frente</b> y el otro color (rojo) está a la <b>derecha</b>.</p>',pre:FLO(S_MD),hl:'wbad'},
+    {t:'<p><b>Regla:</b> gira la cara donde está el <b>otro color</b> (la roja, la de la derecha) en el sentido que sube la arista: '+K('R')+'.</p><p>El blanco, que miraba al frente, acaba mirando <b>arriba</b>.</p>',pre:FLO(S_MD),demo:S_MD,hl:'wbad'},
+    {t:'<p>Otro caso: ahora el <b>blanco mira a la derecha</b> y el otro color (azul) está al <b>frente</b>. La misma regla: gira la cara del otro color, la frontal, hacia el lado que sube la arista: '+K("F'")+'.</p><p>Fíjate en el apóstrofo: gira hacia el otro lado que '+K('F')+'.</p>',pre:FLO(S_MD2),demo:S_MD2,hl:'wbad'},
+    {t:'<p>¿Y si al subirla tropiezas con un <b>pétalo</b> que ya estaba en la flor? Aquí la arista es la misma de antes (blanco al frente, rojo a la derecha), pero arriba, en el hueco de la derecha, hay otro pétalo.</p><p>Si giras ya la cara roja, lo estropeas. Primero <b>aparta</b> la flor con '+K('U')+' hasta que el hueco de arriba quede libre.</p>',pre:FLO(S_MD3),demo:['U'],hl:'wbad'},
+    {t:'<p>Con el hueco libre, gira la cara del otro color (la derecha) hacia arriba: '+K('R')+'. ¡Un pétalo más!</p>',pre:FLO(S_MD3).concat(['U']),demo:['R'],hl:'wbad'}],
   pad:PALL,tryKind:'moves',tryText:'Sube la arista blanca de la capa del medio.',
   exercises:[
-    solveEx({q:'Completa la flor: una arista blanca está en la capa del medio.',pre:FLOWER,sol:['R'],goal:'flower',hint:'Gira la cara de la derecha para que la arista suba.'}),
-    solveEx({q:'Completa la flor: otra arista del medio.',pre:FLOWER,sol:["F'"],goal:'flower',hint:'Prueba con la cara frontal, al revés.'}),
-    solveEx({q:'Completa la flor: esta vez hay que girar U después.',pre:FLOWER,sol:['L','U'],goal:'flower',hint:'Sube con la izquierda y recoloca con U.'})]});
+    wbadTap('Toca la arista blanca que falta por subir.','Está en la capa del medio, entre dos caras, con el blanco mirando a un lado.',FLO(S_MD)),
+    solveEx({q:'Completa la flor: la arista blanca está en la capa del medio.',pre:FLOWER,sol:S_MD,goal:'flower',hint:'Gira la cara del otro color (la derecha) hacia arriba.',hl:'wbad'}),
+    solveEx({q:'Completa la flor: otra arista del medio, con el blanco a la derecha.',pre:FLOWER,sol:S_MD2,goal:'flower',hint:'Gira la cara del otro color (la frontal) hacia el otro lado: F\'.',hl:'wbad'}),
+    solveEx({q:'Completa la flor: al subirla tropezarías con un pétalo.',pre:FLOWER,sol:S_MD3,goal:'flower',hint:'Aparta la flor con U hasta que quede libre el hueco de arriba y sube la arista con R.',hl:'wbad'})]});
+
+LESSONS.push({id:'F3',block:2,title:'La flor: arista arriba de lado',sub:'Está en la flor, pero con el blanco de lado',
+  recap:'Una arista blanca en la capa de arriba con el blanco de lado <b>no está bien colocada</b>: se baja a la capa del medio, se aparta la flor con '+K('U')+' y se sube con el blanco arriba.',
+  learn:'<p>Una arista blanca arriba pero con el blanco mirando a un lado hay que sacarla y volver a meterla bien: bájala al medio, aparta con U y súbela.</p>',
+  hl:'wbad',pre:FLO(S_TS),demo:S_TS,demoNote:'Se baja al medio, se aparta la flor con U y se sube con el blanco arriba.',
+  pages:[{t:'<p>Último caso: la arista blanca ya está en la capa de <b>arriba</b>, pero con el <b>blanco mirando a un lado</b>.</p><p>Aquí está arriba a la derecha y el blanco mira a la derecha. <b>No cuenta como pétalo</b>: el blanco tiene que mirar arriba.</p>',pre:FLO(S_TS),hl:'wbad',note:'Hay que sacarla y volver a meterla bien: tres movimientos.'}].concat(stepPages(S_TS,[
+    '<p><b>Paso 1.</b> Bájala a la <b>capa del medio</b> con '+K("R'")+'. El blanco sigue mirando a la derecha.</p>',
+    '<p><b>Paso 2.</b> Aparta la flor con '+K('U')+' para que el hueco de arriba, justo sobre la arista, quede <b>libre</b>.</p>',
+    '<p><b>Paso 3.</b> Ahora es una arista del medio. Gira la cara del otro color (la frontal) hacia arriba: '+K("F'")+'. El blanco queda mirando arriba.</p>'])),
+  pad:PALL,tryKind:'moves',tryText:'Prueba los tres pasos: R\', U y F\'.',
+  exercises:[
+    solveEx({q:'Completa la flor: la arista de arriba a la derecha tiene el blanco de lado.',pre:FLOWER,sol:S_TS,goal:'flower',hint:'Bájala con R\', aparta con U y súbela con F\'.',hl:'wbad'}),
+    withPre(choiceEx('Una arista blanca está arriba, pero con el blanco mirando a un lado. ¿Está bien colocada en la flor?',shuffle([opt('a','No: hay que sacarla y volver a meterla'),opt('b','Sí: está en la capa de arriba'),opt('c','Sí, si el otro color coincide con su centro'),opt('d','Se arregla con x2')]),'a','En la flor el blanco tiene que mirar hacia arriba. Si mira a un lado, hay que recolocarla.'),FLO(S_TS),'wbad'),
+    solveEx({q:'Completa la flor: otra arista de arriba con el blanco de lado.',pre:FLOWER,sol:S_TS2,goal:'flower',hint:'Bájala a la capa del medio, aparta con U y súbela con la cara del otro color.',hl:'wbad'})]});
+
+LESSONS.push({id:'F4',block:2,title:'La flor: reconocer el caso',sub:'Cuatro situaciones, cuatro movimientos',
+  recap:'Antes de mover, <b>mira dónde está la arista blanca</b> y cómo mira el blanco: abajo con el blanco abajo (media vuelta), abajo de lado (tres pasos), en el medio (cuarto de vuelta) o arriba de lado (tres pasos).',
+  learn:'<p>Antes de mover, mira dónde está la arista blanca y cómo mira el blanco.</p>',
+  hl:'wbad',pre:FLO(S_BS),
+  pages:[
+    {t:'<p>Resumen de las <b>cuatro situaciones</b> de una arista blanca que falta en la flor:</p><ol class="plan"><li><b>Abajo, blanco hacia abajo:</b> media vuelta de su cara.</li><li><b>Abajo, blanco de lado:</b> súbela al medio, luego a la flor y deshaz el primer giro.</li><li><b>En la capa del medio:</b> gira la cara del otro color hacia arriba.</li><li><b>Arriba, blanco de lado:</b> bájala al medio, aparta con U y súbela.</li></ol>',pre:FLO(S_BS),hl:'wbad'},
+    {t:'<p><b>Antes de subir cualquier arista</b>, mira el hueco que tiene encima. Si ya hay un pétalo, <b>aparta con U</b> hasta dejarlo libre. Así no estropeas lo que ya tienes.</p><p>Se repite hasta tener los cuatro pétalos arriba. Si ya tienes los cuatro, la flor está hecha.</p>',pre:FLO(S_OC),hl:'wbad'}],
+  tryKind:'tap',tryText:'Toca la arista blanca que falta en la flor.',
+  exercises:[
+    caseEx('a',S_BD,'Está abajo y el blanco mira hacia abajo.'),
+    caseEx('b',S_BS,'Está en la capa de abajo, pero el blanco mira a la derecha: de lado.'),
+    caseEx('c',S_MD,'Está entre dos caras, en la capa del medio.'),
+    caseEx('d',S_TS,'Está arriba, pero el blanco mira a la derecha y no hacia arriba.'),
+    solveEx({q:'Completa la flor: hay una arista abajo y otra en la capa del medio.',pre:FLOWER,sol:['R','F2'],goal:'flower',hint:'Sube cada arista según su situación: cuarto de vuelta la del medio, media vuelta la de abajo.',hl:'wbad'}),
+    solveEx({q:'Completa la flor: una arista del medio, con un pétalo en el camino, y otra abajo.',pre:FLOWER,sol:['U',"F'",'L2'],goal:'flower',hint:'Aparta con U, sube la del medio y sube la de abajo con media vuelta.',hl:'wbad'})]});
 
 LESSONS.push({id:'2.5',block:2,title:'La cruz blanca',sub:'Alinear cada pétalo y bajarlo',
   recap:'Con la flor hecha, <b>gira U</b> hasta que el color lateral de un pétalo coincida con su centro y bájalo con media vuelta. Así sale la cruz blanca.',
-  learn:'<p>Con la flor hecha, mira el color lateral de cada pétalo (la cara de la arista que no es blanca). <b>Gira '+K('U')+'</b> hasta que ese color coincida con el centro de su cara y baja el pétalo con una <b>media vuelta</b>.</p><p>Repite con los otros tres. La cruz blanca queda abajo, y cada arista coincide con su centro.</p>',
-  hl:{has:'w'},pre:FLOWER,demo:['F2','R2','B2','L2'],demoNote:'Cuatro medias vueltas bajan los cuatro pétalos.',
+  learn:'<p>Con la flor hecha, mira el color lateral de cada pétalo. <b>Gira '+K('U')+'</b> hasta que ese color coincida con el centro de su cara y baja el pétalo con una <b>media vuelta</b>. Repite con los otros tres.</p>',
+  hl:{edge:'w'},pre:FLOWER,demo:['F2','R2','B2','L2'],demoNote:'Cuatro medias vueltas bajan los cuatro pétalos.',
+  pages:[
+    {t:'<p>Con la flor hecha, el último paso es <b>bajar los pétalos</b> para formar la <b>cruz blanca</b> en la capa de abajo.</p><p>Pero no valen en cualquier sitio: el <b>color lateral</b> de cada pétalo tiene que coincidir con el <b>centro de su cara</b>.</p>',pre:FLOWER.concat(['U']),hl:{edge:'w'},note:'Mira los pétalos: el color de al lado aún no coincide con el centro.'},
+    {t:'<p>Elige un pétalo y mira su color lateral (por ejemplo, el azul). Ese color tiene que estar justo <b>encima del centro azul</b> de esa cara.</p><p>Si no coincide, <b>gira la capa de arriba</b> con '+K('U')+' hasta que coincida.</p>',pre:FLOWER.concat(['U']),demo:["U'"],hl:{edge:'w'}},
+    {t:'<p>Cuando el pétalo coincide con su centro, <b>bájalo con una media vuelta</b> de esa cara: '+K('F2')+'. Así la arista blanca queda abajo, en su sitio, con el blanco hacia abajo.</p>',pre:FLOWER,demo:['F2'],hl:{edge:'w'}},
+    {t:'<p><b>Repite</b> con los otros tres pétalos: gira U si hace falta hasta que coincida y baja con media vuelta. Al final tendrás la <b>cruz blanca</b> abajo, y cada arista coincide con su centro.</p>',pre:FLOWER.concat(['F2']),demo:['R2','B2','L2'],hl:{edge:'w'}}],
   pad:PALL,tryKind:'moves',tryText:'Baja los pétalos uno a uno.',
   exercises:[
-    solveEx({q:'Haz la cruz blanca abajo.',pre:FLOWER,setup:[],sol:P('F2 R2 B2 L2'),goal:'cross',hint:'Cada pétalo ya coincide con su centro: baja los cuatro con media vuelta.'}),
-    solveEx({q:'Haz la cruz blanca abajo. La flor está girada.',pre:FLOWER,setup:['U'],sol:P("U' F2 R2 B2 L2"),goal:'cross',hint:'Gira U hasta que los colores laterales coincidan y baja cada pétalo.'}),
-    solveEx({q:'Haz la cruz blanca abajo. Los pétalos no coinciden todos a la vez.',pre:FLOWER,setup:P("B2 U B2 U' B2"),sol:P('F2 R2 U B2 U2 L2'),goal:'cross',hint:'Baja los que ya coinciden, gira U hasta alinear el siguiente, y repite.'})]});
+    solveEx({q:'Haz la cruz blanca abajo.',pre:FLOWER,setup:[],sol:P('F2 R2 B2 L2'),goal:'cross',hint:'Cada pétalo ya coincide con su centro: baja los cuatro con media vuelta.',hl:{edge:'w'}}),
+    solveEx({q:'Haz la cruz blanca abajo. La flor está girada.',pre:FLOWER,setup:['U'],sol:P("U' F2 R2 B2 L2"),goal:'cross',hint:'Gira U hasta que los colores laterales coincidan y baja cada pétalo.',hl:{edge:'w'}}),
+    withPre(choiceEx('Antes de bajar un pétalo con media vuelta, ¿qué compruebas?',shuffle([opt('a','Que su color lateral coincide con el centro de esa cara'),opt('b','Que el amarillo está abajo'),opt('c','Que hay otro pétalo al lado'),opt('d','Nada: se baja ya')]),'a','El color lateral del pétalo tiene que coincidir con el centro de su cara, si no, la cruz queda mal.'),FLOWER.concat(['U']),{edge:'w'}),
+    solveEx({q:'Haz la cruz blanca abajo. Los pétalos no coinciden todos a la vez.',pre:FLOWER,setup:P("B2 U B2 U' B2"),sol:P('F2 R2 U B2 U2 L2'),goal:'cross',hint:'Baja los que ya coinciden, gira U hasta alinear el siguiente, y repite.',hl:{edge:'w'}})]});
 
 /* Bloque 3 */
 algLesson({id:'3.1',block:3,title:'Esquina con el blanco a la derecha',sub:'Una vez R U R\' U\'',
@@ -907,6 +1009,8 @@ var MIXED={
  '5.8':mixSolve('Termina el cubo: aristas por colocar y la capa de arriba girada.',UA.concat(['U']),'solved',"Coloca las aristas con el algoritmo y alinea con U."),
  '6.1':solveEx({q:'Resuelve este cubo, con una mezcla de 14 movimientos.',pre:[],setup:P("U2 R' F D2 B L' U R2 D' F2 L B' U R"),sol:simplify(invert(P("U2 R' F D2 B L' U R2 D' F2 L B' U R"))),goal:'solved',hint:'Sigue el método paso a paso: cruz blanca, esquinas, aristas del medio y capa de arriba.'})
 };
+MIXED['F2']=mixSolve('Completa la flor: la arista de abajo mira hacia abajo.',['B2'],'flower','Media vuelta de la cara donde está la arista.',FLOWER);
+MIXED['F3']=mixSolve('Completa la flor: una arista de abajo con el blanco de lado.',S_BS2,'flower','Súbela al medio, súbela a la flor y deshaz el primer giro.',FLOWER);
 Object.keys(MIXED).forEach(function(id){
   var l=LESSONS.filter(function(x){return x.id===id})[0];
   MIXED[id].mixed=true;l.exercises.push(MIXED[id]);});
@@ -1003,8 +1107,8 @@ var EXTRA={
    doEx(['D','F2',"U'",'R','B2','L'],'Haz la secuencia '+K("D F2 U' R B2 L")+'.','')],
  '2.6':[
    sx('Completa la flor: faltan dos aristas arriba.',['R2','L2'],'flower',FLOWER),
-   sx('Completa la flor: hay una arista en el medio y el hueco está ocupado.',['B','U'],'flower',FLOWER),
-   sx('Completa la flor: una arista en el medio y otra desplazada.',["L'",'U2'],'flower',FLOWER),
+   sx('Completa la flor: una arista de abajo con el blanco de lado.',S_BS,'flower',FLOWER),
+   sx('Completa la flor: una arista de arriba con el blanco de lado.',S_TS,'flower',FLOWER),
    sx('Haz la cruz blanca abajo: hay un pétalo arriba.',['F2'],'cross',X2),
    sx('Haz la cruz blanca abajo: el pétalo está desalineado.',['U','R2'],'cross',X2),
    sx('Haz la cruz blanca abajo: la flor está girada un cuarto.',P("U F2 R2 B2 L2"),'cross',FLOWER,["U'"]),
@@ -1110,6 +1214,7 @@ var NEWL2=[
    sx('Orienta las esquinas amarillas y colócalas: ninguna mira arriba.',SUNE.concat(SUNE,['U'],CORN),'corners',X2)])
 ];
 NEWL2.forEach(function(n){var i=LESSONS.findIndex(function(x){return x.id===n.after});LESSONS.splice(i+1,0,n.l);});
+(function(){var n=0;LESSONS.forEach(function(l){if(l.block===2&&!l.exam){n++;l.disp='2.'+n;}});})();
 (function(){var n=0;LESSONS.forEach(function(l){if(l.exam){n++;l.disp='E'+n;l.title=l.title.replace('Mini-examen:','Mini-examen '+n+':');}});})();
 
 /* ======================= CURSO 4×4 ======================= */
@@ -1755,8 +1860,8 @@ var INTRO={
  '1.11':'Vas a practicar secuencias largas que mezclan todo lo anterior.',
  '2.1':'Vas a conocer los 7 pasos para resolver el cubo por capas.',
  '2.2':'Vas a aprender a girar el cubo entero con x, y y z.',
- '2.3':'Vas a aprender a subir las aristas blancas de la capa de abajo para formar la flor.',
- '2.4':'Vas a aprender a subir las aristas blancas de la capa del medio para completar la flor.',
+ '2.3':'Vas a subir una arista blanca de abajo, con el blanco hacia abajo, para formar la flor.',
+ '2.4':'Vas a aprender a subir una arista blanca de la capa del medio para completar la flor.',
  '2.5':'Vas a convertir la flor en la cruz blanca, alineando cada pétalo con su centro.',
  '3.1':'Vas a aprender a colocar una esquina blanca cuando el blanco mira a la derecha.',
  '3.2':'Vas a aprender a colocar una esquina blanca cuando el blanco mira hacia arriba.',
@@ -1784,6 +1889,10 @@ INTRO['e4']='Vas a comprobar que haces la cruz amarilla en cualquiera de sus cas
 INTRO['e5']='Vas a comprobar que orientas y colocas las esquinas amarillas.';
 INTRO['0.6']='Vas a comprobar que dominas las piezas, los colores y las caras del cubo.';
 INTRO['1.12']='Vas a comprobar que lees y haces bien cualquier secuencia de movimientos.';
+INTRO['F1']='Vas a aprender qué es la flor, el paso previo a la cruz blanca.';
+INTRO['F2']='Vas a aprender a subir una arista blanca de abajo cuando su blanco mira a un lado.';
+INTRO['F3']='Vas a aprender a corregir una arista blanca que está arriba pero con el blanco de lado.';
+INTRO['F4']='Vas a reconocer en cuál de las cuatro situaciones está cada arista blanca.';
 INTRO['2.6']='Vas a comprobar que sabes hacer la flor y la cruz blanca desde cualquier posición.';
 INTRO['3.6']='Vas a aprender a reconocer cuántas veces repetir el algoritmo según dónde mire el blanco.';
 INTRO['3.7']='Vas a comprobar que completas la primera capa sin ayuda.';
@@ -1829,7 +1938,11 @@ var QUICK={
  '5.5':['Ninguna esquina mira arriba. ¿Qué haces?','Aplicar el Sune y repetir',['Girar el cubo con z','Hacer la flor','Deshacer']],
  '5.6':['¿Dónde colocas la esquina bien puesta antes del algoritmo?','Delante a la derecha',['Detrás a la izquierda','Abajo','En el centro']],
  '5.7':['¿Dónde colocas la arista bien puesta antes del algoritmo?','Atrás',['Delante','A la derecha','Arriba']],
- '5.8':['Todo está resuelto salvo la capa de arriba girada. ¿Qué haces?','Girar U hasta alinearla',['Repetir el Sune','Girar D','Empezar de nuevo']]
+ '5.8':['Todo está resuelto salvo la capa de arriba girada. ¿Qué haces?','Girar U hasta alinearla',['Repetir el Sune','Girar D','Empezar de nuevo']],
+ 'F1':['¿Hacia dónde mira el blanco de un pétalo de la flor?','Hacia arriba',['Hacia abajo','Hacia los lados','Hacia dentro']],
+ 'F2':['Una arista blanca de abajo tiene el blanco de lado. ¿Qué haces primero?','La subo a la capa del medio',['Le doy media vuelta','Giro D','Giro todo el cubo']],
+ 'F3':['Una arista blanca está arriba con el blanco de lado. ¿Está bien colocada?','No: hay que sacarla y recolocarla',['Sí, ya está en la flor','Se arregla con x2','Se arregla con D']],
+ 'F4':['Antes de subir una arista blanca, ¿qué miras?','Si el hueco de arriba está libre',['El color del centro de abajo','Si es la arista roja','Nada: se sube ya']]
 };
 INTRO['A1']='Vas a aprender qué piezas tiene un 4×4: esquinas, piezas de arista y centros.';
 INTRO['A2']='Vas a aprender por qué los centros se mueven y qué marca los colores de cada cara.';
@@ -2064,6 +2177,11 @@ function setHl(spec){
   else if(spec==='center')hlFn=function(c){return c.s.length===1};
   else if(spec==='edge')hlFn=function(c){return c.s.length===2};
   else if(spec==='corner')hlFn=function(c){return c.s.length===3};
+  else if(spec==='wbad'){
+    var isW=function(c){return c.s.length===2&&c.s.some(function(s){return s.c==='w'})},
+        isBad=function(c){return isW(c)&&!(c.p[1]===1&&c.s.some(function(s){return s.c==='w'&&s.n[1]===1}));};
+    hlFn=function(c){return state.some(isBad)?isBad(c):isW(c);};}
+  else if(spec.edge){var ec=spec.edge;hlFn=function(c){return c.s.length===2&&c.s.some(function(s){return s.c===ec})};}
   else if(spec.has){var col=spec.has;hlFn=function(c){return c.s.some(function(s){return s.c===col})};}
   else if(spec.layer){var f=mvSpec(parseMove(spec.layer));hlFn=function(c){return f.ls===null||f.ls.indexOf(c.p[f.a])>=0};}
   build();}
@@ -2399,15 +2517,29 @@ function curStart(){
   var k=curKind(),e=curExercise();
   if(e)return exStart(e);
   if(k==='recap')return seqState(LESSONS[prevIdx(li)].pre||[]);
+  if(k==='learn'&&lesson.pages)return seqState(lesson.pages[ex&&ex.page||0].pre||lesson.pre||[]);
   return seqState(lesson.pre||[]);}
+/* «Aprende» en páginas: cada una con su texto, su cubo, su movimiento y su resaltado */
+var viewTouched=false;
+function pageView(pg){
+  if(pg&&pg.view){az=pg.view[0];el=pg.view[1];viewTouched=true;setCam();}
+  else if(viewTouched){az=DEF_AZ;el=DEF_EL;viewTouched=false;setCam();}}
+function learnPage(n){
+  var pg=lesson.pages&&lesson.pages[n];if(!pg)return;
+  epoch++;ex.page=n;tlClear();pageView(pg);
+  var pre=pg.pre||lesson.pre||[];
+  setState(seqState(pre));hlOn=true;setHl(pg.hl||lesson.hl||null);
+  renderPanel();panel.scrollTop=0;
+  var ep=epoch;if(pg.demo)setTimeout(function(){if(ep===epoch)playSeq(pg.demo,pre);},500);}
 
 function applyStep(){
   var k=curKind(),e=curExercise();
   tlClear();
+  if(k!=='learn')pageView(null);
   setState(curStart());
   onTap=handleTap;onApplied=handleMove;
   if(k==='recap'){var pv=LESSONS[prevIdx(li)];hlOn=true;setHl(pv.hl||null);}
-  else if(k==='learn'){hlOn=true;setHl(lesson.hl||null);}
+  else if(k==='learn'){hlOn=true;setHl((lesson.pages&&lesson.pages[0].hl)||lesson.hl||null);pageView(lesson.pages&&lesson.pages[0]);}
   else setHl(e&&e.hl?e.hl:null);
   if(e&&e.t==='choice'){ex.opts=shuffle(e.options);}
   if(k==='quick')ex.quick=pickQuick();
@@ -2415,7 +2547,8 @@ function applyStep(){
   if(k==='try'&&lesson.demo)tlSet(lesson.demo,lesson.pre);
   var ep=epoch;
   if(k==='recap'&&LESSONS[prevIdx(li)].demo)setTimeout(function(){if(ep===epoch)playSeq(LESSONS[prevIdx(li)].demo,LESSONS[prevIdx(li)].pre);},700);
-  if(k==='learn'&&lesson.demo)setTimeout(function(){if(ep===epoch)playSeq(lesson.demo,lesson.pre);},700);
+  if(k==='learn'&&lesson.pages){var p0=lesson.pages[0];if(p0.demo)setTimeout(function(){if(ep===epoch)playSeq(p0.demo,p0.pre||lesson.pre||[]);},700);}
+  else if(k==='learn'&&lesson.demo)setTimeout(function(){if(ep===epoch)playSeq(lesson.demo,lesson.pre);},700);
   if(e&&e.t==='choice'&&e.anim)setTimeout(function(){if(ep===epoch)playSeq(e.anim,e.pre,true);},500);
 }
 
@@ -2486,6 +2619,15 @@ function renderPanel(){
         return '<button class="'+cls+'" data-act="quick" data-v="'+oi+'"'+((qk.status!=='pending'||qk.wrong[oi])?' disabled':'')+'>'+o+'</button>';}).join('')+'</div>'+
       (qk.status==='ok'?'<div class="fb ok" role="status">¡Correcto!</div>':(Object.keys(qk.wrong).length?'<div class="fb bad" role="status">No es esa. Prueba otra.</div>':''))+
       '<div class="row"><button class="btn primary" data-act="next" style="margin-left:auto"'+(qk.status==='ok'?'':' disabled')+'>Continuar →</button></div>';
+  }else if(kind==='learn'&&lesson.pages){
+    var pgs=lesson.pages,pi=ex.page||0,pg=pgs[pi],hs=pg.hl||lesson.hl;
+    h+='<div class="pgdots" role="img" aria-label="Paso '+(pi+1)+' de '+pgs.length+'">'+pgs.map(function(_,n){return '<i class="'+(n===pi?'on':(n<pi?'done':''))+'"></i>';}).join('')+'</div>';
+    h+=pg.t;
+    if(hs)h+='<label class="toggle"><input type="checkbox" id="hlt"'+(hlOn?' checked':'')+'> Resaltar en el cubo</label>';
+    h+='</div>';
+    if(pg.note)h+='<p class="fb info" style="margin:0">'+pg.note+'</p>';
+    h+='<div class="row actions">'+(pi>0?'<button class="btn icon outline" data-act="lpprev" aria-label="Paso anterior" title="Paso anterior">←</button>':'')+(pg.demo?REPLAY_BTN('demo'):'')+
+       (pi<pgs.length-1?'<button class="btn primary" data-act="lpnext">Siguiente →</button>':'<button class="btn primary" data-act="next">Continuar →</button>')+'</div>';
   }else if(kind==='learn'){
     h+=lesson.learn;
     if(lesson.hl)h+='<label class="toggle"><input type="checkbox" id="hlt"'+(hlOn?' checked':'')+'> Resaltar en el cubo</label>';
@@ -2574,7 +2716,11 @@ panel.addEventListener('click',function(ev){
   else if(a==='mrep'){macroRep=parseInt(b.dataset.n,10);renderPanel();}
   else if(a==='macro'){tlUserMoved();var mc=curMacros()[parseInt(b.dataset.m,10)],rp=macroRep,full=[];for(var q0=0;q0<rp;q0++)full=full.concat(mc.seq);pushGroup(full.length);ex.queued+=full.length;full.forEach(function(x){move(x,{user:true,speed:1.7})});macroRep=1;renderPanel();}
   else if(a==='demo'){
-    if(kind==='recap')playSeq(LESSONS[prevIdx(li)].demo,LESSONS[prevIdx(li)].pre);else playSeq(lesson.demo,lesson.pre);}
+    if(kind==='recap')playSeq(LESSONS[prevIdx(li)].demo,LESSONS[prevIdx(li)].pre);
+    else if(kind==='learn'&&lesson.pages){var cp=lesson.pages[ex.page||0];if(cp.demo)playSeq(cp.demo,cp.pre||lesson.pre||[]);}
+    else playSeq(lesson.demo,lesson.pre);}
+  else if(a==='lpnext'){learnPage((ex.page||0)+1);}
+  else if(a==='lpprev'){learnPage((ex.page||0)-1);}
   else if(a==='reset'){ex=newEx();setState(curStart());if(tl.seq.length){tl.token++;tl.playing=false;tl.idx=0;tl.dirty=false;renderTl();}if(e&&e.t==='choice')ex.opts=shuffle(e.options);renderPanel();}
   else if(a==='undo'){undoLast();}
   else if(a==='redo'){redoLast();}
@@ -2602,8 +2748,9 @@ panel.addEventListener('toggle',function(ev){if(ev.target.classList&&ev.target.c
 panel.addEventListener('change',function(ev){
   if(ev.target.id==='hlt'){
     hlOn=ev.target.checked;
-    var src=curKind()==='recap'?LESSONS[prevIdx(li)]:lesson;
-    setHl(hlOn?(src.hl||null):null);}});
+    var src=curKind()==='recap'?LESSONS[prevIdx(li)]:lesson,hs=src.hl||null;
+    if(curKind()==='learn'&&lesson.pages)hs=lesson.pages[ex.page||0].hl||lesson.hl||null;
+    setHl(hlOn?hs:null);}});
 
 function leaveLesson(){try{if(history.state&&history.state.rubikLesson){history.back();return;}}catch(e){}showMap();}
 window.addEventListener('popstate',function(){if(!lessonView.hidden)showMap();});

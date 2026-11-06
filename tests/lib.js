@@ -40,6 +40,26 @@ const HOOK = `window.__T={
   cue:function(){return viewEl.classList.contains('holdcue');},
   holdView:function(v){settings.holdView=v;},
   speed:function(){return tl.speed;},
+  disp:function(c,b){return courseLessons(c).filter(function(l){return l.block===b&&!l.exam;}).map(function(l){return l.disp||l.id;});},
+  page:function(){return ex?(ex.page||0):0;},
+  pages:function(){return lesson&&lesson.pages?lesson.pages.length:0;},
+  quickIdx:function(){return ex&&ex.quick?ex.quick.opts.indexOf(ex.quick.answer):-1;},
+  tapAny:function(e){
+    for(var ci=0;ci<state.length;ci++){var c=state[ci];for(var si=0;si<c.s.length;si++){
+      var p={ci:ci,n:c.s[si].n,color:c.s[si].c,type:c.s.length,cols:c.s.map(function(x){return x.c;})};
+      if(!e||e.test(p)){handleTap(p);return true;}}}
+    return false;},
+  solveStep:function(){
+    var k=curKind(),e=curExercise();
+    if(k==='try'){
+      if(lesson.tryKind==='moves'){pushGroup(1);ex.queued++;move(lesson.pad[0],{user:true});}
+      else{window.__T.tapAny(null);}
+      return 'try';}
+    if(!e)return 'nav';
+    if(e.t==='do'){e.seq.forEach(function(m){pushGroup(1);ex.queued++;move(m,{user:true});});}
+    else if(e.t==='solve'){e.sol.forEach(function(m){pushGroup(1);ex.queued++;move(m,{user:true});});}
+    else if(e.t==='tap'){if(!window.__T.tapAny(e))return 'notap';}
+    return e.t;},
   screenOf:function(x,y,z){var v=new THREE.Vector3(x,y,z).project(camera);var r=renderer.domElement.getBoundingClientRect();return {x:r.left+(v.x+1)/2*r.width,y:r.top+(1-v.y)/2*r.height};}
 };
 `;

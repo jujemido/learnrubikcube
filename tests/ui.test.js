@@ -274,6 +274,77 @@ S.test('pantalla de lección completada: icono de repetir a la izquierda de «Si
   eq(labels.join(' | '), 'Repetir lección | Siguiente lección →');
 });
 
+
+/* ---------- bloque 2: la flor, paso a paso ---------- */
+S.test('bloque 2: la numeración visible es seguida (2.1 … 2.9)', async c => {
+  const pg = await c.lesson('3x3', '2.1');
+  eq((await pg.evaluate(() => window.__T.disp('3x3', 2))).join(' '), '2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9');
+});
+
+S.test('bloque 2: «Aprende» va por páginas (siguiente, anterior y última con «Continuar»)', async c => {
+  const pg = await c.lesson('3x3', 'F2'); await goTo(pg, 'learn');
+  const n = await T(pg, 'pages');
+  assert(n >= 3, 'la lección de la arista de lado debería tener varias páginas, tiene ' + n);
+  eq(await T(pg, 'page'), 0);
+  assert(!(await pg.$('[data-act=lpprev]')), 'en la primera página no hay «anterior»');
+  await pg.click('[data-act=lpnext]'); await pg.waitForTimeout(400);
+  eq(await T(pg, 'page'), 1);
+  assert(await pg.$('[data-act=lpprev]'), 'desde la segunda página sí hay «anterior»');
+  await pg.click('[data-act=lpprev]'); await pg.waitForTimeout(300);
+  eq(await T(pg, 'page'), 0);
+  for (let i = 1; i < n; i++) { await pg.click('[data-act=lpnext]'); await pg.waitForTimeout(250); }
+  assert(!(await pg.$('[data-act=lpnext]')), 'en la última página ya no hay «siguiente»');
+  assert(await pg.$('[data-act=next]'), 'en la última página debe haber «Continuar»');
+  eq((await pg.$$('.pgdots i')).length, n, 'un punto por página');
+});
+
+S.test('bloque 2: cada página enseña un movimiento y se reproduce con su cubo', async c => {
+  const pg = await c.lesson('3x3', 'F2'); await goTo(pg, 'learn');
+  await pg.click('[data-act=lpnext]'); await pg.waitForTimeout(1500);
+  assert(await pg.isVisible('#tl'), 'la página de un movimiento debe mostrar la línea de tiempo');
+  assert((await pg.textContent('.tl-cur')).trim().length > 0, 'debe indicar el movimiento (R)');
+});
+
+S.test('bloque 2: el resaltado de la flor ilumina solo la arista que falta; con la flor hecha, las cuatro', async c => {
+  const pg = await c.lesson('3x3', '2.3'); await goTo(pg, 'learn');
+  assert(await pg.$('#hlt'), 'debe existir «Resaltar en el cubo»');
+  eq(await pg.$eval('#hlt', e => e.checked), true);
+});
+
+S.test('bloque 2: se puede completar cada lección de la flor y la cruz (gestos y pasos incluidos)', async c => {
+  for (const id of ['F1', '2.3', 'F2', '2.4', 'F3', 'F4', '2.5']) {
+    const pg = await c.lesson('3x3', id);
+    let guard = 0;
+    while (guard++ < 60) {
+      const k = await T(pg, 'kind');
+      if (k === 'done') break;
+      if (k === 'intro' || k === 'recap') { await pg.click('[data-act=next]'); }
+      else if (k === 'quick') { await pg.click('[data-act=quick][data-v="' + (await T(pg, 'quickIdx')) + '"]'); await pg.click('[data-act=next]'); }
+      else if (k === 'learn') { while (await pg.$('[data-act=lpnext]')) { await pg.click('[data-act=lpnext]'); await pg.waitForTimeout(120); } await pg.click('[data-act=next]'); }
+      else if (k === 'try') { await T(pg, 'solveStep'); await pg.waitForSelector('#cont:not([disabled])', { timeout: 5000 }); await pg.click('#cont'); }
+      else if (k && k.indexOf('ex') === 0) {
+        const r = await T(pg, 'solveStep');
+        if (r === 'nav' || r === undefined || r === 'choice' || r === null) {
+          const ans = await T(pg, 'ans');
+          await pg.click('[data-act=opt][data-v="' + ans + '"]');
+        }
+        await pg.waitForSelector('[data-act=next]', { timeout: 8000 });
+        await pg.click('[data-act=next]');
+      }
+      await pg.waitForTimeout(80);
+    }
+    eq(await T(pg, 'kind'), 'done', 'la lección ' + id + ' no se pudo completar');
+    assert(await pg.evaluate(id => !!JSON.parse(localStorage.getItem('rubik-paso-a-paso-v1')).done[id], id), 'la lección ' + id + ' no quedó marcada como hecha');
+  }
+});
+
+S.test('bloque 2: el mini-examen no enseña ayudas y mantiene sus 10 ejercicios', async c => {
+  const pg = await c.lesson('3x3', '2.6'); await goTo(pg, 'ex0');
+  const kinds = (await T(pg, 'kinds')).split(',');
+  eq(kinds.filter(k => k.indexOf('ex') === 0).length, 10);
+  eq((await pg.$$('[data-act=hint]')).length, 0, 'sin botón de pista en el examen');
+});
+
 /* ---------- ajustes ---------- */
 S.test('ajustes: sin «girar capas arrastrando» y con todos los checks del mismo tamaño', async c => {
   const pg = await c.lesson('3x3', '1.1', { viewport: { width: 390, height: 800 } });
