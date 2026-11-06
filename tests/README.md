@@ -27,8 +27,8 @@ RUBIK_HTML=/ruta/a/otro.html npm test
 
 | Archivo | Qué cubre |
 |---|---|
-| `logic.test.js` | Los 4 cursos sin navegador: todos los movimientos son válidos, cada ejercicio de «resolver» parte de un cubo sin resolver y su solución cumple el objetivo, las preguntas de elegir tienen respuesta entre sus opciones y los mini-exámenes tienen 10 ejercicios. |
-| `ui.test.js` | Gestos (girar capa, 90° y 180°, mantener pulsado, dos dedos, límites del zoom), deshacer y rehacer, secuencia fusionada (`R R` → `R2`), ejercicios con medios giros, botonera, retomar lecciones y mini-exámenes, rayitas de pasos, pregunta relámpago sin saltar, pantalla de lección completada, ajustes (sonido, velocidad, exportar e importar) y que no haya errores de JavaScript. |
+| `logic.test.js` | Los 4 cursos sin navegador: todos los movimientos son válidos, cada ejercicio de «resolver» parte de un cubo sin resolver, su solución cumple el objetivo y **resalta lo que falta** (`hl: 'g:objetivo'`), las páginas de «Aprende» tienen texto y movimientos válidos, una capa del medio o un giro del cubo no vale como solución de la flor, las preguntas de elegir tienen respuesta entre sus opciones y los mini-exámenes tienen 10 ejercicios. |
+| `ui.test.js` | Gestos (girar capa, 90° y 180°, mantener pulsado, dos dedos, **clic derecho y teclas X/Y/Z en el ordenador**, límites del zoom), lecciones nuevas (M, E y S; x, y y z con práctica real), objetivo y leyenda del resaltado en los ejercicios, pistas coherentes con la botonera visible, páginas de F2L, 2×2 y 4×4, deshacer y rehacer, secuencia fusionada (`R R` → `R2`), ejercicios con medios giros, botonera, retomar lecciones y mini-exámenes, rayitas de pasos, pregunta relámpago sin saltar, pantalla de lección completada, ajustes (sonido, velocidad, exportar e importar) y que no haya errores de JavaScript. |
 | `offline.test.js` | Manifiesto e iconos, color de la barra de estado en claro y oscuro, service worker, y que la app abre **sin conexión** y sin pedir nada a internet. |
 
 ## Cómo funcionan

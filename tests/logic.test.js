@@ -20,8 +20,16 @@ const result = new Function(html.slice(a, b) + `
       lessons++;
       (l.demo||[]).concat(l.pre||[]).forEach(function(m){try{parseMove(m)}catch(e){bad.push('movimiento inválido '+name+' '+l.id+' '+m)}});
       if(l.exam&&l.exercises.length!==10)exams.push(name+' '+l.id+' tiene '+l.exercises.length+' ejercicios');
+      (l.pages||[]).forEach(function(pg,pi){
+        var tp=name+' '+l.id+' página '+(pi+1);
+        if(!pg.t)bad.push(tp+': sin texto');
+        (pg.pre||[]).concat(pg.demo||[]).forEach(function(m){try{parseMove(m)}catch(e){bad.push('movimiento inválido '+tp+' '+m)}});
+        try{seqState(pg.pre||[])}catch(e){bad.push(tp+': el estado de la página no se puede calcular')}
+      });
+      if(!l.exam&&!l.pages&&/^(2|3|4|5)\./.test(l.id)===false&&l.block>=3&&['3x3'].indexOf(name)<0&&l.id!=='F1')bad.push(name+' '+l.id+': la lección no tiene páginas');
       l.exercises.forEach(function(e,i){
         var tag=name+' '+l.id+' ex'+(i+1);
+        if(e.t==='solve'&&(!e.hl||String(e.hl).indexOf('g:')!==0))bad.push(tag+': el ejercicio de resolver no resalta lo que falta (hl g:objetivo)');
         (e.seq||e.anim||[]).forEach(function(m){try{parseMove(m)}catch(x){bad.push('movimiento inválido '+tag+' '+m)}});
         if(e.t==='solve'){
           solve++;
@@ -36,6 +44,13 @@ const result = new Function(html.slice(a, b) + `
       });
     });
   }
+  setN(3);
+  (function(){var e=LESSONS3.filter(function(x){return x.id==='2.5'})[0].exercises[0];
+    var s0=seqState((e.pre||[]).concat(e.setup||[]));
+    ['M2','x2','y2'].forEach(function(alt){if(goalFn(e.goal)(seqState(alt.split(' '),s0)))bad.push('2.5 ex1: «'+alt+'» no debería valer como solución');});
+    var f=LESSONS3.filter(function(x){return x.id==='2.3'})[0].exercises[1];
+    var f0=seqState((f.pre||[]).concat(f.setup||[]));
+    ['M','E','S','x','y','z','M2'].forEach(function(alt){if(goalFn(f.goal)(seqState([alt],f0)))bad.push('2.3 ex2: «'+alt+'» no debería valer como solución');});})();
   chk('2x2',LESSONS2,2);chk('adv',LESSONSA,3);chk('3x3',LESSONS3,3);chk('4x4',LESSONS4,4);
   return {bad:bad,lessons:lessons,solve:solve,exams:exams};
 `)();
