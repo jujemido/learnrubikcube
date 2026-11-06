@@ -696,10 +696,10 @@ function caseEx(ans,sol,hint){return withPre(choiceEx('¿En cuál de las cuatro 
 LESSONS.push({id:'F1',block:2,title:'¿Qué es la flor?',sub:'Cuatro pétalos blancos alrededor del amarillo',
   recap:'La <b>flor</b> es el paso previo a la cruz blanca: el centro amarillo con las 4 aristas blancas alrededor, con el blanco mirando <b>hacia arriba</b>.',
   learn:'<p>La <b>flor</b> tiene el centro amarillo en medio y cuatro <b>pétalos</b> (aristas blancas) alrededor, con el blanco mirando arriba.</p>',
-  hl:{edge:'w'},pre:FLOWER,
+  hl:{edge:'w',center:'y'},pre:FLOWER,
   pages:[
-    {t:'<p>Para hacer la <b>cruz blanca</b> primero se forma una <b>flor</b>, y después se baja. Vamos por partes.</p><p>Así se ve una flor terminada: el <b>centro amarillo</b> en medio y, a su alrededor, <b>cuatro pétalos</b>.</p>',pre:FLOWER,hl:{edge:'w'},note:'Con «Resaltar en el cubo» se iluminan las aristas blancas.'},
-    {t:'<p>Cada <b>pétalo</b> es una <b>arista</b> (una pieza de dos colores) que lleva blanco. El otro color queda en el lado.</p><p>Lo importante: el <b>blanco</b> de cada pétalo mira <b>hacia arriba</b>, hacia el amarillo. No importa qué color tengan al lado.</p>',pre:FLOWER,hl:{edge:'w'}},
+    {t:'<p>Para hacer la <b>cruz blanca</b> primero se forma una <b>flor</b>, y después se baja. Vamos por partes.</p><p>Así se ve una flor terminada: el <b>centro amarillo</b> en medio y, a su alrededor, <b>cuatro pétalos</b>.</p>',pre:FLOWER,hl:{edge:'w',center:'y'},note:'Con «Resaltar en el cubo» se iluminan el centro amarillo y los cuatro pétalos blancos.'},
+    {t:'<p>Cada <b>pétalo</b> es una <b>arista</b> (una pieza de dos colores) que lleva blanco. El otro color queda en el lado.</p><p>Lo importante: el <b>blanco</b> de cada pétalo mira <b>hacia arriba</b>, hacia el amarillo. No importa qué color tengan al lado.</p>',pre:FLOWER,hl:{edge:'w',center:'y'}},
     {t:'<p>Trabajamos con el <b>amarillo arriba</b> y el <b>blanco abajo</b> (lo hiciste con <b>x2</b>). La flor se forma en la capa de arriba, alrededor del centro amarillo.</p><p>Los centros no se mueven nunca, así que el centro amarillo es tu guía.</p>',pre:FLOWER,hl:'center'},
     {t:'<p>Al empezar, las aristas blancas pueden estar en <b>cuatro situaciones</b>:</p><ul><li>Abajo, con el blanco <b>hacia abajo</b>.</li><li>Abajo, con el blanco <b>de lado</b>.</li><li>En la <b>capa del medio</b>.</li><li>Arriba, pero con el blanco <b>de lado</b>.</li></ul><p>Cada situación tiene su movimiento. Las vemos una por una en las próximas lecciones.</p>',pre:FLO(S_BS),hl:'wbad',note:'Aquí hay una arista blanca fuera de sitio: la que está abajo a la derecha.'}],
   tryKind:'tap',tryText:'Toca el centro amarillo y después uno de los pétalos.',
@@ -2181,7 +2181,7 @@ function setHl(spec){
     var isW=function(c){return c.s.length===2&&c.s.some(function(s){return s.c==='w'})},
         isBad=function(c){return isW(c)&&!(c.p[1]===1&&c.s.some(function(s){return s.c==='w'&&s.n[1]===1}));};
     hlFn=function(c){return state.some(isBad)?isBad(c):isW(c);};}
-  else if(spec.edge){var ec=spec.edge;hlFn=function(c){return c.s.length===2&&c.s.some(function(s){return s.c===ec})};}
+  else if(spec.edge){var ec=spec.edge,cc=spec.center;hlFn=function(c){return (c.s.length===2&&c.s.some(function(s){return s.c===ec}))||(!!cc&&c.s.length===1&&c.s[0].c===cc);};}
   else if(spec.has){var col=spec.has;hlFn=function(c){return c.s.some(function(s){return s.c===col})};}
   else if(spec.layer){var f=mvSpec(parseMove(spec.layer));hlFn=function(c){return f.ls===null||f.ls.indexOf(c.p[f.a])>=0};}
   build();}

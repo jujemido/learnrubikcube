@@ -83,6 +83,7 @@ function suite(name) {
       let failed = 0;
       console.log('\n' + name);
       for (const [title, fn] of cases) {
+        if (process.env.ONLY && title.indexOf(process.env.ONLY) < 0) continue; /* ONLY=texto: ejecuta solo los casos cuyo título lo contenga */
         const ctx = setup ? await setup() : {};
         const t0 = Date.now();
         try {
