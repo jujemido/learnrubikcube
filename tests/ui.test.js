@@ -720,6 +720,42 @@ S.test('lecciones granulares: el repaso R3 se puede completar y las lecciones 3.
   await goTo(pg, 'ex0'); await T(pg, 'solveStep'); await pg.waitForSelector('[data-act=next]', { timeout: 30000 });
 });
 
+
+S.test('línea de tiempo: con muchos pasos es una barra con contador (no decenas de bolitas) y no se sale; con pocos, bolitas', async c => {
+  const pg = await c.app({ viewport: { width: 360, height: 760 } });
+  const ids = await pg.evaluate(() => window.__T.ids('3x3')); const idx = ids.indexOf('3.3');
+  const done = {}; ids.slice(0, idx).forEach(x => done[x] = { errors: 0, tries: 1 });
+  await pg.evaluate(d => localStorage.setItem('rubik-paso-a-paso-v1', JSON.stringify({ done: d })), done);
+  await pg.reload(); await pg.waitForTimeout(500);
+  await pg.click('.tab[data-course="3x3"]'); await pg.click('.lrow[data-lesson="' + idx + '"]'); await pg.waitForTimeout(400);
+  await pg.evaluate(() => window.__T.go('try')); await pg.waitForTimeout(500);
+  assert(await pg.$('#tlBar'), 'barra compacta con 20 movimientos');
+  eq((await pg.$$('.tl-dot')).length, 0, 'sin bolitas');
+  const r = await pg.evaluate(() => { const t = document.querySelector('#tlTrack').getBoundingClientRect(); return { l: t.left, r: t.right, w: t.width, vw: innerWidth }; });
+  assert(r.r <= r.vw && r.l >= 0 && r.w >= 200, 'la barra cabe en la pantalla y tiene sitio para tocar: ' + JSON.stringify(r));
+  const bar = await pg.$eval('#tlBar', e => { const b = e.getBoundingClientRect(); return { x: b.left + b.width * 0.5, y: b.top + b.height / 2 }; });
+  await pg.mouse.click(bar.x, bar.y); await pg.waitForTimeout(500);
+  const cnt = await pg.textContent('#tlCount'); assert(/^(9|10|11)\/20$/.test(cnt.trim()), 'tocar la mitad salta ahí: ' + cnt);
+  await pg.evaluate(() => window.__T.go('learn')); await pg.waitForTimeout(300);
+});
+
+
+S.test('lecciones largas: ningún texto con secuencias largas ensancha el panel y las rayitas caben', async c => {
+  const pg = await c.app({ viewport: { width: 360, height: 760 } });
+  const ids = await pg.evaluate(() => window.__T.ids('3x3')); const idx = ids.indexOf('3.3');
+  const done = {}; ids.slice(0, idx).forEach(x => done[x] = { errors: 0, tries: 1 });
+  await pg.evaluate(d => localStorage.setItem('rubik-paso-a-paso-v1', JSON.stringify({ done: d })), done);
+  await pg.reload(); await pg.waitForTimeout(500);
+  await pg.click('.tab[data-course="3x3"]'); await pg.click('.lrow[data-lesson="' + idx + '"]'); await pg.waitForTimeout(400);
+  const kinds = (await pg.evaluate(() => window.__T.kinds())).split(',');
+  for (const k of kinds.filter(k => k !== 'done')) {
+    await pg.evaluate(k => window.__T.go(k), k); await pg.waitForTimeout(250);
+    const r = await pg.evaluate(() => { const p = document.querySelector('#panel'), s = document.querySelector('.steps'); return { sw: p.scrollWidth, cw: p.clientWidth, sr: s ? s.getBoundingClientRect().right : 0, pr: p.getBoundingClientRect().right }; });
+    assert(r.sw <= r.cw + 1, 'paso ' + k + ': el panel se ensancha (' + r.sw + ' > ' + r.cw + ')');
+    assert(r.sr <= r.pr + 1, 'paso ' + k + ': las rayitas se salen del panel');
+  }
+});
+
 /* ---------- ajustes ---------- */
 S.test('ajustes: sin «girar capas arrastrando» y con todos los checks del mismo tamaño', async c => {
   const pg = await c.lesson('3x3', '1.1', { viewport: { width: 390, height: 800 } });

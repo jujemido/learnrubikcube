@@ -113,6 +113,8 @@ p{margin:0 0 .8em}
 button{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .mono{font-family:var(--f-mono)}
+kbd.mv.long{white-space:normal;overflow-wrap:anywhere;display:inline;line-height:1.7}
+.panel .body,.panel .q,.panel .goalnote,.panel p{min-width:0;overflow-wrap:anywhere}
 kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:1px 7px;white-space:nowrap;color:var(--ink)}
 
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
@@ -181,6 +183,14 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .tl-track::before,.tl-track::after{content:"";position:absolute;left:10px;top:50%;height:2px;transform:translateY(-50%);border-radius:2px}
 .tl-track::before{right:10px;background:var(--accent-soft);background:color-mix(in srgb,var(--accent) 35%,transparent)}
 .tl-track::after{width:calc((100% - 20px)*var(--p,0));background:var(--accent)}
+@media (max-width:560px){
+  .tl{flex-wrap:wrap;row-gap:4px}
+  .tl-track{order:10;flex:1 1 100%;min-width:100%}
+}
+.tl-bar{position:relative;flex:1;min-width:0;height:10px;margin:9px 4px;border-radius:99px;background:color-mix(in srgb,var(--accent) 28%,transparent);cursor:pointer}
+.tl-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--accent);pointer-events:none}
+.tl-bar b{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--panel);border:2px solid var(--accent);transform:translate(-50%,-50%);pointer-events:none}
+.tl-count{font-size:.78rem;color:var(--muted);white-space:nowrap;min-width:3.6em;text-align:right}
 .tl-dot{position:relative;z-index:1;flex:none;width:min(var(--d),max(7px,calc((100% - 8px)/var(--n) - 3px)));aspect-ratio:1;border-radius:50%;border:2px solid var(--accent);background:var(--panel);padding:0;cursor:pointer}
 .tl-dot.done{background:var(--accent)}
 .tl-dot.next{box-shadow:0 0 0 3px var(--accent-soft)}
@@ -399,7 +409,7 @@ html.in-lesson.full-mode.full-nopad .panel .pad,html.in-lesson.full-mode.full-no
             <div class="tl" id="tl" hidden>
               <button class="btn sm icon" id="tlPlay" aria-label="Reproducir"></button>
               <button class="btn sm icon" id="tlStop" aria-label="Volver al inicio"></button>
-              <span class="tl-cur mono" id="tlCur" aria-hidden="true"></span>
+              <span class="tl-cur mono" id="tlCur" aria-hidden="true"></span><span class="tl-count mono" id="tlCount" hidden></span>
               <div class="tl-track" id="tlTrack" role="group" aria-label="Línea de movimientos"></div>
               <span class="sel"><select id="tlSpeed" class="tl-speed" aria-label="Segundos por movimiento">
                 <option value="0.5">0,5 s</option><option value="1">1 s</option><option value="1.5">1,5 s</option><option value="2">2 s</option><option value="3">3 s</option><option value="5">5 s</option>
@@ -533,7 +543,7 @@ function goalFn(name){
 
 /*DATA-START*/
 function P(s){return s.split(' ')}
-function K(s){return '<kbd class="mv">'+s+'</kbd>'}
+function K(s){return '<kbd class="mv'+(String(s).length>34?' long':'')+'">'+s+'</kbd>'}
 function sw(c){return '<i class="sw" style="--c:'+HEX[c]+'"></i>'}
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function sameCols(a,b){return a.slice().sort().join()===b.slice().sort().join();}
@@ -2528,10 +2538,11 @@ function examHint(e){
 
 /* ---- «Algoritmo completo»: colocar es una cosa y aprender el algoritmo entero, otra ---- */
 (function(){
+  function sumSeq(sol){var n=sol.length;for(var q=1;q<=n/2;q++){if(n%q===0){var ok=true;for(var i=q;i<n;i++){if(sol[i]!==sol[i%q]){ok=false;break;}}if(ok)return K(sol.slice(0,q).join(' '))+' ×'+(n/q)+' ('+n+' movimientos)';}}return K(sol.join(' '));}
   function add(arr,id,sol,pre){
     var l=arr.filter(function(x){return x.id===id})[0];if(!l)throw new Error('lección '+id);
     var e0=l.exercises.filter(function(x){return x.t==='solve';})[0];
-    var e=solveEx({q:'<b>Algoritmo completo.</b> Haz la secuencia entera, '+K(sol.join(' '))+', y deja todo el cubo resuelto.',pre:pre||e0.pre,sol:sol,goal:e0.goal,hint:'Hazla completa, sin dejarte el final: '+sol.join(' ')+'.'});
+    var e=solveEx({q:'<b>Algoritmo completo.</b> Haz la secuencia entera, '+sumSeq(sol)+', y deja todo el cubo resuelto.',pre:pre||e0.pre,sol:sol,goal:e0.goal,hint:'Hazla completa, sin dejarte el final: '+sol.join(' ')+'.'});
     e.algo=true;l.exercises.push(e);}
   var Y=['y'];
   add(LESSONS3,'3.1',SEX);add(LESSONS3,'3.2',rep(SEX,3));add(LESSONS3,'3.3',rep(SEX,5));add(LESSONS3,'3.4',rep(SEX,2));add(LESSONS3,'3.5',SEX.concat(Y,rep(SEX,3)));
@@ -3178,7 +3189,17 @@ function renderTl(){
   var m=n+1;  /* un punto por estado: 0 = inicial, n = final */
   var size=m<=8?14:(m<=14?11:(m<=18?9:7));
   var tr=$('#tlTrack');tr.style.setProperty('--d',size+'px');tr.style.setProperty('--n',m);tr.style.setProperty('--p',Math.max(0,Math.min(1,tl.idx/n)));
-  var h='';
+  var h='',compact=n>12;
+  $('#tlCount').hidden=!compact;$('#tlCount').textContent=tl.idx+'/'+n;
+  if(compact){
+    var pc=Math.max(0,Math.min(1,tl.idx/n))*100;
+    tr.innerHTML='<div class="tl-bar" id="tlBar" role="slider" aria-label="Posición en la secuencia" aria-valuemin="0" aria-valuemax="'+n+'" aria-valuenow="'+tl.idx+'"><i style="width:'+pc+'%"></i><b style="left:'+pc+'%"></b></div>';
+    $('#tlPlay').innerHTML=tl.playing?I_PAUSE:I_PLAY;
+    $('#tlPlay').setAttribute('aria-label',tl.playing?'Pausar':'Reproducir');
+    $('#tlStop').innerHTML=I_STOP;
+    $('#tlCur').textContent=tl.hide?'?':tl.seq[tl.idx===0?0:tl.idx-1];
+    $('#tlSpeed').value=String(tl.speed);
+    return;}
   for(var k=0;k<=n;k++){
     var label=tl.hide?(k===0?'Inicio':(k===n?'Final':'Movimiento '+k)):(k===0?'Estado inicial':(k===n?'Estado final':'Tras el movimiento '+k+': '+tl.seq[k-1]));
     h+='<button class="tl-dot'+(k<=tl.idx?' done':'')+(k===tl.idx?' next':'')+'" data-i="'+k+'" title="'+label+'" aria-label="'+label+'"></button>';}
@@ -3284,6 +3305,9 @@ tlEl.addEventListener('click',function(ev){
   if(b.id==='tlPlay'){if(tl.playing)tlPause();else tlPlay();}
   else if(b.id==='tlStop')tlStop();
   else if(b.dataset.i!=null){tlJump(parseInt(b.dataset.i,10));}});
+$('#tlTrack').addEventListener('click',function(ev){
+  var bar=ev.target.closest('.tl-bar');if(!bar)return;
+  var r=bar.getBoundingClientRect(),n=tl.seq.length,k=Math.round(Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width))*n);tlJump(k);});
 $('#tlSpeed').addEventListener('change',function(ev){var v=parseFloat(ev.target.value);tl.speed=v;if(okSpeed(v)){settings.speed=v;saveSettings();}});
 
 /* ---------- progreso ---------- */
@@ -3548,7 +3572,7 @@ function renderPanel(){
   var h='<div class="meta"><span>'+blkFull(lesson.block)+'</span><span>'+dl(lesson)+'</span></div><h2>'+lesson.title+'</h2>'+stepper()+'<div class="body">';
   if(kind==='intro'){
     h+='<div class="mono eyebrow">EN ESTA LECCIÓN</div><p class="goal">'+(INTRO[lesson.id]||lesson.sub)+'</p>'+
-       (lesson.exam?'<p class="sub">'+E+' ejercicios del bloque, cada vez más difíciles. Tienes pista.</p>':'')+'</div>'+
+       (lesson.exam?'<p class="sub">'+E+' ejercicios del bloque, cada vez más difíciles. Tienes pista.</p>':(prevIdx(li)>=0?'<p class="sub">Empezamos recordando <b>«'+LESSONS[prevIdx(li)].title+'»</b>.</p>':''))+'</div>'+
        '<div class="row"><button class="btn primary" data-act="next" style="margin-left:auto">Empezar →</button></div>';
   }else if(kind==='recap'){
     var pv=LESSONS[prevIdx(li)];
