@@ -51,6 +51,13 @@ const result = new Function(html.slice(a, b) + `
     var f=LESSONS3.filter(function(x){return x.id==='2.3'})[0].exercises[1];
     var f0=seqState((f.pre||[]).concat(f.setup||[]));
     ['M','E','S','x','y','z','M2'].forEach(function(alt){if(goalFn(f.goal)(seqState([alt],f0)))bad.push('2.3 ex2: «'+alt+'» no debería valer como solución');});})();
+  (function(){
+    function F(arr,id){return arr.filter(function(x){return x.id===id})[0];}
+    ['3.1','3.2','3.3','3.4','4.1','4.2','4.3'].forEach(function(id){F(LESSONS3,id).exercises.forEach(function(e,i){
+      if((e.sol||[]).some(function(m){return /^y/.test(m);}))bad.push('3x3 '+id+' ex'+(i+1)+': pide girar el cubo con y antes de que se enseñe (3.5 / 4.4)');});});
+    F(LESSONSA,'V3').exercises.forEach(function(e,i){if((e.sol||[]).some(function(m){return /^y/.test(m);}))bad.push('adv V3 ex'+(i+1)+': pide y antes de V4');});
+    ['R3','R4'].forEach(function(id){var r=F(LESSONS3,id);if(!r||!r.optional)bad.push(id+': falta el repaso o no es opcional');});
+  })();
   chk('2x2',LESSONS2,2);chk('adv',LESSONSA,3);chk('3x3',LESSONS3,3);chk('4x4',LESSONS4,4);
   return {bad:bad,lessons:lessons,solve:solve,exams:exams};
 `)();

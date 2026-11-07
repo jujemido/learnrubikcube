@@ -2542,6 +2542,49 @@ function examHint(e){
   add(LESSONS4,'B3',P("U 2R' 2U 2R 2U' U'"));add(LESSONS4,'B4',P("2L 2F 2L' 2F' U 2F' 2R 2F 2R' U'"));
 })();
 
+
+/* ---- Lecciones más granulares: cada ejercicio usa solo lo ya enseñado ---- */
+(function(){
+  function L3(id){return LESSONS3.filter(function(l){return l.id===id})[0];}
+  function startOf(e){return (e.pre||[]).concat(e.setup||[]);}
+  var Y=['y'];
+  /* 1) los ejercicios «mezclados» que piden girar el cubo con y (se enseña en 3.5 y 4.4) salen a un repaso aparte */
+  function takeMixedY(ids){var out=[];ids.forEach(function(id){var l=L3(id);l.exercises=l.exercises.filter(function(e){
+    if(e.mixed&&e.sol&&e.sol.some(function(m){return /^y/.test(m);})){e.mixed=false;out.push(e);return false;}return true;});});return out;}
+  var m3=takeMixedY(['3.1','3.2','3.3','3.4']),m4=takeMixedY(['4.1','4.2','4.3']);
+  function repaso(id,after,block,title,sub,pages,exs,hl){
+    var l={id:id,disp:id,optional:true,block:block,title:title,sub:sub,
+      recap:'Un repaso mezcla las situaciones que ya conoces en un mismo cubo.',learn:'<p>'+sub+'</p>',hl:hl,pages:pages,
+      pad:PALL,tryKind:'moves',tryText:'Prueba con calma. Si te equivocas, pulsa «Reiniciar».',pre:X2,exercises:exs};
+    var i=LESSONS3.findIndex(function(x){return x.id===after});LESSONS3.splice(i+1,0,l);return l;}
+  var p31=m3.length?startOf(m3[0]):X2;
+  repaso('R3','3.5',3,'Repaso: varias esquinas','Una esquina cada vez, cada una con su caso',[
+    {t:'<p>Hasta ahora has colocado <b>una esquina</b> en cada ejercicio. En un cubo de verdad hay <b>varias</b> y cada una está en su situación: una con el blanco a la derecha, otra arriba, otra al frente, otra atascada.</p><p>Este repaso las <b>mezcla</b>: son ejercicios de las lecciones 3.1 a 3.4, pero con más de una esquina.</p>',pre:p31,hl:'g:layer1',note:'El borde morado marca lo que falta por colocar.'},
+    {t:'<p>Con cada esquina haces siempre lo mismo:</p><ol class="plan"><li>Ponla <b>encima de su hueco</b> con '+K('U')+'.</li><li>Mira hacia dónde apunta el <b>blanco</b>: derecha, 1 vez; arriba, 3; al frente, 5. Si está atascada, 2 o 4.</li><li>Cuando acabes, gira el cubo con '+K('y')+' y sigue con la siguiente.</li></ol>',pre:p31,hl:'g:layer1'},
+    {t:'<p>Ejemplo con <b>dos esquinas</b>: la primera tiene el blanco a la derecha (1 vez). Después gira el cubo con '+K('y')+' y la segunda queda en la misma posición.</p>',pre:p31,demo:m3.length?m3[0].sol:SEX.concat(Y,SEX),hl:'g:layer1'}],
+    m3.concat([solveEx({q:'Completa la primera capa: tres esquinas, cada una con su caso.',pre:X2,sol:rep(SEX,2).concat(Y,SEX,Y,rep(SEX,3)),goal:'layer1',hint:'Una a una: colócala con U, repite el algoritmo según el blanco y pasa a la siguiente con y.'})]),'g:layer1');
+  var p41=m4.length?startOf(m4[0]):X2;
+  repaso('R4','4.4',4,'Repaso: varias aristas','Una arista cada vez, a la derecha o a la izquierda',[
+    {t:'<p>Hasta ahora has metido <b>una arista</b> de la capa del medio en cada ejercicio. Aquí hay <b>varias</b> y cada una va a un lado distinto, o está atascada.</p><p>Son ejercicios de las lecciones 4.1 a 4.3, pero con más de una arista.</p>',pre:p41,hl:'g:layer2',note:'El borde morado marca lo que falta por colocar.'},
+    {t:'<p>Con cada arista haces siempre lo mismo:</p><ol class="plan"><li>Ponla <b>delante</b> con '+K('U')+' (su color de delante, con el centro de delante).</li><li>Mira su color de arriba: a la <b>derecha</b> usa '+K("U R U' R' U' F' U F")+'; a la <b>izquierda</b>, '+K("U' L' U L U F U' F'")+'.</li><li>Gira el cubo con '+K('y')+' para llegar a la siguiente.</li></ol><p>Si una arista está <b>atascada</b> en su hueco, sácala con el mismo algoritmo y colócala después.</p>',pre:p41,hl:'g:layer2'}],
+    m4.concat([solveEx({q:'Completa las dos primeras capas: tres aristas, a los dos lados.',pre:X2,sol:AR.concat(Y,AL,Y,AR),goal:'layer2',hint:'Una a una: delante, mira su color de arriba, derecha o izquierda, y gira con y.'})]),'g:layer2');
+
+  /* 2) V3 (F2L) pedía y antes de enseñarlo en V4 */
+  (function(){var v3=LESSONSA.filter(function(l){return l.id==='V3'})[0],v4=LESSONSA.filter(function(l){return l.id==='V4'})[0];
+    var mv=[];v3.exercises=v3.exercises.filter(function(e){if(e.mixed&&e.sol&&e.sol.some(function(m){return /^y/.test(m);})){e.mixed=false;mv.push(e);return false;}return true;});
+    mv.forEach(function(e){v4.exercises.push(e);});})();
+
+  /* 3) páginas de caso: «¿y si no está encima de su hueco?» */
+  function addPage(arr,id,pg){var l=arr.filter(function(x){return x.id===id})[0];if(!l)throw new Error(id);l.pages.splice(l.pages.length-1,0,pg);}
+  var e32=L3('3.2').exercises[1],e33=L3('3.3').exercises[1];
+  addPage(LESSONS3,'3.2',{t:'<p><b>¿Y si la esquina no está encima de su hueco?</b> Antes de repetir el algoritmo, gira '+K('U')+' hasta que lo esté (una o dos veces, según dónde esté) y después repite las tres veces.</p>',pre:startOf(e32),demo:['U'],hl:'g:layer1',note:'Aquí basta un giro de U: la esquina queda encima de su hueco.'});
+  addPage(LESSONS3,'3.3',{t:'<p><b>¿Y si la esquina no está encima de su hueco?</b> Igual que antes: gira '+K('U')+' hasta ponerla encima y después repite el algoritmo cinco veces.</p>',pre:startOf(e33),demo:["U'"],hl:'g:layer1'});
+  var e43=L3('4.3').exercises[0];
+  addPage(LESSONS3,'4.3',{t:'<p>Antes de sacar la arista atascada, pon <b>delante</b> una arista de arriba sin amarillo con '+K('U')+' (o '+K('U2')+'). El algoritmo la saca de su hueco y la deja arriba.</p>',pre:startOf(e43),demo:['U2'],hl:'g:layer2'});
+  var v8=LESSONSA.filter(function(l){return l.id==='V8'})[0],e8=v8.exercises[2];
+  v8.pages.splice(v8.pages.length-1,0,{t:'<p>Si el caso no está orientado como en el algoritmo, <b>gira '+K('U')+' antes</b> hasta dejarlo igual y aplica la secuencia.</p>',pre:startOf(e8),demo:['U'],hl:'g:yface'});
+})();
+
 /* Todo ejercicio de resolver marca lo que falta (borde), lo que ya está bien (color) y deja en gris lo que no importa */
 [LESSONS3,LESSONS4,LESSONS2,LESSONSA].forEach(function(L){L.forEach(function(l){(l.exercises||[]).forEach(function(e){
   if(e.t==='solve'&&e.goal&&!e.noHl)e.hl='g:'+e.goal;});});});
@@ -2589,6 +2632,8 @@ INTRO['e4']='Vas a comprobar que haces la cruz amarilla en cualquiera de sus cas
 INTRO['e5']='Vas a comprobar que orientas y colocas las esquinas amarillas.';
 INTRO['0.6']='Vas a comprobar que dominas las piezas, los colores y las caras del cubo.';
 INTRO['S1']='Vas a aprender M, E y S: las letras de las capas de en medio.';
+INTRO['R3']='Vas a repasar la primera capa con varias esquinas a la vez, cada una con su caso.';
+INTRO['R4']='Vas a repasar la capa del medio con varias aristas a la vez.';
 INTRO['1.12']='Vas a comprobar que lees y haces bien cualquier secuencia de movimientos.';
 INTRO['F1']='Vas a aprender qué es la flor, el paso previo a la cruz blanca.';
 INTRO['F2']='Vas a aprender a subir una arista blanca de abajo cuando su blanco mira a un lado.';
@@ -2714,7 +2759,7 @@ function courseLessons(c){return c==='4x4'?LESSONS4:(c==='adv'?LESSONSA:(c==='2x
 function curMacros(){return course==='4x4'?MACROS4:(course==='adv'?MACROSA:(course==='2x2'?MACROS2:MACROS));}
 function practFor(c){return c==='4x4'?PRACT4:(c==='adv'?PRACTA:(c==='2x2'?PRACT2:PRACT3));}
 function needs3(c){return c==='4x4'||c==='adv';}
-function course3Done(){return LESSONS3.every(function(l){return prog.done[l.id]});}
+function course3Done(){return LESSONS3.every(function(l){return l.optional||prog.done[l.id]});}
 function useCourse(c){course=c;LESSONS=courseLessons(c);setN(COURSE_N[c]);}
 var SOON4=['Qué cambia en un 4×4','Los centros','Capas internas (Rw, r)','Emparejar aristas','Reducir a un 3×3','Las paridades'];
 
@@ -3246,8 +3291,9 @@ var LS_KEY='rubik-paso-a-paso-v1';
 var prog={done:{}};
 function loadProg(){try{var s=localStorage.getItem(LS_KEY);if(s){var p=JSON.parse(s);if(p&&p.done)prog=p;}}catch(e){}}
 function saveProg(){try{localStorage.setItem(LS_KEY,JSON.stringify(prog));}catch(e){}}
-function unlocked(i){return i===0||!!prog.done[LESSONS[i-1].id]||!!prog.done[LESSONS[i].id];}
-function curIndex(){for(var i=0;i<LESSONS.length;i++){if(!prog.done[LESSONS[i].id])return i;}return -1;}
+function prevReq(i){for(var j=i-1;j>=0;j--){if(!LESSONS[j].optional)return j;}return -1;}
+function unlocked(i){if(i===0||!!prog.done[LESSONS[i].id])return true;var j=prevReq(i);return j<0||!!prog.done[LESSONS[j].id];}
+function curIndex(){for(var i=0;i<LESSONS.length;i++){if(!prog.done[LESSONS[i].id]&&!LESSONS[i].optional)return i;}return -1;}
 
 var I_CHECK='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8"/></svg>';
 var I_LOCK='<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.2" y="7" width="9.6" height="6.6" rx="1.6"/><path d="M5.4 7V5.2a2.6 2.6 0 015.2 0V7"/></svg>';
@@ -3337,7 +3383,7 @@ function enterLesson(i){
 
 /* pasos de una lección: repaso (si hay anterior), aprende, prueba, ejercicios, final */
 function dl(l){return l.disp||l.id;}
-function prevIdx(i){for(var j=i-1;j>=0;j--){if(!LESSONS[j].exam)return j;}return -1;}
+function prevIdx(i){for(var j=i-1;j>=0;j--){if(!LESSONS[j].exam&&!LESSONS[j].optional)return j;}return -1;}
 function stepKinds(){
   if(lesson.practice)return ['ex0','done'];
   var k=['intro'];
