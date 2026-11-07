@@ -618,6 +618,34 @@ S.test('training: con solo x/y/z o solo M/E/S hay variedad (no se repite la mism
   }
 });
 
+
+S.test('algoritmo completo: con R U R\' la primera capa aún no se da por buena; hace falta el U\'', async c => {
+  const pg = await c.lesson('3x3', '3.1'); await goTo(pg, 'ex0');
+  await T(pg, 'play', ['R', 'U', "R'"]); await pg.waitForTimeout(1500);
+  eq(await T(pg, 'status'), 'pending', 'con tres movimientos no debe darse por resuelto');
+  assert((await pg.textContent('#fb')).includes('Casi'), 'avisa de que falta acabar el algoritmo');
+  await T(pg, 'play', ["U'"]); await pg.waitForTimeout(1200);
+  eq(await T(pg, 'status'), 'ok', 'con el algoritmo completo sí');
+});
+
+S.test('algoritmo completo: lo mismo en el 2×2 y en el 4×4 (primera capa)', async c => {
+  for (const [course, id] of [['2x2', 'T4'], ['4x4', 'D1']]) {
+    const pg = await c.lesson(course, id); await goTo(pg, 'ex0');
+    await T(pg, 'play', ['R', 'U', "R'"]); await pg.waitForTimeout(1500);
+    eq(await T(pg, 'status'), 'pending', course + ': tres movimientos no bastan');
+    await T(pg, 'play', ["U'"]); await pg.waitForTimeout(1200);
+    eq(await T(pg, 'status'), 'ok', course + ': con el algoritmo completo sí');
+  }
+});
+
+S.test('4×4 emparejar aristas: sin devolver los centros (F R F\') no se da por resuelto', async c => {
+  const pg = await c.lesson('4x4', 'C2'); await goTo(pg, 'ex0');
+  await T(pg, 'play', ['Rw', 'U', "R'", "U'", "Rw'"]); await pg.waitForTimeout(2500);
+  eq(await T(pg, 'status'), 'pending', 'faltan los tres últimos movimientos');
+  await T(pg, 'play', ['F', 'R', "F'"]); await pg.waitForTimeout(1500);
+  eq(await T(pg, 'status'), 'ok');
+});
+
 /* ---------- ajustes ---------- */
 S.test('ajustes: sin «girar capas arrastrando» y con todos los checks del mismo tamaño', async c => {
   const pg = await c.lesson('3x3', '1.1', { viewport: { width: 390, height: 800 } });
