@@ -2347,6 +2347,17 @@ function setPages(arr,PGx){Object.keys(PGx).forEach(function(id){var l=LLx(arr,i
   ['3.6','4.5','5.9'].forEach(function(id){var l=LL(id);l.pages=PG[id];l.hl=PG[id][0].hl;});
 })();
 
+
+/* ---- preguntas relámpago: el cubo enseña la situación de la pregunta (o un cubo neutro), nunca el de la lección actual ---- */
+var QPRE={
+  'F1':[FLOWER,{edge:'w',center:'y'}],'2.3':[FLO(S_BD),'g:flower'],'2.4':[FLO(S_MD),'g:flower'],'F2':[FLO(S_BS),'g:flower'],'F3':[FLO(S_TS),'g:flower'],'F4':[FLO(S_OC),'g:flower'],
+  '2.5':[FLOWER.concat(['U']),{edge:'w'}],
+  '3.1':[X2.concat(invert(SEX)),'g:layer1'],'3.2':[X2.concat(invert(rep(SEX,3))),'g:layer1'],'3.3':[X2.concat(invert(rep(SEX,5))),'g:layer1'],'3.4':[X2.concat(invert(rep(SEX,2))),'g:layer1'],
+  '4.1':[X2.concat(invert(AR)),'g:layer2'],'4.2':[X2.concat(invert(AL)),'g:layer2'],
+  '5.1':[X2.concat(invert(YA)),'g:ycross'],'5.2':[X2.concat(invert(YB)),'g:ycross'],'5.3':[X2.concat(invert(YA.concat(['U2'],YB))),'g:ycross'],
+  '5.4':[X2.concat(invert(SUNE)),'g:yface'],'5.5':[X2.concat(invert(SUNE.concat(SUNE))),'g:yface'],
+  '5.6':[X2.concat(invert(CORN)),'g:corners'],'5.7':[X2.concat(invert(UA)),'g:solved'],'5.8':[X2.concat(['U']),'g:solved']};
+
 /* Ejercicios de reconocer: se resalta lo que hay que mirar */
 (function(){
   function setHlAll(id,idxs,spec){var l=LESSONS3.filter(function(x){return x.id===id})[0];l.exercises.forEach(function(e,i){if(!idxs||idxs.indexOf(i)>=0)e.hl=spec;});}
@@ -3165,7 +3176,9 @@ function applyStep(){
   else if(k==='learn'){hlOn=true;setHl((lesson.pages&&lesson.pages[0].hl)||lesson.hl||null);pageView(lesson.pages&&lesson.pages[0]);}
   else{setHl(e&&e.hl?e.hl:null);if(e&&e.hl)autoView(e.hl);}
   if(e&&e.t==='choice'){ex.opts=shuffle(e.options);}
-  if(k==='quick')ex.quick=pickQuick();
+  if(k==='quick'){ex.quick=pickQuick();
+    var qp=QPRE[ex.quick.id];resetView();
+    setState(seqState(qp?qp[0]:[]));setHl(qp?qp[1]:null);if(qp)autoView(qp[1]);}
   renderPanel();
   if(k==='try'&&lesson.demo)tlSet(lesson.demo,lesson.pre);
   var ep=epoch;
