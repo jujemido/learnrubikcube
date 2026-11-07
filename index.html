@@ -836,18 +836,18 @@ LESSONS.push({id:'F4',block:2,title:'La flor: reconocer el caso',sub:'Cuatro sit
 LESSONS.push({id:'2.5',block:2,title:'La cruz blanca',sub:'Alinear cada pétalo y bajarlo',
   recap:'Con la flor hecha, <b>gira U</b> hasta que el color lateral de un pétalo coincida con su centro y bájalo con media vuelta. Así sale la cruz blanca.',
   learn:'<p>Con la flor hecha, mira el color lateral de cada pétalo. <b>Gira '+K('U')+'</b> hasta que ese color coincida con el centro de su cara y baja el pétalo con una <b>media vuelta</b>. Repite con los otros tres.</p>',
-  hl:{edge:'w'},pre:FLOWER,demo:['F2','R2','B2','L2'],demoNote:'Cuatro medias vueltas bajan los cuatro pétalos.',
+  hl:{edge:'w',centers:true},pre:FLOWER,demo:['F2','R2','B2','L2'],demoNote:'Cuatro medias vueltas bajan los cuatro pétalos.',
   pages:[
-    {t:'<p>Con la flor hecha, el último paso es <b>bajar los pétalos</b> para formar la <b>cruz blanca</b> en la capa de abajo.</p><p>Pero no valen en cualquier sitio: el <b>color lateral</b> de cada pétalo tiene que coincidir con el <b>centro de su cara</b>.</p>',pre:FLOWER.concat(['U']),hl:{edge:'w'},note:'Mira los pétalos: el color de al lado aún no coincide con el centro.'},
-    {t:'<p>Elige un pétalo y mira su color lateral (por ejemplo, el azul). Ese color tiene que estar justo <b>encima del centro azul</b> de esa cara.</p><p>Si no coincide, <b>gira la capa de arriba</b> con '+K('U')+' hasta que coincida.</p>',pre:FLOWER.concat(['U']),demo:["U'"],hl:{edge:'w'}},
-    {t:'<p>Cuando el pétalo coincide con su centro, <b>bájalo con una media vuelta</b> de esa cara: '+K('F2')+'. Así la arista blanca queda abajo, en su sitio, con el blanco hacia abajo.</p>',pre:FLOWER,demo:['F2'],hl:{edge:'w'}},
-    {t:'<p><b>Repite</b> con los otros tres pétalos: gira U si hace falta hasta que coincida y baja con media vuelta. Al final tendrás la <b>cruz blanca</b> abajo, y cada arista coincide con su centro.</p>',pre:FLOWER.concat(['F2']),demo:['R2','B2','L2'],hl:{edge:'w'}}],
+    {t:'<p>Con la flor hecha, el último paso es <b>bajar los pétalos</b> para formar la <b>cruz blanca</b> en la capa de abajo.</p><p>Pero no valen en cualquier sitio: el <b>color lateral</b> de cada pétalo tiene que coincidir con el <b>centro de su cara</b>.</p>',pre:FLOWER.concat(['U']),hl:{edge:'w',centers:true},note:'Mira los pétalos: el color de al lado aún no coincide con el centro de su cara (los centros también están iluminados).'},
+    {t:'<p>Elige un pétalo y mira su color lateral (por ejemplo, el azul). Ese color tiene que estar justo <b>encima del centro azul</b> de esa cara.</p><p>Si no coincide, <b>gira la capa de arriba</b> con '+K('U')+' hasta que coincida.</p>',pre:FLOWER.concat(['U']),demo:["U'"],hl:{edge:'w',centers:true}},
+    {t:'<p>Cuando el pétalo coincide con su centro, <b>bájalo con una media vuelta</b> de esa cara: '+K('F2')+'. Así la arista blanca queda abajo, en su sitio, con el blanco hacia abajo.</p>',pre:FLOWER,demo:['F2'],hl:{edge:'w',centers:true}},
+    {t:'<p><b>Repite</b> con los otros tres pétalos: gira U si hace falta hasta que coincida y baja con media vuelta. Al final tendrás la <b>cruz blanca</b> abajo, y cada arista coincide con su centro.</p>',pre:FLOWER.concat(['F2']),demo:['R2','B2','L2'],hl:{edge:'w',centers:true}}],
   pad:PALL,tryKind:'moves',tryText:'Baja los pétalos uno a uno.',
   exercises:[
-    solveEx({q:'Haz la cruz blanca abajo.',pre:FLOWER,setup:[],sol:P('F2 R2 B2 L2'),goal:'cross',hint:'Cada pétalo ya coincide con su centro: baja los cuatro con media vuelta.',hl:{edge:'w'}}),
-    solveEx({q:'Haz la cruz blanca abajo. La flor está girada.',pre:FLOWER,setup:['U'],sol:P("U' F2 R2 B2 L2"),goal:'cross',hint:'Gira U hasta que los colores laterales coincidan y baja cada pétalo.',hl:{edge:'w'}}),
-    withPre(choiceEx('Antes de bajar un pétalo con media vuelta, ¿qué compruebas?',shuffle([opt('a','Que su color lateral coincide con el centro de esa cara'),opt('b','Que el amarillo está abajo'),opt('c','Que hay otro pétalo al lado'),opt('d','Nada: se baja ya')]),'a','El color lateral del pétalo tiene que coincidir con el centro de su cara, si no, la cruz queda mal.'),FLOWER.concat(['U']),{edge:'w'}),
-    solveEx({q:'Haz la cruz blanca abajo. Los pétalos no coinciden todos a la vez.',pre:FLOWER,setup:P("B2 U B2 U' B2"),sol:P('F2 R2 U B2 U2 L2'),goal:'cross',hint:'Baja los que ya coinciden, gira U hasta alinear el siguiente, y repite.',hl:{edge:'w'}})]});
+    solveEx({q:'Haz la cruz blanca abajo.',pre:FLOWER,setup:[],sol:P('F2 R2 B2 L2'),goal:'cross',hint:'Cada pétalo ya coincide con su centro: baja los cuatro con media vuelta.',hl:{edge:'w',centers:true}}),
+    solveEx({q:'Haz la cruz blanca abajo. La flor está girada.',pre:FLOWER,setup:['U'],sol:P("U' F2 R2 B2 L2"),goal:'cross',hint:'Gira U hasta que los colores laterales coincidan y baja cada pétalo.',hl:{edge:'w',centers:true}}),
+    withPre(choiceEx('Antes de bajar un pétalo con media vuelta, ¿qué compruebas?',shuffle([opt('a','Que su color lateral coincide con el centro de esa cara'),opt('b','Que el amarillo está abajo'),opt('c','Que hay otro pétalo al lado'),opt('d','Nada: se baja ya')]),'a','El color lateral del pétalo tiene que coincidir con el centro de su cara, si no, la cruz queda mal.'),FLOWER.concat(['U']),{edge:'w',centers:true}),
+    solveEx({q:'Haz la cruz blanca abajo. Los pétalos no coinciden todos a la vez.',pre:FLOWER,setup:P("B2 U B2 U' B2"),sol:P('F2 R2 U B2 U2 L2'),goal:'cross',hint:'Baja los que ya coinciden, gira U hasta alinear el siguiente, y repite.',hl:{edge:'w',centers:true}})]});
 
 /* Bloque 3 */
 algLesson({id:'3.1',block:3,title:'Esquina con el blanco a la derecha',sub:'Una vez R U R\' U\'',
@@ -2768,16 +2768,16 @@ function goalLevels(g,cs){
       if(c.s.length===1){if(c.s[0].c===top)map.set(c,1);return;}
       if(c.s.length===2&&has(c,wc))put(c,c.p[1]===LIM&&c.s.some(function(s){return isUp(s)&&s.c===wc}));});}
   else if(g==='cross'){cs.forEach(function(c){
-      if(c.s.length===1){if(c.s[0].c===bot)map.set(c,1);return;}
+      if(c.s.length===1){map.set(c,1);return;}
       if(c.s.length===2&&has(c,bot))put(c,pieceOK(c,C));});}
-  else if(g==='layer1'){cs.forEach(function(c){if(has(c,bot))put(c,pieceOK(c,C));});}
+  else if(g==='layer1'){cs.forEach(function(c){if(c.s.length===1)map.set(c,1);else if(has(c,bot))put(c,pieceOK(c,C));});}
   else if(g==='layer2'){cs.forEach(function(c){if(!has(c,top))put(c,pieceOK(c,C));});}
   else if(g==='ycross'){cs.forEach(function(c){
       if(c.s.length===1){if(c.s[0].c===top)map.set(c,1);return;}
       if(c.s.length===2&&has(c,top))put(c,upOK(c,C));});}
   else if(g==='yface'){cs.forEach(function(c){if(has(c,top))put(c,c.s.length===1||upOK(c,C));});}
   else if(g==='corners'){cs.forEach(function(c){
-      if(c.s.length===1){if(c.s[0].c===top)map.set(c,1);return;}
+      if(c.s.length===1){map.set(c,1);return;}
       if(c.s.length===3&&has(c,top))put(c,pieceOK(c,C));});}
   else if(g==='solved'){
     if(NSZ===4){stickerGoal(cs,function(){return true},map);}
@@ -2806,7 +2806,7 @@ function setHl(spec){
         isBad=function(c){return isW(c)&&!(c.p[1]===1&&c.s.some(function(s){return s.c==='w'&&s.n[1]===1}));};
     hlFn=function(c){return state.some(isBad)?isBad(c):isW(c);};}
   else if(typeof spec==='string'&&spec.indexOf('g:')===0){var gname=spec.slice(2);hlFn=function(c){if(GH.st!==state||GH.g!==gname){GH.st=state;GH.g=gname;GH.map=goalLevels(gname,state);}var v=GH.map.get(c);return v===undefined?0:v;};}
-  else if(spec.edge){var ec=spec.edge,cc=spec.center;hlFn=function(c){return (c.s.length===2&&c.s.some(function(s){return s.c===ec}))||(!!cc&&c.s.length===1&&c.s[0].c===cc);};}
+  else if(spec.edge){var ec=spec.edge,cc=spec.center,allc=spec.centers;hlFn=function(c){return (c.s.length===2&&c.s.some(function(s){return s.c===ec}))||(!!allc&&c.s.length===1)||(!!cc&&c.s.length===1&&c.s[0].c===cc);};}
   else if(spec.has){var col=spec.has;hlFn=function(c){return c.s.some(function(s){return s.c===col})};}
   else if(spec.layer){var f=mvSpec(parseMove(spec.layer));hlFn=function(c){return f.ls===null||f.ls.indexOf(c.p[f.a])>=0};}
   build();}
