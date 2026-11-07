@@ -658,6 +658,49 @@ S.test('colocar vs algoritmo completo: 2×2 (T4), 4×4 primera capa (D1) y empar
   }
 });
 
+
+/* ---------- botones del cubo: reiniciar (con confirmación), pista y modo completo ---------- */
+S.test('botones del cubo: reiniciar sin confirmar con pocos movimientos y con confirmación a partir de 3', async c => {
+  const pg = await c.lesson('3x3', '3.1'); await goTo(pg, 'ex0');
+  assert(await pg.isVisible('#rstBtn') && await pg.isVisible('#hintBtn') && await pg.isVisible('#fullBtn'), 'se ven reiniciar, pista y modo completo');
+  await T(pg, 'play', ['U']); await pg.waitForTimeout(700);
+  await pg.click('#rstBtn'); await pg.waitForTimeout(300);
+  eq(await pg.isVisible('#rstConf'), false, 'con un movimiento no pide confirmación');
+  eq(await T(pg, 'hist'), '', 'reinicia directamente');
+  await T(pg, 'play', ['U', 'D', 'L']); await pg.waitForTimeout(1800);
+  await pg.click('#rstBtn'); await pg.waitForTimeout(300);
+  eq(await pg.isVisible('#rstConf'), true, 'con 3 movimientos pregunta');
+  await pg.click('#rstNo'); await pg.waitForTimeout(200);
+  eq(await pg.isVisible('#rstConf'), false); assert((await T(pg, 'hist')).split(' ').length >= 3, 'cancelar conserva los movimientos');
+  await pg.click('#rstBtn'); await pg.click('#rstYes'); await pg.waitForTimeout(400);
+  eq(await T(pg, 'hist'), '', 'confirmar reinicia');
+});
+
+S.test('botones del cubo: la bombilla da la pista y el panel «Reiniciar» también pide confirmación', async c => {
+  const pg = await c.lesson('3x3', '3.1'); await goTo(pg, 'ex0');
+  await pg.click('#hintBtn'); await pg.waitForTimeout(300);
+  assert((await pg.textContent('#fb')).includes('Pista'), 'sale la pista: ' + await pg.textContent('#fb'));
+  await T(pg, 'play', ['U', 'D', 'L']); await pg.waitForTimeout(1800);
+  await pg.click('.panel [data-act=reset]'); await pg.waitForTimeout(300);
+  eq(await pg.isVisible('#rstConf'), true, 'el botón del panel pregunta igual');
+});
+
+S.test('modo completo: el cubo ocupa la pantalla y abajo queda el objetivo; se sale con el mismo botón', async c => {
+  const pg = await c.lesson('3x3', '3.1', undefined); await goTo(pg, 'ex0');
+  const before = await pg.$eval('#stage', e => e.getBoundingClientRect().height);
+  await pg.click('#fullBtn'); await pg.waitForTimeout(500);
+  assert(await pg.evaluate(() => document.documentElement.classList.contains('full-mode')), 'clase de modo completo');
+  const after = await pg.$eval('#stage', e => e.getBoundingClientRect().height);
+  assert(after > before, 'el cubo es más grande: ' + before + ' -> ' + after);
+  assert(await pg.isVisible('.panel .q'), 'el objetivo (la pregunta) se ve abajo');
+  eq(await pg.isVisible('.panel h2'), false, 'el resto del panel se esconde');
+  assert(await pg.isVisible('#undoBtn') && await pg.isVisible('#fullBtn'), 'los botones del cubo siguen');
+  await T(pg, 'play', ['U']); await pg.waitForTimeout(700);
+  eq(await T(pg, 'hist'), 'U', 'se puede mover el cubo en modo completo');
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(400);
+  eq(await pg.evaluate(() => document.documentElement.classList.contains('full-mode')), false, 'Escape sale');
+});
+
 /* ---------- ajustes ---------- */
 S.test('ajustes: sin «girar capas arrastrando» y con todos los checks del mismo tamaño', async c => {
   const pg = await c.lesson('3x3', '1.1', { viewport: { width: 390, height: 800 } });
