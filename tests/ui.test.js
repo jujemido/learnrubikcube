@@ -178,7 +178,7 @@ S.test('en «F2 L» no se da por mal el ejercicio tras F, F (se cuentan cuartos 
 S.test('sin botonera cuando el ejercicio se puede hacer con gestos (incluido x2); sí en el 4×4', async c => {
   const pg = await c.lesson('3x3', '1.10'); await goTo(pg, 'ex2');
   eq((await pg.$$('.mvbtn')).length, 0, 'ejercicio con medios giros: sin botonera');
-  assert(await pg.$('.gesturehint'), 'debería haber ayuda de gestos');
+  assert(await pg.isVisible('#helpBtn'), 'debería haber ayuda de gestos arriba a la derecha del visor');
   const pg2 = await c.lesson('3x3', '2.2'); await goTo(pg2, 'ex3');
   eq((await pg2.textContent('.q')).includes('x2'), true, 'no es el ejercicio de x2');
   eq((await pg2.$$('.mvbtn')).length, 0, 'x2 también se hace con dos dedos: sin botonera');
@@ -186,13 +186,19 @@ S.test('sin botonera cuando el ejercicio se puede hacer con gestos (incluido x2)
   assert((await pg3.$$('.mvbtn')).length > 0, 'en el 4×4 no hay gestos: la botonera debe estar');
 });
 
-S.test('la ayuda «¿Cómo mover el cubo?» sale cerrada y se recuerda si la abres', async c => {
+S.test('la ayuda «¿Cómo mover el cubo?» es un tooltip arriba a la derecha del visor: sale cerrada, se abre y se cierra', async c => {
   const pg = await c.lesson('3x3', '1.1'); await goTo(pg, 'try');
-  eq(await pg.$eval('.gesturehint', e => e.open), false, 'debe salir cerrada');
-  await pg.click('.gesturehint summary'); await pg.waitForTimeout(150);
-  eq(await pg.$eval('.gesturehint', e => e.open), true);
-  await drag(pg, [1, 0, 1.5], 0, -150, 12);
-  eq(await pg.$eval('.gesturehint', e => e.open), true, 'tras redibujar el panel sigue abierta');
+  eq(await pg.$('.gesturehint'), null, 'ya no hay aviso dentro del panel');
+  assert(await pg.isVisible('#helpBtn'), 'el botón de ayuda debe verse');
+  eq(await pg.isVisible('#helpTip'), false, 'el tooltip sale cerrado');
+  const pos = await pg.evaluate(() => { const b = document.querySelector('#helpBtn').getBoundingClientRect(), s = document.querySelector('#stage').getBoundingClientRect(); return { right: s.right - b.right, top: b.top - s.top }; });
+  assert(pos.right < 30 && pos.top < 30, 'el botón debe estar arriba a la derecha del visor');
+  await pg.click('#helpBtn'); await pg.waitForTimeout(100);
+  eq(await pg.isVisible('#helpTip'), true, 'se abre al pulsar');
+  const inside = await pg.evaluate(() => { const t = document.querySelector('#helpTip').getBoundingClientRect(), s = document.querySelector('#stage').getBoundingClientRect(); return t.left >= s.left && t.right <= s.right && t.bottom <= s.bottom; });
+  assert(inside, 'el tooltip debe caber dentro del visor');
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(100);
+  eq(await pg.isVisible('#helpTip'), false, 'Escape lo cierra');
 });
 
 /* ---------- retomar, pasos, pantallas ---------- */
