@@ -2382,9 +2382,67 @@ var QPRE={
   function setHlAll(id,idxs,spec){var l=LESSONS3.filter(function(x){return x.id===id})[0];l.exercises.forEach(function(e,i){if(!idxs||idxs.indexOf(i)>=0)e.hl=spec;});}
   setHlAll('3.6',null,'g:layer1');setHlAll('4.5',null,'g:layer2');setHlAll('5.9',[0,1,2],'g:ycross');setHlAll('5.9',[3,4,5],'g:yface');
 })();
+
+/* ---- Exámenes: la segunda mitad sube de nivel, el último es el más difícil y se ve el cubo entero; hay pistas ---- */
+(function(){
+  function L3(id){return LESSONS3.filter(function(l){return l.id===id})[0];}
+  function whole(e){e.noHl=true;return e;}
+  function swapLast(id,n,list){var l=L3(id);l.exercises.splice(l.exercises.length-n,n);list.forEach(function(e){l.exercises.push(e);});}
+  var Y2=['y'],Y2b=['y2'],YP=["y'"];
+  /* flor y cruz */
+  swapLast('2.6',3,[
+    sx('Completa la flor: una arista del medio y otra de abajo con el blanco de lado.',P("U R2 F L' F'"),'flower',FLOWER),
+    sx('Haz la cruz blanca abajo: la flor está desordenada y hay que alinear tres pétalos.',P("U2 F2 U R2 U' B2 U2 L2"),'cross',X2),
+    whole(sx('Final: con todo el cubo a la vista, deja la flor y baja la cruz blanca. Hay aristas en cuatro situaciones distintas.',simplify(P("L U' F L2 L B' L' R").concat(P("U F2 R2 U2 B2 U' L2"))),'cross',X2))]);
+  /* esquinas blancas */
+  swapLast('3.7',3,[
+    sx('Completa la primera capa: tres esquinas por colocar.',['U'].concat(rep(SEX,3),Y2,rep(SEX,2),Y2,SEX),'layer1',X2),
+    sx('Completa la primera capa: cuatro esquinas, una de cada tipo.',rep(SEX,5).concat(Y2,rep(SEX,3),Y2,rep(SEX,2),Y2,SEX),'layer1',X2),
+    whole(sx('Final: con todo el cubo a la vista, completa la primera capa. Hay cuatro esquinas, algunas atascadas.',['U'].concat(rep(SEX,3),Y2b,['U2'],rep(SEX,5),YP,rep(SEX,2),Y2,rep(SEX,4)),'layer1',X2))]);
+  /* capa del medio */
+  swapLast('4.6',3,[
+    sx('Completa las dos primeras capas: tres aristas por colocar.',AR.concat(Y2,AL,Y2,['U'],AR),'layer2',X2),
+    sx('Completa las dos primeras capas: una arista atascada y otra por colocar.',P("U2 R U' R' U' F' U F R U' R' U' F' U F").concat(Y2b,['U'],AL),'layer2',X2),
+    whole(sx('Final: con todo el cubo a la vista, completa las dos primeras capas. Hay cuatro aristas, alguna atascada.',AR.concat(YP,['U'],AL,Y2,AR,YP,P("U2 L' U L U F U' F'")),'layer2',X2))]);
+  /* capa de arriba */
+  swapLast('5.10',3,[
+    sx('Pon el amarillo de las cuatro esquinas arriba: parte solo del punto.',YA.concat(['U2'],YB,SUNE),'yface',X2),
+    sx('Coloca las esquinas: ninguna mira arriba al empezar.',SUNE.concat(SUNE,['U'],CORN),'corners',X2),
+    whole(sx('Final: con todo el cubo a la vista, termina la capa de arriba desde el punto.',YA.concat(['U2'],YB,SUNE,SUNE,['U'],CORN,UA),'solved',X2))]);
+  /* mini-exámenes intermedios: los dos últimos suben */
+  swapLast('e3',2,[
+    sx('Completa la primera capa: dos esquinas, una atascada.',rep(SEX,2).concat(Y2,['U'],rep(SEX,3)),'layer1',X2),
+    whole(sx('Final: con todo el cubo a la vista, completa la primera capa. Hay tres esquinas.',['U2'].concat(rep(SEX,3),Y2,rep(SEX,5),YP,['U'],SEX),'layer1',X2))]);
+  swapLast('e4',2,[
+    sx('Pon el amarillo de las cuatro esquinas arriba, empezando por el punto.',YA.concat(['U2'],YB,SUNE),'yface',X2),
+    whole(sx('Final: con todo el cubo a la vista, haz la cruz amarilla y orienta las cuatro esquinas desde el punto.',YA.concat(['U2'],YB,SUNE,SUNE),'yface',X2))]);
+  swapLast('e5',2,[
+    sx('Orienta las esquinas amarillas (ninguna mira arriba) y colócalas.',SUNE.concat(SUNE,['U'],CORN),'corners',X2),
+    whole(sx('Final: con todo el cubo a la vista, orienta y coloca las esquinas amarillas desde cero.',SUNE.concat(['U2'],SUNE,SUNE,['U'],CORN,['U']),'corners',X2))]);
+})();
+
+var HINT_GOAL={
+  flower:"Mira dónde está cada arista blanca que falta. Abajo con el blanco abajo: media vuelta de su cara. Abajo de lado: súbela al medio, a la flor y deshaz el primer giro. En el medio: gira la cara del otro color. Arriba de lado: bájala, aparta con U y súbela. Si el hueco de arriba está ocupado, aparta antes con U.",
+  cross:"Gira U hasta que el color de lado de un pétalo coincida con su centro y bájalo con media vuelta. Repite con los demás.",
+  layer1:"Pon la esquina encima de su hueco con U y repite R U R' U': 1 vez si el blanco mira a la derecha, 3 si mira arriba, 5 si mira al frente. Cambia de esquina con y.",
+  layer2:"Pon la arista delante con U. Si su color de arriba va a la derecha: U R U' R' U' F' U F. Si va a la izquierda: U' L' U L U F U' F'. Una arista mal puesta se saca con el mismo algoritmo.",
+  ycross:"Línea horizontal: F R U R' U' F'. L atrás a la izquierda: F U R U' R' F'. Punto: primero uno y luego el otro.",
+  yface:"Con un pez delante a la izquierda: Sune R U R' U R U2 R'. Si no hay ninguna esquina arriba, haz el Sune una vez y repite girando U.",
+  corners:"Pon una esquina bien colocada delante a la derecha y aplica U R U' L' U R' U' L. Si ninguna está bien, hazlo una vez y vuelve a mirar.",
+  solved:"Pon una arista ya bien colocada atrás y aplica R U' R U R U R U' R' U' R2. Si todo está bien salvo la capa de arriba, un último giro de U."};
+function examHint(e){
+  if(e.t==='do')return "Lee la secuencia letra a letra: sin símbolo, un cuarto de vuelta; con apóstrofo, al revés; con 2, media vuelta. Toca una letra para ver qué significa.";
+  if(e.t==='tap')return "Un centro tiene un color, una arista dos y una esquina tres. Mira bien cada pieza.";
+  if(e.t==='choice')return e.anim?"Fíjate en el orden y en el sentido de cada giro. Puedes ver la animación otra vez.":"Piensa en lo que has aprendido en este bloque y descarta las opciones que no encajan.";
+  if(e.t==='solve')return HINT_GOAL[e.goal]||"Mira el borde morado: es lo que falta. Usa los algoritmos de las lecciones.";
+  return "Repasa las lecciones de este bloque.";}
+[LESSONS3,LESSONS4,LESSONS2,LESSONSA].forEach(function(arr){arr.forEach(function(l){
+  if(!l.exam)return;
+  l.exercises.forEach(function(e){delete e.nohint;if(!e.hint)e.hint=examHint(e);});});});
+
 /* Todo ejercicio de resolver marca lo que falta (borde), lo que ya está bien (color) y deja en gris lo que no importa */
 [LESSONS3,LESSONS4,LESSONS2,LESSONSA].forEach(function(L){L.forEach(function(l){(l.exercises||[]).forEach(function(e){
-  if(e.t==='solve'&&e.goal)e.hl='g:'+e.goal;});});});
+  if(e.t==='solve'&&e.goal&&!e.noHl)e.hl='g:'+e.goal;});});});
 /*DATA-END*/
 
 var INTRO={
@@ -3296,7 +3354,7 @@ function renderPanel(){
   var h='<div class="meta"><span>'+BLOCKS[lesson.block]+'</span><span>'+dl(lesson)+'</span></div><h2>'+lesson.title+'</h2>'+stepper()+'<div class="body">';
   if(kind==='intro'){
     h+='<div class="mono eyebrow">EN ESTA LECCIÓN</div><p class="goal">'+(INTRO[lesson.id]||lesson.sub)+'</p>'+
-       '<ul class="agenda">'+(lesson.exam?'<li><b>'+E+' ejercicios</b> que mezclan todo el bloque, sin pistas</li>':(prevIdx(li)>=0?'<li><b>Repaso</b> de «'+LESSONS[prevIdx(li)].title+'»</li>':'')+'<li><b>Aprende</b> y <b>prueba</b> con el cubo</li><li><b>'+E+' ejercicios</b> para abrir la siguiente lección</li>')+'</ul></div>'+
+       '<ul class="agenda">'+(lesson.exam?'<li><b>'+E+' ejercicios</b> que mezclan todo el bloque, cada vez más difíciles, con pista si la necesitas</li>':(prevIdx(li)>=0?'<li><b>Repaso</b> de «'+LESSONS[prevIdx(li)].title+'»</li>':'')+'<li><b>Aprende</b> y <b>prueba</b> con el cubo</li><li><b>'+E+' ejercicios</b> para abrir la siguiente lección</li>')+'</ul></div>'+
        '<div class="row"><button class="btn primary" data-act="next" style="margin-left:auto">Empezar →</button></div>';
   }else if(kind==='recap'){
     var pv=LESSONS[prevIdx(li)];

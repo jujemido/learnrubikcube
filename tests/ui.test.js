@@ -357,11 +357,18 @@ S.test('bloque 2: se puede completar cada lección de la flor y la cruz (gestos 
   }
 });
 
-S.test('bloque 2: el mini-examen no enseña ayudas y mantiene sus 10 ejercicios', async c => {
-  const pg = await c.lesson('3x3', '2.6'); await goTo(pg, 'ex0');
+S.test('bloque 2: el mini-examen tiene pistas, mantiene sus 10 ejercicios y acaba con uno sin resaltado', async c => {
+  const pg = await c.lesson('3x3', '2.6'); await goTo(pg, 'ex8');
   const kinds = (await T(pg, 'kinds')).split(',');
   eq(kinds.filter(k => k.indexOf('ex') === 0).length, 10);
-  eq((await pg.$$('[data-act=hint]')).length, 0, 'sin botón de pista en el examen');
+  assert((await pg.$$('[data-act=hint]')).length === 1, 'debe haber botón de pista en el examen');
+  assert((await pg.$$('.goalnote .lg')).length === 3, 'el ejercicio 9 sí resalta');
+  await goTo(pg, 'ex9');
+  assert((await pg.textContent('.q')).includes('Final'), 'el último es el final');
+  eq((await pg.$$('.goalnote .lg')).length, 0, 'el último se ve con todo el cubo, sin resaltado');
+  await pg.click('[data-act=hint]'); await pg.waitForTimeout(200);
+  assert((await pg.textContent('#fb')).includes('Pista'), 'la pista sale');
+  await T(pg, 'solveStep'); await pg.waitForSelector('[data-act=next]', { timeout: 8000 });
 });
 
 
@@ -578,7 +585,7 @@ S.test('ajustes: exportar e importar progreso y ajustes (y el formato antiguo)',
   const pg = await c.lesson('3x3', '1.1');
   await pg.click('.js-settings >> nth=1'); await pg.click('#progShow'); await pg.waitForTimeout(150);
   const exp = JSON.parse(await pg.$eval('#progBox', e => e.value));
-  assert(exp.v === 2 && exp.progress && exp.settings, 'formato {v:2, progress, settings}');
+  assert(exp.v === 3 && exp.progress && exp.settings && exp.training, 'formato {v:3, progress, settings, training}');
   exp.settings.sound = false; exp.settings.hidePad = true;
   await pg.fill('#progBox', JSON.stringify(exp)); await pg.click('#progLoad'); await pg.waitForTimeout(200);
   eq(await pg.$eval('#setSound', e => e.checked), false); eq(await pg.$eval('#setHidePad', e => e.checked), true);
