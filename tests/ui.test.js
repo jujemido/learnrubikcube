@@ -441,6 +441,30 @@ S.test('las páginas de F2L, 2×2 y 4×4 existen y se recorren hasta «Continuar
   }
 });
 
+
+/* ---------- vista: etiquetas de cara y reinicio de la posición ---------- */
+S.test('el cubo muestra las etiquetas Frente, Derecha y Arriba', async c => {
+  const pg = await c.lesson('3x3', '3.5'); await goTo(pg, 'ex2');
+  const t = (await pg.$$eval('#flbl i', els => els.map(e => e.textContent))).join(',');
+  assert(t.includes('Frente') && t.includes('Derecha') && t.includes('Arriba'), 'etiquetas: ' + t);
+});
+
+S.test('«Reiniciar» y cambiar de paso devuelven el cubo a la posición inicial de la vista', async c => {
+  const pg = await c.lesson('3x3', '1.1'); await goTo(pg, 'try');
+  const az0 = await T(pg, 'az'), z0 = await T(pg, 'zoom');
+  await T(pg, 'view', 2.0, 0.2);
+  assert((await T(pg, 'az')) !== az0, 'la vista debería haberse movido');
+  await pg.click('[data-act=reset]'); await pg.waitForTimeout(300);
+  eq(await T(pg, 'az'), az0, 'Reiniciar cubo devuelve la vista');
+  eq(await T(pg, 'zoom'), z0);
+  await T(pg, 'view', -1.0, 0.9);
+  await goTo(pg, 'ex0');
+  eq(await T(pg, 'az'), az0, 'al pasar de paso la vista vuelve a la inicial');
+  await T(pg, 'view', 2.5, 0.1);
+  await pg.click('[data-act=reset]'); await pg.waitForTimeout(300);
+  eq(await T(pg, 'az'), az0, 'Reiniciar en un ejercicio también');
+});
+
 /* ---------- ajustes ---------- */
 S.test('ajustes: sin «girar capas arrastrando» y con todos los checks del mismo tamaño', async c => {
   const pg = await c.lesson('3x3', '1.1', { viewport: { width: 390, height: 800 } });
