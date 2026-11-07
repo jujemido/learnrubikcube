@@ -901,7 +901,7 @@ algLesson({id:'3.1',block:3,title:'Esquina con el blanco a la derecha',sub:'Una 
 
 algLesson({id:'3.2',block:3,title:'Esquina con el blanco arriba',sub:'Tres veces',
   recap:'Con el blanco mirando <b>arriba</b>, repite '+K("R U R' U'")+' <b>tres</b> veces.',
-  learn:'<p>Si el blanco de la esquina mira <b>hacia arriba</b>, el mismo algoritmo hay que repetirlo <b>tres veces seguidas</b>: '+K("R U R' U'")+' ×3.</p><p>Cuenta en voz alta cada grupo de cuatro movimientos. La línea «Tu secuencia» te ayuda a no perderte.</p><p>En los ejercicios, encima de los botones de movimiento, verás la fila <b>Algoritmos</b> con un botón que hace el algoritmo entero de una vez. Úsalo ahora que ya lo has hecho a mano.</p>',
+  learn:'<p>Si el blanco de la esquina mira <b>hacia arriba</b>, el mismo algoritmo hay que repetirlo <b>tres veces seguidas</b>: '+K("R U R' U'")+' ×3.</p><p>Cuenta en voz alta cada grupo de cuatro movimientos. La línea «Tu secuencia» te ayuda a no perderte.</p><p>Desde esta lección, en los ejercicios y encima de los botones de movimiento, tienes la fila <b>Atajos</b>: un botón con el algoritmo entero para no pulsar cada movimiento. Úsalo ahora que ya lo has hecho a mano.</p>',
   hl:{has:'w'},demo:rep(SEX,3),demoNote:'Tres veces seguidas.',
   exercises:[
     solveEx({q:'Completa la primera capa: la esquina tiene el blanco hacia arriba.',sol:rep(SEX,3),goal:'layer1',hint:'Blanco arriba: tres veces R U R\' U\' seguidas.'}),
@@ -1135,7 +1135,7 @@ var NEWL=[
     reco('Otra esquina blanca. ¿Cuántas veces repites el algoritmo?',[cnt(1,'1 vez'),cnt(2,'2 veces'),cnt(3,'3 veces'),cnt(5,'5 veces')],'5','Aquí el blanco apunta al frente.',rep(SEX,5),{whiteAt:'front'},{has:'w'})]}},
  {after:'3.6',l:{id:'3.7',block:3,title:'Mini-examen: la primera capa',sub:'Esquinas blancas sin ayuda',
   recap:'Repaso del bloque 3: coloca la esquina encima de su hueco, mira el blanco (1, 3 o 5 veces) y cambia de esquina con y.',
-  learn:'<p>Examen corto de la primera capa. Si quieres, usa la fila «Algoritmos» sobre los botones de movimiento. Si fallas, tendrás una pista y podrás reintentar.</p>',
+  learn:'<p>Examen corto de la primera capa. Usa los atajos del algoritmo si quieres. Si fallas, tendrás una pista y podrás reintentar.</p>',
   pre:X2,pad:PALL,tryKind:'moves',tryText:'Calienta con el cubo antes de empezar.',
   exercises:[
     solveEx({q:'Completa la primera capa: tres esquinas por colocar.',sol:rep(SEX,2).concat(['y'],SEX,['y'],rep(SEX,3)),goal:'layer1',hint:'Mira el blanco de cada esquina y repite el algoritmo; cambia con y.'}),
@@ -1151,7 +1151,7 @@ var NEWL=[
     reco('¿Hacia qué lado va esta arista? Ojo: no está delante.',shuffle([{v:'d',label:'Derecha'},{v:'i',label:'Izquierda'}]),'i','Imagina la arista delante y compara su color de arriba con los centros laterales.',['U2'].concat(AL),{side:'i'})]}},
  {after:'4.5',l:{id:'4.6',block:4,title:'Mini-examen: dos primeras capas',sub:'Esquinas y aristas del medio',
   recap:'Repaso del bloque 4: arista delante, mira su color de arriba y elige el algoritmo de la derecha o de la izquierda; cambia con y.',
-  learn:'<p>Examen corto de las dos primeras capas. Si quieres, usa la fila «Algoritmos» sobre los botones de movimiento. Si fallas, tendrás una pista y podrás reintentar.</p>',
+  learn:'<p>Examen corto de las dos primeras capas. Usa los atajos del algoritmo si quieres. Si fallas, tendrás una pista y podrás reintentar.</p>',
   pre:X2,pad:PALL,tryKind:'moves',tryText:'Calienta con el cubo antes de empezar.',
   exercises:[
     solveEx({q:'Completa las dos primeras capas: tres aristas.',sol:AL.concat(['y'],AR,['y'],AL),goal:'layer2',hint:'Mira el lado de cada arista; cambia con y.'}),
@@ -1170,7 +1170,7 @@ var NEWL=[
     reco('¿Cuántas esquinas amarillas miran hacia arriba?',[cnt(0,'Ninguna'),cnt(1,'Una'),cnt(2,'Dos'),cnt(4,'Las cuatro')],'2','Hay dos esquinas con el amarillo hacia arriba.',P("R U R' U R U2 R' U R U2 R' U' R U' R'"),{ycorners:2})]}},
  {after:'5.9',l:{id:'5.10',block:5,title:'Mini-examen: la capa de arriba',sub:'Cruz, esquinas y aristas',
   recap:'Repaso del bloque 5: cruz amarilla, Sune para orientar esquinas, algoritmo de las esquinas, algoritmo de las aristas y último giro de U.',
-  learn:'<p>Examen corto de la capa de arriba. Si quieres, usa la fila «Algoritmos» sobre los botones de movimiento. Si fallas, tendrás una pista y podrás reintentar.</p>',
+  learn:'<p>Examen corto de la capa de arriba. Usa los atajos del algoritmo si quieres. Si fallas, tendrás una pista y podrás reintentar.</p>',
   pre:X2,pad:PALL,tryKind:'moves',tryText:'Calienta con el cubo antes de empezar.',
   exercises:[
     solveEx({q:'Haz la cruz amarilla y orienta las esquinas: todo el amarillo arriba.',sol:YB.concat(['U'],YA,SUNE),goal:'yface',hint:'Primero la cruz y después el Sune.'}),
@@ -1725,14 +1725,14 @@ LESSONS.push({id:'T6',block:15,title:'Orientar la última capa',sub:'Sune y Anti
     t2('Pon el amarillo de las cuatro esquinas arriba: la esquina está en otro sitio.',['U'].concat(SUNE),'oll2','Gira U hasta ponerla delante a la izquierda.'),
     t2('Pon el amarillo de las cuatro esquinas arriba: el caso contrario.',ANTI,'oll2','Prueba el Anti-Sune.')]});
 LESSONS.push({id:'T7',block:15,title:'Más casos de orientación',sub:'H, Pi, U, T y L',
-  recap:'Si no hay pez, repite el Sune girando U. Con práctica, cada forma tiene su algoritmo directo: H, Pi, U, T y L.',
-  learn:'<p>Si no hay ninguna esquina amarilla arriba, haz el Sune desde cualquier posición para crear un pez y sigue. Es un camino que siempre funciona.</p><p>Con práctica, cada forma tiene un algoritmo directo según lo que dibujen los amarillos de los lados: <b>H</b>, <b>Pi</b>, <b>U</b>, <b>T</b> y <b>L</b>. Cada una tiene su algoritmo y se hace de una vez.</p>',
+  recap:'Si no hay pez, repite el Sune girando U. Con práctica, cada forma tiene su atajo: H, Pi, U, T y L.',
+  learn:'<p>Si no hay ninguna esquina amarilla arriba, haz el Sune desde cualquier posición para crear un pez y sigue. Es un camino que siempre funciona.</p><p>Con práctica, cada forma tiene un atajo según lo que dibujen los amarillos de los lados: <b>H</b>, <b>Pi</b>, <b>U</b>, <b>T</b> y <b>L</b>. Cada una tiene su algoritmo y se hace de una vez.</p>',
   pre:X2.concat(invert(HOLL)),demo:HOLL,demoNote:'Un caso H, resuelto de una vez.',
   pad:PALL,tryKind:'moves',tryText:'Prueba el caso H en este cubo.',
   exercises:[
     t2('Pon el amarillo de las cuatro esquinas arriba: ninguna esquina mira arriba.',SUNE.concat(SUNE),'oll2','Haz el Sune y repítelo girando U.'),
-    t2('Pon el amarillo arriba: el caso H.',HOLL,'oll2','Aplica el algoritmo directo de la H.'),
-    t2('Pon el amarillo arriba: el caso Pi.',PIOLL,'oll2','Aplica el algoritmo directo de la Pi.')]});
+    t2('Pon el amarillo arriba: el caso H.',HOLL,'oll2','Aplica el atajo de la H.'),
+    t2('Pon el amarillo arriba: el caso Pi.',PIOLL,'oll2','Aplica el atajo de la Pi.')]});
 LESSONS.push({id:'T8',block:15,title:'Colocar las esquinas',sub:'T-perm y Y-perm',
   recap:'Dos esquinas contiguas intercambiadas: ponlas a la derecha y aplica la <b>T</b>. En diagonal: aplica la <b>Y</b>. Alinea con U al final.',
   learn:'<p>Ya con el amarillo arriba, hay que <b>colocar las esquinas</b>. Hay dos casos:</p><ul><li>Dos esquinas <b>contiguas</b> intercambiadas: ponlas a la derecha (delante y detrás) y aplica la <b>T</b>: '+K("R U R' U' R' F R2 U' R' U' R U R' F'")+'</li><li>Dos esquinas en <b>diagonal</b> intercambiadas: aplica la <b>Y</b>: '+K("F R U' R' U' R U R' F' R U R' U' R' F R F'")+'</li></ul><p>Al final, un giro de '+K('U')+' alinea la capa de arriba.</p>',
@@ -1742,7 +1742,7 @@ LESSONS.push({id:'T8',block:15,title:'Colocar las esquinas',sub:'T-perm y Y-perm
     t2('Coloca las esquinas: dos contiguas están intercambiadas.',TPERM,'solved2','Aplica la T con las dos esquinas a la derecha.'),
     t2('Coloca las esquinas: dos en diagonal están intercambiadas.',YPERM,'solved2','Aplica la Y.'),
     t2('Coloca las esquinas: la capa de arriba está girada.',['U'].concat(TPERM),'solved2','Alinea con U y aplica la T.')]});
-var XT3=exam2('XT3',15,'Mini-examen: la última capa','Orientar y colocar','Repaso: Sune y Anti-Sune, algoritmos directos H, Pi, U, T y L, y T-perm y Y-perm para colocar.',PALL,X2,[
+var XT3=exam2('XT3',15,'Mini-examen: la última capa','Orientar y colocar','Repaso: Sune y Anti-Sune, atajos H, Pi, U, T y L, y T-perm y Y-perm para colocar.',PALL,X2,[
   t2('Pon el amarillo arriba.',SUNE,'oll2'),t2('Pon el amarillo arriba.',ANTI,'oll2'),t2('Pon el amarillo arriba.',['U'].concat(SUNE),'oll2'),
   t2('Pon el amarillo arriba.',HOLL,'oll2'),t2('Pon el amarillo arriba.',PIOLL,'oll2'),t2('Pon el amarillo arriba.',UOLL,'oll2'),
   t2('Pon el amarillo arriba.',TOLL2,'oll2'),t2('Pon el amarillo arriba.',LOLL2,'oll2'),
@@ -1841,22 +1841,22 @@ LESSONS.push({id:'V6',block:18,title:'OLL: el pez',sub:'Sune y Anti-Sune',
     ta('Orienta las esquinas: el pez está en otra posición.',['U'].concat(SUNE),'yface','Gira U y aplica el Sune.','ycross'),
     ta('Orienta las esquinas: el pez mira al otro lado.',ANTI,'yface','Anti-Sune.','ycross')]});
 LESSONS.push({id:'V7',block:18,title:'OLL: H, Pi y U',sub:'Casos con dos esquinas',
-  recap:'Cada forma de esquinas tiene su algoritmo directo: H '+K("F R U R' U' R U R' U' R U R' U' F'")+', Pi '+K("R U2 R2 U' R2 U' R2 U2 R")+' y U '+K("R2 D R' U2 R D' R' U2 R'")+'.',
-  learn:'<p>Hay formas de esquinas que se resuelven de una sola vez con un algoritmo directo, según lo que dibujen los amarillos de los lados:</p><ul><li><b>H</b>: '+K("F R U R' U' R U R' U' R U R' U' F'")+'</li><li><b>Pi</b>: '+K("R U2 R2 U' R2 U' R2 U2 R")+'</li><li><b>U</b>: '+K("R2 D R' U2 R D' R' U2 R'")+'</li></ul>',
+  recap:'Cada forma de esquinas tiene su atajo directo: H '+K("F R U R' U' R U R' U' R U R' U' F'")+', Pi '+K("R U2 R2 U' R2 U' R2 U2 R")+' y U '+K("R2 D R' U2 R D' R' U2 R'")+'.',
+  learn:'<p>Hay formas de esquinas que se resuelven de una sola vez con un atajo, según lo que dibujen los amarillos de los lados:</p><ul><li><b>H</b>: '+K("F R U R' U' R U R' U' R U R' U' F'")+'</li><li><b>Pi</b>: '+K("R U2 R2 U' R2 U' R2 U2 R")+'</li><li><b>U</b>: '+K("R2 D R' U2 R D' R' U2 R'")+'</li></ul>',
   pre:X2.concat(invert(HOLL)),demo:HOLL,demoNote:'Un caso H, resuelto de una vez.',
   pad:PAD_ADV,tryKind:'moves',tryText:'Prueba el caso H.',
   exercises:[
-    ta('Orienta las esquinas: caso H.',HOLL,'yface','Aplica el algoritmo directo de la H.','ycross'),
-    ta('Orienta las esquinas: caso Pi.',PIOLL,'yface','Aplica el algoritmo directo de la Pi.','ycross'),
-    ta('Orienta las esquinas: caso U.',UOLL,'yface','Aplica el algoritmo directo de la U.','ycross')]});
+    ta('Orienta las esquinas: caso H.',HOLL,'yface','Aplica el atajo de la H.','ycross'),
+    ta('Orienta las esquinas: caso Pi.',PIOLL,'yface','Aplica el atajo de la Pi.','ycross'),
+    ta('Orienta las esquinas: caso U.',UOLL,'yface','Aplica el atajo de la U.','ycross')]});
 LESSONS.push({id:'V8',block:18,title:'OLL: T y L',sub:'Los últimos casos',
   recap:'Los dos últimos casos: T '+K("Rw U R' U' Rw' F R F'")+' y L '+K("F R' F' Rw U R U' Rw'")+' (con Rw: las dos capas de la derecha a la vez, como R y M\' juntas).',
   learn:'<p>Quedan dos casos más:</p><ul><li><b>T</b>: '+K("Rw U R' U' Rw' F R F'")+'</li><li><b>L</b>: '+K("F R' F' Rw U R U' Rw'")+'</li></ul><p>Llevan '+K('Rw')+': las <b>dos capas de la derecha a la vez</b> (la exterior y la del medio), como hacer '+K('R')+' y '+K("M'")+' juntas.</p>',
   pre:X2.concat(invert(TOLL)),demo:TOLL,demoNote:'Un caso T.',
   pad:PAD_ADV,tryKind:'moves',tryText:'Prueba el caso T.',
   exercises:[
-    ta('Orienta las esquinas: caso T.',TOLL,'yface','Aplica el algoritmo directo de la T.','ycross'),
-    ta('Orienta las esquinas: caso L.',LOLL,'yface','Aplica el algoritmo directo de la L.','ycross'),
+    ta('Orienta las esquinas: caso T.',TOLL,'yface','Aplica el atajo de la T.','ycross'),
+    ta('Orienta las esquinas: caso L.',LOLL,'yface','Aplica el atajo de la L.','ycross'),
     ta('Orienta las esquinas: caso T, con la capa girada.',['U'].concat(TOLL),'yface','Gira U y aplica la T.','ycross')]});
 var XV2=examA('XV2',18,'Mini-examen: OLL','Cruz y esquinas','Repaso: cruz amarilla (línea, L, punto) y esquinas con Sune, Anti-Sune, H, Pi, U, T y L.',[
   ta('Haz la cruz amarilla.',YA,'ycross','','layer2'),ta('Haz la cruz amarilla.',YB,'ycross','','layer2'),ta('Haz la cruz amarilla.',YA.concat(['U2'],YB),'ycross','','layer2'),
@@ -1970,7 +1970,7 @@ var PG={};
     {n:4,t:'<p><b>1.ª vez.</b> La esquina baja al hueco, pero con el blanco mirando a la <b>derecha</b>. Todavía no es correcto.</p>'},
     {n:4,t:'<p><b>2.ª vez.</b> Vuelve a subir, otra vez encima del hueco y con el blanco a la derecha (es el caso de la lección anterior).</p>'},
     {n:4,t:'<p><b>3.ª vez.</b> Baja de nuevo y ahora el blanco mira <b>abajo</b>: ¡colocada!</p>'}],h)).concat([
-    {t:'<p>Recuerda: blanco <b>arriba</b> → <b>3 veces</b>. Cuenta en voz alta cada grupo de cuatro movimientos y mira «Tu secuencia» para no perderte.</p><p>En los ejercicios, encima de los botones de movimiento, verás la fila <b>Algoritmos</b>: un toque en el botón hace el algoritmo entero, sin pulsar cada movimiento.</p>',pre:p.concat(rep(SEX,3)),hl:h}]);
+    {t:'<p>Recuerda: blanco <b>arriba</b> → <b>3 veces</b>. Cuenta en voz alta cada grupo de cuatro movimientos y mira «Tu secuencia» para no perderte.</p><p>Desde aquí, en los ejercicios y encima de los botones de movimiento, tienes la fila <b>Atajos</b>: un toque en el botón hace el algoritmo entero.</p>',pre:p.concat(rep(SEX,3)),hl:h}]);
 
   p=LP('3.3');
   PG['3.3']=[
@@ -2156,10 +2156,10 @@ function setPages(arr,PGx){Object.keys(PGx).forEach(function(id){var l=LLx(arr,i
   PG2['T7']=[
     {t:'<p>¿Y si <b>ninguna</b> esquina tiene el amarillo arriba? Haz el <b>Sune</b> desde cualquier posición: aparecerá un pez.</p>',pre:pt,demo:SUNE,hl:ho,note:NF},
     {t:'<p>Ahora ya hay una esquina amarilla arriba: ponla delante a la izquierda con '+K('U')+' y repite el Sune. Es un camino que siempre funciona.</p>',pre:pt.concat(SUNE),demo:SUNE,hl:ho},
-    {t:'<p>Con práctica, cada forma tiene un <b>algoritmo directo</b>. Los amarillos de los lados dibujan una <b>H</b>:</p><p>'+K("F R U R' U' R U R' U' R U R' U' F'")+'</p>',pre:X2.concat(invert(HOLL)),demo:HOLL,hl:ho},
+    {t:'<p>Con práctica, cada forma tiene un <b>atajo</b>. Los amarillos de los lados dibujan una <b>H</b>:</p><p>'+K("F R U R' U' R U R' U' R U R' U' F'")+'</p>',pre:X2.concat(invert(HOLL)),demo:HOLL,hl:ho},
     {t:'<p>Los amarillos dibujan una <b>Pi</b>:</p><p>'+K("R U2 R2 U' R2 U' R2 U2 R")+'</p>',pre:X2.concat(invert(PIOLL)),demo:PIOLL,hl:ho},
     {t:'<p>Los amarillos dibujan una <b>U</b>:</p><p>'+K("R2 D R' U2 R D' R' U2 R'")+'</p>',pre:X2.concat(invert(UOLL)),demo:UOLL,hl:ho},
-    {t:'<p>Los casos <b>T</b> y <b>L</b> tienen sus propios algoritmos directos: '+K("R U R' U' R' F R F'")+' y '+K("F R' F' R U R U' R'")+'.</p>',pre:X2.concat(invert(TOLL2)),demo:TOLL2,hl:ho}];
+    {t:'<p>Los casos <b>T</b> y <b>L</b> tienen sus propios atajos: '+K("R U R' U' R' F R F'")+' y '+K("F R' F' R U R U' R'")+'.</p>',pre:X2.concat(invert(TOLL2)),demo:TOLL2,hl:ho}];
 
   p=LL2('T8').pre;var hs='g:solved2';
   PG2['T8']=[
@@ -2199,7 +2199,7 @@ function setPages(arr,PGx){Object.keys(PGx).forEach(function(id){var l=LLx(arr,i
   PGA['V3']=[
     {t:'<p>A veces la esquina blanca está <b>dentro del hueco pero girada</b>, y su arista arriba (borde morado). Entonces hace falta un algoritmo más largo: primero se <b>saca</b> la esquina y después se <b>une</b> con su arista y se inserta.</p>',pre:p,hl:h,note:NF},
     {t:'<p>Se hace así: '+K("R U R' U' R U R'")+'. Primero '+K("R U R'")+' <b>saca la esquina</b> atascada del hueco, '+K("U'")+' <b>coloca</b> las piezas y '+K("R U R'")+' las <b>une y las inserta</b>, como en la lección anterior.</p>',pre:p,demo:F2L5,hl:h},
-    {t:'<p>Si la esquina tiene el blanco mirando <b>arriba</b>, se usa <b>media vuelta</b> antes: '+K("R U2 R' U' R U R'")+'. Es el mismo algoritmo cambiando el primer '+K('U')+' por '+K('U2')+'.</p>',pre:X2.concat(invert(F2L6)),demo:F2L6,hl:h},
+    {t:'<p>Si la esquina tiene el blanco mirando <b>arriba</b>, se usa <b>media vuelta</b> antes: '+K("R U2 R' U' R U R'")+'. Es el mismo atajo cambiando el primer '+K('U')+' por '+K('U2')+'.</p>',pre:X2.concat(invert(F2L6)),demo:F2L6,hl:h},
     {t:'<p>Si el par no está encima de su hueco, <b>gira '+K('U')+' primero</b> hasta ponerlo en su sitio.</p>',pre:X2.concat(invert(['U'].concat(F2L5))),demo:['U'].concat(F2L5),hl:h}];
 
   p=LLA('V4').pre;
@@ -2224,7 +2224,7 @@ function setPages(arr,PGx){Object.keys(PGx).forEach(function(id){var l=LLx(arr,i
 
   p=LLA('V7').pre;
   PGA['V7']=[
-    {t:'<p>Hay formas de esquinas que se resuelven <b>de una sola vez</b> con un algoritmo directo, según lo que dibujen los amarillos de los lados.</p><p><b>H:</b> '+K("F R U R' U' R U R' U' R U R' U' F'")+'</p>',pre:p,demo:HOLL,hl:hy,note:NF},
+    {t:'<p>Hay formas de esquinas que se resuelven <b>de una sola vez</b> con un atajo, según lo que dibujen los amarillos de los lados.</p><p><b>H:</b> '+K("F R U R' U' R U R' U' R U R' U' F'")+'</p>',pre:p,demo:HOLL,hl:hy,note:NF},
     {t:'<p><b>Pi:</b> '+K("R U2 R2 U' R2 U' R2 U2 R")+'</p>',pre:X2.concat(invert(PIOLL)),demo:PIOLL,hl:hy},
     {t:'<p><b>U:</b> '+K("R2 D R' U2 R D' R' U2 R'")+'</p>',pre:X2.concat(invert(UOLL)),demo:UOLL,hl:hy}];
 
@@ -2636,7 +2636,7 @@ var QUICK={
  '5.1':['Cruz amarilla con una línea horizontal: ¿qué algoritmo?',"F R U R' U' F'",["F U R U' R' F'","R U R' U R U2 R'","U R U' L' U R' U' L"]],
  '5.2':['Cruz amarilla con una L atrás a la izquierda: ¿qué algoritmo?',"F U R U' R' F'",["F R U R' U' F'","R U R' U R U2 R'","U R U' L' U R' U' L"]],
  '5.3':['Solo hay el punto amarillo. ¿Cuántos algoritmos de cruz amarilla necesitas?','Dos',['Ninguno','Uno','Ocho']],
- '5.4':['¿Cómo se llama el algoritmo que orienta las esquinas amarillas?','Sune',['Flor','Cruz','Gatillo']],
+ '5.4':['¿Cómo se llama el algoritmo que orienta las esquinas amarillas?','Sune',['Flor','Cruz','Atajo']],
  '5.5':['Ninguna esquina mira arriba. ¿Qué haces?','Aplicar el Sune y repetir',['Girar el cubo con z','Hacer la flor','Deshacer']],
  '5.6':['¿Dónde colocas la esquina bien puesta antes del algoritmo?','Delante a la derecha',['Detrás a la izquierda','Abajo','En el centro']],
  '5.7':['¿Dónde colocas la arista bien puesta antes del algoritmo?','Atrás',['Delante','A la derecha','Arriba']],
@@ -2698,14 +2698,14 @@ Object.assign(QUICK,{
  'D1':['Con centros y aristas listos, ¿cómo se resuelve?','Como un 3×3, con las capas exteriores',['Con capas internas','Con x2 siempre','No se puede']],
  'D2':["¿Cuántas veces repites R U R' U' con el blanco arriba?",'Tres',['Una','Cinco','Dos']],
  'D3':['Arista del medio que va a la derecha: ¿qué algoritmo?',"U R U' R' U' F' U F",["U' L' U L U F U' F'","F R U R' U' F'","R U R' U R U2 R'"]],
- 'D4':['¿Cómo se llama el algoritmo que orienta las esquinas amarillas?','Sune',['Flor','Cruz','Gatillo']],
+ 'D4':['¿Cómo se llama el algoritmo que orienta las esquinas amarillas?','Sune',['Flor','Cruz','Atajo']],
  'E1':['¿Qué es una paridad en un 4×4?','Un caso que no existe en un 3×3',['Un tipo de centro','Un giro de cubo','Un algoritmo de esquinas']],
  'E2':['Una arista de la última capa está girada. ¿Qué haces?','Aplicar el algoritmo de la arista girada',['Repetir el Sune','Hacer x2','Reiniciar']],
  'E3':['Dos aristas de la última capa están intercambiadas. ¿Qué haces?','Aplicar el algoritmo de aristas intercambiadas',['Repetir el Sune','Hacer x2','Girar D']],
  'E4':['¿Cuándo aparece una paridad?','Al resolver la última capa como un 3×3',['Al hacer los centros','Al emparejar las aristas','Nunca']]
 });
-Object.assign(INTRO,{"T1": "Vas a aprender qué piezas tiene un 2×2: solo esquinas.", "T2": "Vas a aprender cómo se sabe el color de cada cara sin centros.", "T3": "Vas a repasar la notación y ver que R equivale a x seguido de L.", "XT1": "Vas a comprobar que conoces las piezas, los colores y la notación del 2×2.", "T4": "Vas a aprender a hacer la primera capa del 2×2 con el algoritmo de las esquinas.", "T5": "Vas a completar las cuatro esquinas de la primera capa girando el cubo con y.", "XT2": "Vas a comprobar que haces la primera capa del 2×2 sin ayuda.", "T6": "Vas a aprender a orientar la última capa del 2×2 con el Sune y el Anti-Sune.", "T7": "Vas a aprender qué hacer cuando no hay pez y los algoritmos directos H, Pi, U, T y L.", "T8": "Vas a aprender a colocar las esquinas con la T y la Y.", "XT3": "Vas a comprobar que orientas y colocas la última capa del 2×2.", "T9": "Vas a resolver 2×2 mezclados de principio a fin.", "V1": "Vas a conocer los cuatro pasos del método avanzado: cruz, F2L, OLL y PLL.", "V2": "Vas a aprender a insertar un par esquina-arista en su hueco.", "V3": "Vas a aprender los casos de F2L que necesitan algoritmos más largos.", "V4": "Vas a completar los cuatro huecos de F2L, un par tras otro.", "XV1": "Vas a comprobar que insertas pares de F2L sin ayuda.", "V5": "Vas a repasar la cruz amarilla como primer paso del OLL.", "V6": "Vas a aprender a orientar esquinas con el Sune y el Anti-Sune.", "V7": "Vas a aprender los algoritmos directos H, Pi y U para orientar esquinas.", "V8": "Vas a aprender los algoritmos directos T y L para orientar esquinas.", "XV2": "Vas a comprobar que haces el OLL en dos pasos.", "V9": "Vas a aprender a colocar las esquinas con la A y la Y.", "V10": "Vas a aprender a colocar las aristas con Ua, Ub, H y Z.", "XV3": "Vas a comprobar que haces el PLL en dos pasos.", "V11": "Vas a resolver cubos mezclados con el método avanzado completo."});
-Object.assign(QUICK,{"T1": ["¿Qué piezas tiene un 2×2?", "Solo esquinas", ["Esquinas y aristas", "Esquinas y centros", "Aristas y centros"]], "T2": ["En un 2×2, ¿qué marca el color de cada cara?", "Las esquinas", ["Los centros", "Las aristas", "Nada"]], "T3": ["En un 2×2, R equivale a…", "x seguido de L", ["L solo", "R'", "U seguido de F"]], "T4": ["Esquina encima de su hueco con el blanco a la derecha: ¿cuántas veces R U R' U'?", "Una", ["Tres", "Cinco", "Dos"]], "T5": ["Para llegar a otra esquina, ¿qué haces?", "Girar el cubo con y", ["Hacer x2", "Reiniciar", "Girar D"]], "T6": ["¿Qué algoritmo orienta las esquinas cuando hay un pez?", "El Sune", ["La T", "La Y", "La flor"]], "T7": ["Si no hay pez, ¿qué haces?", "Aplicar el Sune desde cualquier posición", ["Girar el cubo con z", "Hacer la flor", "Deshacer"]], "T8": ["Dos esquinas contiguas intercambiadas: ¿qué algoritmo?", "La T", ["La Y", "El Sune", "La H"]], "V1": ["¿Cuántos pasos tiene el método avanzado?", "Cuatro", ["Siete", "Tres", "Cinco"]], "V2": ["En F2L, ¿qué insertas a la vez?", "Una esquina y su arista del medio", ["Dos esquinas", "Dos aristas", "Un centro"]], "V3": ["Un par mal orientado se inserta con…", "Un algoritmo más largo", ["Un giro de U", "x2", "Nada"]], "V4": ["Para pasar al siguiente hueco, ¿qué haces?", "Girar el cubo con y", ["Hacer x2", "Reiniciar", "Girar D2"]], "V5": ["¿Con qué empieza el OLL en dos pasos?", "Con la cruz amarilla", ["Con las esquinas", "Con el PLL", "Con la cruz blanca"]], "V6": ["¿Cómo se llama el algoritmo que orienta un pez?", "Sune", ["Flor", "Cruz", "Gatillo"]], "V7": ["H, Pi y U son algoritmos directos para…", "Orientar esquinas", ["Colocar aristas", "Hacer la cruz", "Insertar pares"]], "V8": ["T y L son algoritmos directos para…", "Orientar esquinas", ["Colocar aristas", "Hacer la cruz", "Insertar pares"]], "V9": ["La A-perm…", "Rota tres esquinas", ["Rota tres aristas", "Orienta esquinas", "Hace la cruz"]], "V10": ["La Ua rota…", "Tres aristas", ["Tres esquinas", "Dos esquinas", "Todo el cubo"]]});
+Object.assign(INTRO,{"T1": "Vas a aprender qué piezas tiene un 2×2: solo esquinas.", "T2": "Vas a aprender cómo se sabe el color de cada cara sin centros.", "T3": "Vas a repasar la notación y ver que R equivale a x seguido de L.", "XT1": "Vas a comprobar que conoces las piezas, los colores y la notación del 2×2.", "T4": "Vas a aprender a hacer la primera capa del 2×2 con el algoritmo de las esquinas.", "T5": "Vas a completar las cuatro esquinas de la primera capa girando el cubo con y.", "XT2": "Vas a comprobar que haces la primera capa del 2×2 sin ayuda.", "T6": "Vas a aprender a orientar la última capa del 2×2 con el Sune y el Anti-Sune.", "T7": "Vas a aprender qué hacer cuando no hay pez y los atajos H, Pi, U, T y L.", "T8": "Vas a aprender a colocar las esquinas con la T y la Y.", "XT3": "Vas a comprobar que orientas y colocas la última capa del 2×2.", "T9": "Vas a resolver 2×2 mezclados de principio a fin.", "V1": "Vas a conocer los cuatro pasos del método avanzado: cruz, F2L, OLL y PLL.", "V2": "Vas a aprender a insertar un par esquina-arista en su hueco.", "V3": "Vas a aprender los casos de F2L que necesitan algoritmos más largos.", "V4": "Vas a completar los cuatro huecos de F2L, un par tras otro.", "XV1": "Vas a comprobar que insertas pares de F2L sin ayuda.", "V5": "Vas a repasar la cruz amarilla como primer paso del OLL.", "V6": "Vas a aprender a orientar esquinas con el Sune y el Anti-Sune.", "V7": "Vas a aprender los atajos H, Pi y U para orientar esquinas.", "V8": "Vas a aprender los atajos T y L para orientar esquinas.", "XV2": "Vas a comprobar que haces el OLL en dos pasos.", "V9": "Vas a aprender a colocar las esquinas con la A y la Y.", "V10": "Vas a aprender a colocar las aristas con Ua, Ub, H y Z.", "XV3": "Vas a comprobar que haces el PLL en dos pasos.", "V11": "Vas a resolver cubos mezclados con el método avanzado completo."});
+Object.assign(QUICK,{"T1": ["¿Qué piezas tiene un 2×2?", "Solo esquinas", ["Esquinas y aristas", "Esquinas y centros", "Aristas y centros"]], "T2": ["En un 2×2, ¿qué marca el color de cada cara?", "Las esquinas", ["Los centros", "Las aristas", "Nada"]], "T3": ["En un 2×2, R equivale a…", "x seguido de L", ["L solo", "R'", "U seguido de F"]], "T4": ["Esquina encima de su hueco con el blanco a la derecha: ¿cuántas veces R U R' U'?", "Una", ["Tres", "Cinco", "Dos"]], "T5": ["Para llegar a otra esquina, ¿qué haces?", "Girar el cubo con y", ["Hacer x2", "Reiniciar", "Girar D"]], "T6": ["¿Qué algoritmo orienta las esquinas cuando hay un pez?", "El Sune", ["La T", "La Y", "La flor"]], "T7": ["Si no hay pez, ¿qué haces?", "Aplicar el Sune desde cualquier posición", ["Girar el cubo con z", "Hacer la flor", "Deshacer"]], "T8": ["Dos esquinas contiguas intercambiadas: ¿qué algoritmo?", "La T", ["La Y", "El Sune", "La H"]], "V1": ["¿Cuántos pasos tiene el método avanzado?", "Cuatro", ["Siete", "Tres", "Cinco"]], "V2": ["En F2L, ¿qué insertas a la vez?", "Una esquina y su arista del medio", ["Dos esquinas", "Dos aristas", "Un centro"]], "V3": ["Un par mal orientado se inserta con…", "Un algoritmo más largo", ["Un giro de U", "x2", "Nada"]], "V4": ["Para pasar al siguiente hueco, ¿qué haces?", "Girar el cubo con y", ["Hacer x2", "Reiniciar", "Girar D2"]], "V5": ["¿Con qué empieza el OLL en dos pasos?", "Con la cruz amarilla", ["Con las esquinas", "Con el PLL", "Con la cruz blanca"]], "V6": ["¿Cómo se llama el algoritmo que orienta un pez?", "Sune", ["Flor", "Cruz", "Atajo"]], "V7": ["H, Pi y U son atajos para…", "Orientar esquinas", ["Colocar aristas", "Hacer la cruz", "Insertar pares"]], "V8": ["T y L son atajos para…", "Orientar esquinas", ["Colocar aristas", "Hacer la cruz", "Insertar pares"]], "V9": ["La A-perm…", "Rota tres esquinas", ["Rota tres aristas", "Orienta esquinas", "Hace la cruz"]], "V10": ["La Ua rota…", "Tres aristas", ["Tres esquinas", "Dos esquinas", "Todo el cubo"]]});
 var MACROS4=[{from:'B4',seq:C1},{from:'B5',seq:C2},{from:'B5',seq:C3},{from:'B5',seq:C4},{from:'B5',seq:C5},
  {from:'C3',seq:PB},{from:'XC',seq:MIR},{from:'D3',seq:SEX},{from:'D4',seq:AR},{from:'D4',seq:AL},
  {from:'XD',seq:YA},{from:'XD',seq:YB},{from:'XD',seq:SUNE},{from:'XD',seq:CORN},{from:'XD',seq:UA},{from:'E3',seq:OP},{from:'E4',seq:PP}];
@@ -3456,7 +3456,7 @@ function padHtml(list,disabled,compact,act){
   var cols=plain?Math.min(6,shown.length):(shown.some(function(m){return /2$/.test(m)})?3:2);
   return tabs+'<div class="pad'+(compact?' compact':'')+'" style="--cols:'+cols+'">'+srt.map(function(m){return '<button class="mvbtn" data-act="'+act+'" data-mv="'+m+'"'+(disabled?' disabled':'')+'>'+m+'</button>';}).join('')+'</div>';}
 var macroRep=1;
-/* El selector «Repetir ×1 ×2 ×3 ×5» de la fila «Algoritmos» está escondido a propósito; poner SHOW_MACRO_REPEAT a true para volver a mostrarlo (todo lo demás sigue en su sitio) */
+/* El selector «Repetir ×1 ×2 ×3 ×5» de los atajos está escondido a propósito; poner SHOW_MACRO_REPEAT a true para volver a mostrarlo (todo lo demás sigue en su sitio) */
 var SHOW_MACRO_REPEAT=false;
 function curExIndex(){var k=curKind();return k&&k.indexOf('ex')===0?parseInt(k.slice(2),10):-1;}
 function availMacros(){if(lesson&&lesson.practice)return curMacros().slice();return curMacros().filter(function(m){var idx=LESSONS.findIndex(function(l){return l.id===m.from});return li>=idx||(li===idx-1&&curExIndex()>=1);});}
@@ -3464,8 +3464,8 @@ function macrosHtml(disabled){
   var a=availMacros();if(!a.length)return '';
   var btns=a.map(function(m){return '<button class="macro" data-act="macro" data-m="'+curMacros().indexOf(m)+'"'+(disabled?' disabled':'')+'>'+m.seq.join(' ')+'</button>';}).join('');
   var reps=!SHOW_MACRO_REPEAT?'':'<span class="mrep"><span class="mlabel">Repetir</span>'+[1,2,3,5].map(function(n){return '<button data-act="mrep" data-n="'+n+'" aria-pressed="'+(macroRep===n)+'"'+(disabled?' disabled':'')+'>×'+n+'</button>';}).join('')+'</span>';
-  if(a.length>5)return '<details class="macdet"><summary>Algoritmos ('+a.length+')</summary>'+reps+'<div class="macros">'+btns+'</div></details>';
-  return '<div class="macros"><span class="mlabel">Algoritmos</span>'+btns+'</div>'+reps;}
+  if(a.length>5)return '<details class="macdet"><summary>Atajos ('+a.length+')</summary>'+reps+'<div class="macros">'+btns+'</div></details>';
+  return '<div class="macros"><span class="mlabel">Atajos</span>'+btns+'</div>'+reps;}
 function histHtml(){var sq=simplify(ex.moves);return ex.moves.length?'Tu secuencia: <b>'+(sq.length?sq.join(' '):'(se ha anulado)')+'</b>':'Tu secuencia: aún no has pulsado nada';}
 function fbHtml(){return '<div id="fb" class="fb '+(ex.fb?ex.fb.kind:'')+'" role="status" aria-live="polite">'+(ex.fb?ex.fb.html:'')+'</div>';}
 function setFb(kind,html){ex.fb={kind:kind,html:html};var f=$('#fb');if(f){f.className='fb '+kind;f.innerHTML=html;}}
