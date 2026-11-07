@@ -704,7 +704,7 @@ var SCR1=P("F R U' L2 D B'"),SCR2=P("R2 U' F D2 L' B U2 R F' D' L2"),SCR3=P("D2 
 function algLesson(o){
   o.pre=o.pre||X2.concat(invert(o.demo));
   o.pad=PALL;o.tryKind='moves';
-  o.tryText=o.tryText||'Prueba el algoritmo en este cubo. Si te equivocas, pulsa «Reiniciar cubo».';
+  o.tryText=o.tryText||'Prueba el algoritmo en este cubo. Si te equivocas, pulsa «Reiniciar».';
   LESSONS.push(o);}
 function opt(v,label,swc){return {v:v,label:label,sw:swc};}
 
@@ -955,7 +955,7 @@ algLesson({id:'4.2',block:4,title:'Arista del medio hacia la izquierda',sub:"U' 
 algLesson({id:'4.3',block:4,title:'Arista atascada en el medio',sub:'Sácala con el mismo algoritmo',
   recap:'Una arista mal puesta en la capa del medio se saca aplicando el algoritmo desde su hueco y se vuelve a colocar con el caso que corresponda.',
   learn:'<p>A veces una arista de la capa del medio está en su sitio pero <b>al revés</b>, o hay una arista con amarillo en el hueco de otra.</p><p>La solución es <b>sacarla</b>: aplica el algoritmo (derecha o izquierda) con cualquier arista de arriba delante. La arista mal puesta sube a la capa de arriba. Después colócala como en las dos lecciones anteriores.</p>',
-  tryText:'Pulsa «Reiniciar cubo» tantas veces como quieras. Prueba a sacar la arista mal puesta.',
+  tryText:'Pulsa «Reiniciar» tantas veces como quieras. Prueba a sacar la arista mal puesta.',
   demo:P("U2 R U' R' U' F' U F R U' R' U' F' U F"),demoNote:'Se saca la arista mal puesta y se coloca la correcta.',
   pre:X2.concat(AR),
   exercises:[
@@ -1043,7 +1043,7 @@ LESSONS.push({id:'5.8',block:5,title:'El último giro de U',sub:'Alinear la capa
     solveEx({q:'Termina el cubo: la capa de arriba está girada media vuelta.',sol:['U2'],goal:'solved',hint:'Media vuelta con U2.'})]});
 
 /* Bloque 6 */
-LESSONS.push({id:'6.1',block:6,title:'Resolver un cubo mezclado',sub:'El examen final',
+LESSONS.push({id:'6.1',block:6,title:'Examen final: un cubo mezclado',sub:'Resuelve cubos mezclados de principio a fin',
   recap:'Terminar el cubo es repetir los siete pasos en orden. Si te pierdes, vuelve a la lección del paso que te falla.',
   learn:'<p>Ya conoces todo el método. Repasa el orden:</p><ol class="plan"><li>Flor y cruz blanca.</li><li>Esquinas blancas.</li><li>Aristas del medio.</li><li>Cruz amarilla.</li><li>Orientar esquinas amarillas (Sune).</li><li>Colocar esquinas.</li><li>Colocar aristas.</li></ol><p>Si el blanco no está abajo, empieza con '+K('x2')+'. Si te atascas, pulsa «Pista» para ver una solución posible. Es normal que lleve un rato.</p>',
   pad:PALL,tryKind:'moves',tryText:'Practica libremente con el cubo antes de empezar.',
@@ -1318,7 +1318,7 @@ function s4(q,sol,goal,hint,pre,setup){return solveEx({q:q,pre:pre===undefined?[
 function alg4(o){
   o.pre=o.pre!==undefined?o.pre:(o.pre0||[]).concat(invert(o.demo));
   o.pad=PAD4;o.tryKind='moves';
-  o.tryText=o.tryText||'Prueba el algoritmo en este cubo. Si te equivocas, pulsa «Reiniciar cubo».';
+  o.tryText=o.tryText||'Prueba el algoritmo en este cubo. Si te equivocas, pulsa «Reiniciar».';
   LESSONS.push(o);}
 function exam4(id,block,title,sub,recap,pad,pre,exs){
   exs.forEach(function(e){e.nohint=true;});
@@ -1576,7 +1576,7 @@ var XE=exam4('XE',11,'Mini-examen: las paridades','Reconocer y arreglar','Repaso
 
 /* ---- Bloque F ---- */
 var SC4A=P("U2 R' Fw D2 2B L' U 2R2 D' F2 Lw B' U R"),SC4B=P("Rw U2 2F' L D2 Bw' R' 2U F"),SC4C=P("F 2R U' Dw2 L2 B Rw'");
-LESSONS.push({id:'F1',block:12,title:'Resolver un 4×4 mezclado',sub:'El examen final',
+LESSONS.push({id:'F1',block:12,title:'Examen final: un 4×4 mezclado',sub:'Resuelve 4×4 mezclados de principio a fin',
   recap:'Terminar el 4×4 es repetir el método: centros, aristas emparejadas, como un 3×3 y paridades.',
   learn:'<p>Ya conoces todo el método:</p><ol class="plan"><li>Los centros, con capas internas y conmutadores.</li><li>Las aristas emparejadas.</li><li>Resolver como un 3×3.</li><li>Las dos paridades.</li></ol><p>Si te atascas, pulsa «Pista». Es normal que lleve un rato.</p>',
   pad:PAD4,tryKind:'moves',tryText:'Practica libremente con el cubo antes de empezar.',
@@ -1747,7 +1747,7 @@ var XT3=exam2('XT3',15,'Mini-examen: la última capa','Orientar y colocar','Repa
   t2('Pon el amarillo arriba.',HOLL,'oll2'),t2('Pon el amarillo arriba.',PIOLL,'oll2'),t2('Pon el amarillo arriba.',UOLL,'oll2'),
   t2('Pon el amarillo arriba.',TOLL2,'oll2'),t2('Pon el amarillo arriba.',LOLL2,'oll2'),
   t2('Coloca las esquinas.',TPERM,'solved2'),t2('Coloca las esquinas.',YPERM,'solved2')]);
-LESSONS.push({id:'T9',block:16,title:'Resolver un 2×2 mezclado',sub:'El examen final',
+LESSONS.push({id:'T9',block:16,title:'Examen final: un 2×2 mezclado',sub:'Resuelve 2×2 mezclados de principio a fin',
   recap:'Terminar el 2×2: primera capa, orientar la última capa, colocar las esquinas y alinear con U.',
   learn:'<p>Ya conoces todo el método:</p><ol class="plan"><li>La primera capa con el blanco abajo.</li><li>Orientar la última capa con el Sune.</li><li>Colocar las esquinas con la T o la Y.</li><li>Alinear con un giro de U.</li></ol><p>Si te atascas, pulsa «Pista».</p>',
   pad:PALL,tryKind:'moves',tryText:'Practica libremente con el cubo antes de empezar.',
@@ -1884,7 +1884,7 @@ var XV3=examA('XV3',19,'Mini-examen: PLL','Esquinas y aristas','Repaso: esquinas
   ta('Coloca las esquinas.',APERM,'corners','','yface'),ta('Coloca las esquinas.',YPERM,'corners','','yface'),ta('Coloca las esquinas.',['U'].concat(APERM),'corners','','yface'),ta('Coloca las esquinas.',TPERM,'corners','','yface'),
   ta('Coloca las aristas.',UA,'solved','','corners'),ta('Coloca las aristas.',UB,'solved','','corners'),ta('Coloca las aristas.',HPERM,'solved','','corners'),ta('Coloca las aristas.',ZPERM,'solved','','corners'),
   ta('Termina el cubo.',APERM.concat(UA),'solved','','yface'),ta('Termina el cubo.',YPERM.concat(HPERM),'solved','','yface')]);
-LESSONS.push({id:'V11',block:20,title:'Resolver con el método avanzado',sub:'El examen final',
+LESSONS.push({id:'V11',block:20,title:'Examen final: método avanzado',sub:'Resuelve cubos mezclados con CFOP',
   recap:'Cruz, F2L, OLL en dos pasos y PLL en dos pasos: así se resuelve con el método avanzado.',
   learn:'<p>Ya conoces el método completo:</p><ol class="plan"><li>La cruz blanca.</li><li>F2L: los pares, uno a uno.</li><li>OLL: la cruz amarilla y las esquinas.</li><li>PLL: las esquinas y las aristas.</li></ol><p>Si te atascas, pulsa «Pista».</p>',
   pad:PAD_ADV,tryKind:'moves',tryText:'Practica libremente con el cubo antes de empezar.',
@@ -2414,32 +2414,32 @@ var QPRE={
   swapLast('2.6',3,[
     sx('Completa la flor: una arista del medio y otra de abajo con el blanco de lado.',P("U R2 F L' F'"),'flower',FLOWER),
     sx('Haz la cruz blanca abajo: la flor está desordenada y hay que alinear tres pétalos.',P("U2 F2 U R2 U' B2 U2 L2"),'cross',X2),
-    whole(sx('Final: con todo el cubo a la vista, deja la flor y baja la cruz blanca. Hay aristas en cuatro situaciones distintas.',simplify(P("L U' F L2 L B' L' R").concat(P("U F2 R2 U2 B2 U' L2"))),'cross',X2))]);
+    whole(sx('Reto final: con todo el cubo a la vista, deja la flor y baja la cruz blanca. Hay aristas en cuatro situaciones distintas.',simplify(P("L U' F L2 L B' L' R").concat(P("U F2 R2 U2 B2 U' L2"))),'cross',X2))]);
   /* esquinas blancas */
   swapLast('3.7',3,[
     sx('Completa la primera capa: tres esquinas por colocar.',['U'].concat(rep(SEX,3),Y2,rep(SEX,2),Y2,SEX),'layer1',X2),
     sx('Completa la primera capa: cuatro esquinas, una de cada tipo.',rep(SEX,5).concat(Y2,rep(SEX,3),Y2,rep(SEX,2),Y2,SEX),'layer1',X2),
-    whole(sx('Final: con todo el cubo a la vista, completa la primera capa. Hay cuatro esquinas, algunas atascadas.',['U'].concat(rep(SEX,3),Y2b,['U2'],rep(SEX,5),YP,rep(SEX,2),Y2,rep(SEX,4)),'layer1',X2))]);
+    whole(sx('Reto final: con todo el cubo a la vista, completa la primera capa. Hay cuatro esquinas, algunas atascadas.',['U'].concat(rep(SEX,3),Y2b,['U2'],rep(SEX,5),YP,rep(SEX,2),Y2,rep(SEX,4)),'layer1',X2))]);
   /* capa del medio */
   swapLast('4.6',3,[
     sx('Completa las dos primeras capas: tres aristas por colocar.',AR.concat(Y2,AL,Y2,['U'],AR),'layer2',X2),
     sx('Completa las dos primeras capas: una arista atascada y otra por colocar.',P("U2 R U' R' U' F' U F R U' R' U' F' U F").concat(Y2b,['U'],AL),'layer2',X2),
-    whole(sx('Final: con todo el cubo a la vista, completa las dos primeras capas. Hay cuatro aristas, alguna atascada.',AR.concat(YP,['U'],AL,Y2,AR,YP,P("U2 L' U L U F U' F'")),'layer2',X2))]);
+    whole(sx('Reto final: con todo el cubo a la vista, completa las dos primeras capas. Hay cuatro aristas, alguna atascada.',AR.concat(YP,['U'],AL,Y2,AR,YP,P("U2 L' U L U F U' F'")),'layer2',X2))]);
   /* capa de arriba */
   swapLast('5.10',3,[
     sx('Pon el amarillo de las cuatro esquinas arriba: parte solo del punto.',YA.concat(['U2'],YB,SUNE),'yface',X2),
     sx('Coloca las esquinas: ninguna mira arriba al empezar.',SUNE.concat(SUNE,['U'],CORN),'corners',X2),
-    whole(sx('Final: con todo el cubo a la vista, termina la capa de arriba desde el punto.',YA.concat(['U2'],YB,SUNE,SUNE,['U'],CORN,UA),'solved',X2))]);
+    whole(sx('Reto final: con todo el cubo a la vista, termina la capa de arriba desde el punto.',YA.concat(['U2'],YB,SUNE,SUNE,['U'],CORN,UA),'solved',X2))]);
   /* mini-exámenes intermedios: los dos últimos suben */
   swapLast('e3',2,[
     sx('Completa la primera capa: dos esquinas, una atascada.',rep(SEX,2).concat(Y2,['U'],rep(SEX,3)),'layer1',X2),
-    whole(sx('Final: con todo el cubo a la vista, completa la primera capa. Hay tres esquinas.',['U2'].concat(rep(SEX,3),Y2,rep(SEX,5),YP,['U'],SEX),'layer1',X2))]);
+    whole(sx('Reto final: con todo el cubo a la vista, completa la primera capa. Hay tres esquinas.',['U2'].concat(rep(SEX,3),Y2,rep(SEX,5),YP,['U'],SEX),'layer1',X2))]);
   swapLast('e4',2,[
     sx('Pon el amarillo de las cuatro esquinas arriba, empezando por el punto.',YA.concat(['U2'],YB,SUNE),'yface',X2),
-    whole(sx('Final: con todo el cubo a la vista, haz la cruz amarilla y orienta las cuatro esquinas desde el punto.',YA.concat(['U2'],YB,SUNE,SUNE),'yface',X2))]);
+    whole(sx('Reto final: con todo el cubo a la vista, haz la cruz amarilla y orienta las cuatro esquinas desde el punto.',YA.concat(['U2'],YB,SUNE,SUNE),'yface',X2))]);
   swapLast('e5',2,[
     sx('Orienta las esquinas amarillas (ninguna mira arriba) y colócalas.',SUNE.concat(SUNE,['U'],CORN),'corners',X2),
-    whole(sx('Final: con todo el cubo a la vista, orienta y coloca las esquinas amarillas desde cero.',SUNE.concat(['U2'],SUNE,SUNE,['U'],CORN,['U']),'corners',X2))]);
+    whole(sx('Reto final: con todo el cubo a la vista, orienta y coloca las esquinas amarillas desde cero.',SUNE.concat(['U2'],SUNE,SUNE,['U'],CORN,['U']),'corners',X2))]);
 })();
 
 
@@ -2453,44 +2453,57 @@ var QPRE={
   swapIn(LESSONS2,'XT2',3,[
     V('Haz la primera capa: tres esquinas por colocar.',['U'].concat(rep(SEX,3),Y,rep(SEX,2),Y,SEX),'layer1x2',X2),
     V('Haz la primera capa: cuatro esquinas, una de cada tipo.',rep(SEX,5).concat(Y,rep(SEX,3),Y,rep(SEX,2),Y,SEX),'layer1x2',X2),
-    V('Final: con todo el cubo a la vista, haz la primera capa. Hay cuatro esquinas, algunas atascadas.',['U'].concat(rep(SEX,3),Y2,['U2'],rep(SEX,5),YP,rep(SEX,2),Y,rep(SEX,4)),'layer1x2',X2,true)]);
+    V('Reto final: con todo el cubo a la vista, haz la primera capa. Hay cuatro esquinas, algunas atascadas.',['U'].concat(rep(SEX,3),Y2,['U2'],rep(SEX,5),YP,rep(SEX,2),Y,rep(SEX,4)),'layer1x2',X2,true)]);
   swapIn(LESSONS2,'XT3',3,[
     V('Pon el amarillo arriba: ninguna esquina mira arriba y la capa está girada.',['U'].concat(SUNE,SUNE),'oll2',X2),
     V('Termina el cubo: orienta las esquinas y colócalas.',SUNE.concat(SUNE,['U'],TPERM),'solved2',X2),
-    V('Final: con todo el cubo a la vista, orienta y coloca las esquinas desde cero.',SUNE.concat(['U2'],SUNE,SUNE,['U'],YPERM,['U']),'solved2',X2,true)]);
+    V('Reto final: con todo el cubo a la vista, orienta y coloca las esquinas desde cero.',SUNE.concat(['U2'],SUNE,SUNE,['U'],YPERM,['U']),'solved2',X2,true)]);
   /* avanzado */
   swapIn(LESSONSA,'XV1',3,[
     V('Completa las dos primeras capas: tres pares.',['U'].concat(F2L1,Y,F2L5,YP,F2L4),'layer2',X2),
     V('Completa las dos primeras capas: cuatro pares, uno atascado.',F2L6.concat(Y,F2L1,Y,F2L3,Y2,F2L5),'layer2',X2),
-    V('Final: con todo el cubo a la vista, completa las dos primeras capas. Hay cuatro pares.',['U'].concat(F2L5,Y,F2L6,YP,F2L2,Y2,F2L4,Y,F2L1),'layer2',X2,true)]);
+    V('Reto final: con todo el cubo a la vista, completa las dos primeras capas. Hay cuatro pares.',['U'].concat(F2L5,Y,F2L6,YP,F2L2,Y2,F2L4,Y,F2L1),'layer2',X2,true)]);
   swapIn(LESSONSA,'XV2',3,[
     V('Orienta las esquinas desde el punto: cruz y esquinas.',YA.concat(['U2'],YB,SUNE),'yface',X2),
     V('Orienta toda la última capa: forma de L y ninguna esquina mira arriba.',['U'].concat(YB,SUNE,SUNE),'yface',X2),
-    V('Final: con todo el cubo a la vista, orienta la última capa desde el punto.',YA.concat(['U2'],YB,['U'],SUNE,SUNE,['U2'],ANTI),'yface',X2,true)]);
+    V('Reto final: con todo el cubo a la vista, orienta la última capa desde el punto.',YA.concat(['U2'],YB,['U'],SUNE,SUNE,['U2'],ANTI),'yface',X2,true)]);
   swapIn(LESSONSA,'XV3',3,[
     V('Coloca las esquinas y las aristas.',['U'].concat(YPERM,UA),'solved',X2),
     V('Termina el cubo: esquinas, y después dos tipos de aristas.',APERM.concat(['U'],UB,['U2'],HPERM),'solved',X2),
-    V('Final: con todo el cubo a la vista, coloca todas las piezas de la última capa.',YPERM.concat(['U'],APERM,['U2'],UB,['U'],ZPERM),'solved',X2,true)]);
+    V('Reto final: con todo el cubo a la vista, coloca todas las piezas de la última capa.',YPERM.concat(['U'],APERM,['U2'],UB,['U'],ZPERM),'solved',X2,true)]);
   /* 4×4 */
   swapIn(LESSONS4,'XA',1,[doEx(P("Dw 2R B' Uw2 Lw' 2F U"),'Haz la secuencia '+K("Dw 2R B' Uw2 Lw' 2F U")+'.','')]);
   var C1=P("2R' 2U 2R 2U'"),C2=P("2L 2F 2L' 2F'"),C3=P("2D 2B 2D' 2B'");
   swapIn(LESSONS4,'XB',3,[
     V('Deja los centros bien: tres conmutadores.',C1.concat(C2,C3),'centers',[]),
     V('Deja los centros bien: conmutadores con preparación.',['U'].concat(C1,["U'"],['D2'],C2,['D2'],C3),'centers',[]),
-    V('Final: con todo el cubo a la vista, deja los seis centros bien.',['F'].concat(C2,["F'"],['R'],C3,["R'"],['2U2'],C1,['U'],C2,["U'"]),'centers',[],true)]);
+    V('Reto final: con todo el cubo a la vista, deja los seis centros bien.',['F'].concat(C2,["F'"],['R'],C3,["R'"],['2U2'],C1,['U'],C2,["U'"]),'centers',[],true)]);
   var EA=P("Rw U R' U' Rw' F R F'"),EB=P("Lw' U' L U Lw F' L' F");
   swapIn(LESSONS4,'XC',3,[
     V('Empareja las aristas: tres grupos.',EA.concat(Y,EA,Y,EB),'paired',[]),
     V('Empareja las aristas: cuatro grupos, a los dos lados.',EA.concat(Y2,EB,YP,EA,['U'],EB),'paired',[]),
-    V('Final: con todo el cubo a la vista, empareja todas las aristas.',EB.concat(Y,EA,['U2'],EB,YP,EA,Y2,EA,['U'],EB),'paired',[],true)]);
+    V('Reto final: con todo el cubo a la vista, empareja todas las aristas.',EB.concat(Y,EA,['U2'],EB,YP,EA,Y2,EA,['U'],EB),'paired',[],true)]);
   swapIn(LESSONS4,'XD',3,[
     V('Coloca las esquinas: ninguna mira arriba.',SUNE.concat(['U'],CORN),'corners',X2),
     V('Termina la capa de arriba: de la cruz al cubo completo.',YA.concat(['U2'],YB,SUNE,CORN,UA),'solved',X2),
-    V('Final: con todo el cubo a la vista, resuelve las dos capas de arriba.',AR.concat(Y,AL,YA,['U2'],YB,SUNE,CORN,UA),'solved',X2,true)]);
+    V('Reto final: con todo el cubo a la vista, resuelve las dos capas de arriba.',AR.concat(Y,AL,YA,['U2'],YB,SUNE,CORN,UA),'solved',X2,true)]);
   swapIn(LESSONS4,'XE',3,[
     V('Arregla el cubo: una paridad y esquinas por colocar.',OP.concat(['U'],CORN),'solved',X2),
     V('Arregla el cubo: las dos paridades.',OP.concat(PP),'solved',X2),
-    V('Final: con todo el cubo a la vista, arregla las dos paridades y termina como un 3×3.',OP.concat(PP,SUNE,['U'],CORN,UA),'solved',X2,true)]);
+    V('Reto final: con todo el cubo a la vista, arregla las dos paridades y termina como un 3×3.',OP.concat(PP,SUNE,['U'],CORN,UA),'solved',X2,true)]);
+})();
+
+
+/* Enunciados de «resolver»: todos empiezan por «Completa». «Algoritmo completo», «Reto final» y «Resuelve» (cubo entero mezclado) mantienen su nombre */
+(function(){
+  var VERBS=/^(Pon|Coloca|Colocar|Deja|Orienta|Empareja|Arregla|Termina)\b/;
+  function low(t){return t.charAt(0).toLowerCase()+t.slice(1);}
+  [LESSONS3,LESSONS4,LESSONS2,LESSONSA].forEach(function(arr){arr.forEach(function(l){(l.exercises||[]).forEach(function(e){
+    if(e.t!=='solve'||typeof e.q!=='string'||e.algo)return;
+    var q=e.q;
+    if(/^(Completa|Resuelve|Reto final|<b>)/.test(q))return;
+    if(/^Haz (la|el|las|los) /.test(q))e.q=q.replace(/^Haz /,'Completa ');
+    else if(VERBS.test(q))e.q='Completa: '+low(q);});});});
 })();
 
 var HINT_GOAL={
@@ -3139,6 +3152,7 @@ function updateCtl(){
   u.disabled=!(showU&&ex&&ex.moves.length&&ex.groups.length&&!ex.queued);
   rb.disabled=!(showU&&ex&&ex.redo&&ex.redo.length&&!ex.queued);
   $('#hintBtn').hidden=!(e&&ex&&ex.status==='pending'&&e.hint);
+  var hl=(e&&e.t==='solve'&&ex&&ex.hints>=1)?'Ver solución':'Pista';$('#hintBtn').title=hl;$('#hintBtn').setAttribute('aria-label',hl);
   $('#ctl').hidden=!tl.seq.length;}
 /* reiniciar: con más de 2 movimientos pide confirmación */
 function resetExercise(){
@@ -3162,7 +3176,7 @@ function giveHint(e){
     if(ex.hints===1){lessonErrors++;setFb('info','Pista: '+hintTxt(e));}
     else{setFb('info','Una solución posible: '+K(simplify(e.sol).join(' '))+'. Dale al play de la línea de tiempo para verla, o reinicia y hazla tú.');tlSet(simplify(e.sol),(e.pre||[]).concat(e.setup||[]));}}
   else if(e.hint){if(ex.hints===1)lessonErrors++;setFb('info','Pista: '+hintTxt(e));}}
-$('#hintBtn').addEventListener('click',function(){giveHint(curExercise());updateCtl();});
+$('#hintBtn').addEventListener('click',function(){giveHint(curExercise());renderPanel();updateCtl();});
 /* modo completo: el cubo a pantalla completa; abajo, el objetivo y lo imprescindible */
 var fullOn=false;
 function layoutFull(){if(!fullOn)return;document.documentElement.classList.toggle('full-nopad',!!gestureOn());document.documentElement.style.setProperty('--sheet',panel.offsetHeight+'px');setTimeout(resize,0);}
@@ -3482,9 +3496,10 @@ function goalNote(e){
   return '<div class="goalnote"><b>Objetivo:</b> '+tx+(gh?'<span class="lgd"><i class="lg f"></i>borde: lo que falta <i class="lg c"></i>en color: ya está bien <i class="lg d"></i>gris: ahora no importa</span>':'')+'</div>';}
 function padHidden(e){return (e.t==='do'&&gestureDo(e))||(settings.hidePad&&gestureOn());}
 function hintTxt(e){var h=e.hint||'';return padHidden(e)?h.replace(/\b([Pp])ulsa(?!\s*«)/g,function(m,a){return a==='P'?'Haz':'haz';}):h;}
+function blkFull(b){var pre=b<=6?'3×3':(b<=12?'4×4':(b<=16?'2×2':(b<=20?'Avanzado':'')));return (pre&&b!==99?pre+' · ':'')+BLOCKS[b];}
 function renderPanel(){
   var kind=curKind(),e=curExercise(),E=lesson.exercises.length;
-  var h='<div class="meta"><span>'+BLOCKS[lesson.block]+'</span><span>'+dl(lesson)+'</span></div><h2>'+lesson.title+'</h2>'+stepper()+'<div class="body">';
+  var h='<div class="meta"><span>'+blkFull(lesson.block)+'</span><span>'+dl(lesson)+'</span></div><h2>'+lesson.title+'</h2>'+stepper()+'<div class="body">';
   if(kind==='intro'){
     h+='<div class="mono eyebrow">EN ESTA LECCIÓN</div><p class="goal">'+(INTRO[lesson.id]||lesson.sub)+'</p>'+
        '<ul class="agenda">'+(lesson.exam?'<li><b>'+E+' ejercicios</b> que mezclan todo el bloque, cada vez más difíciles, con pista si la necesitas</li>':(prevIdx(li)>=0?'<li><b>Repaso</b> de «'+LESSONS[prevIdx(li)].title+'»</li>':'')+'<li><b>Aprende</b> y <b>prueba</b> con el cubo</li><li><b>'+E+' ejercicios</b> para abrir la siguiente lección</li>')+'</ul></div>'+
@@ -3494,14 +3509,14 @@ function renderPanel(){
     h+='<div class="mono" style="font-size:.8rem;color:var(--muted);margin-bottom:6px">REPASO DE LA LECCIÓN ANTERIOR</div>'+
        '<div class="recap"><b>'+dl(pv)+' · '+pv.title+'</b><p>'+pv.recap+'</p></div>';
     if(pv.hl)h+='<label class="toggle"><input type="checkbox" id="hlt"'+(hlOn?' checked':'')+'> Resaltar en el cubo</label>';
-    h+='</div><div class="row actions">'+(pv.demo?REPLAY_BTN('demo'):'')+'<button class="btn primary" data-act="next">Continuar →</button></div>';
+    h+='</div><div class="row actions">'+(pv.demo?REPLAY_BTN('demo'):'')+'<button class="btn primary" data-act="next">Siguiente →</button></div>';
   }else if(kind==='quick'){
     var qk=ex.quick;
     h+='<div class="mono eyebrow">PREGUNTA RELÁMPAGO · DE «'+qk.title+'»</div><div class="q">'+qk.q+'</div></div>'+
       '<div class="opts">'+qk.opts.map(function(o,oi){var cls='opt'+(qk.status==='ok'&&o===qk.answer?' right':'')+(qk.wrong[oi]?' wrong':'');
         return '<button class="'+cls+'" data-act="quick" data-v="'+oi+'"'+((qk.status!=='pending'||qk.wrong[oi])?' disabled':'')+'>'+o+'</button>';}).join('')+'</div>'+
       (qk.status==='ok'?'<div class="fb ok" role="status">¡Correcto!</div>':(Object.keys(qk.wrong).length?'<div class="fb bad" role="status">No es esa. Prueba otra.</div>':''))+
-      '<div class="row"><button class="btn primary" data-act="next" style="margin-left:auto"'+(qk.status==='ok'?'':' disabled')+'>Continuar →</button></div>';
+      '<div class="row"><button class="btn primary" data-act="next" style="margin-left:auto"'+(qk.status==='ok'?'':' disabled')+'>Siguiente →</button></div>';
   }else if(kind==='learn'&&lesson.pages){
     var pgs=lesson.pages,pi=ex.page||0,pg=pgs[pi],hs=pg.hl||lesson.hl;
     h+=pg.t;
@@ -3509,19 +3524,19 @@ function renderPanel(){
     h+='</div>';
     if(pg.note)h+='<p class="fb info" style="margin:0">'+pg.note+'</p>';
     h+='<div class="row actions">'+(pi>0?'<button class="btn icon outline" data-act="lpprev" aria-label="Paso anterior" title="Paso anterior">←</button>':'')+(pg.demo?REPLAY_BTN('demo'):'')+
-       (pi<pgs.length-1?'<button class="btn primary" data-act="lpnext">Siguiente →</button>':'<button class="btn primary" data-act="next">Continuar →</button>')+'</div>';
+       (pi<pgs.length-1?'<button class="btn primary" data-act="lpnext">Siguiente →</button>':'<button class="btn primary" data-act="next">Siguiente →</button>')+'</div>';
   }else if(kind==='learn'){
     h+=lesson.learn;
     if(lesson.hl)h+='<label class="toggle"><input type="checkbox" id="hlt"'+(hlOn?' checked':'')+'> Resaltar en el cubo</label>';
     h+='</div>';
     if(lesson.demoNote)h+='<p class="fb info" style="margin:0">'+lesson.demoNote+'</p>';
-    h+='<div class="row actions">'+(lesson.demo?REPLAY_BTN('demo'):'')+'<button class="btn primary" data-act="next">Continuar →</button></div>';
+    h+='<div class="row actions">'+(lesson.demo?REPLAY_BTN('demo'):'')+'<button class="btn primary" data-act="next">Siguiente →</button></div>';
   }else if(kind==='try'){
     h+='<p>'+lesson.tryText+'</p></div>';
     if(lesson.tryKind==='moves')h+=(gestureOn()?gestureHint(false):'')+'<div class="hist" id="hist">'+histHtml()+'</div>'+(lesson.pad.length>20?macrosHtml(false):'')+padHtml(lesson.pad,false,lesson.pad.length>20);
     h+=fbHtml();
-    h+='<div class="row">'+(lesson.tryKind==='moves'?'<button class="btn ghost" data-act="reset">Reiniciar cubo</button>':'')+
-       '<button class="btn primary" id="cont" data-act="next" style="margin-left:auto"'+(ex.interacted?'':' disabled')+'>Continuar →</button></div>';
+    h+='<div class="row">'+(lesson.tryKind==='moves'?'<button class="btn ghost" data-act="reset">Reiniciar</button>':'')+
+       '<button class="btn primary" id="cont" data-act="next" style="margin-left:auto"'+(ex.interacted?'':' disabled')+'>Siguiente →</button></div>';
   }else if(e){
     var n=parseInt(kind.slice(2),10)+1;
     h+='<div class="mono" style="font-size:.8rem;color:var(--muted);margin-bottom:6px">'+(lesson.training?'TRAINING · NIVEL '+e.train.level:'EJERCICIO '+n+' DE '+E)+(e.mixed?' · <span class="mixtag">MEZCLADO CON LECCIONES ANTERIORES</span>':'')+'</div><div class="q">'+e.q+'</div>'+goalNote(e)+'</div>';
@@ -3541,9 +3556,9 @@ function renderPanel(){
     if((e.t==='choice'||e.t==='write')&&e.anim)f+=REPLAY_BTN('replay');
     if(e.t==='write'&&ex.status==='pending')f+='<button class="btn sm ghost" data-act="wdel">Borrar</button><button class="btn primary" data-act="wok" style="margin-left:auto">Comprobar</button>';
     if(lesson.training&&ex.status==='bad'&&e.t==='do')f+='<button class="btn ghost" data-act="pnext">Otra →</button>';
-    if(e.t==='solve'&&ex.status==='pending')f+='<button class="btn sm ghost" data-act="reset">Reiniciar</button>'+(e.nohint?'':'<button class="btn sm" data-act="hint">Pista</button>');
+    if(e.t==='solve'&&ex.status==='pending')f+='<button class="btn sm ghost" data-act="reset">Reiniciar</button>'+(e.nohint?'':'<button class="btn sm" data-act="hint">'+(ex.hints>=1?'Ver solución':'Pista')+'</button>');
     if(e.t==='do'&&ex.status!=='ok')f+='<button class="btn'+(ex.status==='bad'?' primary':' ghost')+'" data-act="reset">'+(ex.status==='bad'?'Reintentar':'Reiniciar')+'</button>';
-    if((ex.status==='ok'||(e.t==='write'&&ex.status==='bad')))f+=lesson.training?'<button class="btn primary" data-act="pnext" style="margin-left:auto">Otra →</button>':lesson.practice?'<button class="btn primary" data-act="pnext" style="margin-left:auto">Otro cubo →</button>':'<button class="btn primary" data-act="next" style="margin-left:auto">'+(n===E?'Terminar lección →':'Siguiente →')+'</button>';
+    if((ex.status==='ok'||(e.t==='write'&&ex.status==='bad')))f+=lesson.training?'<button class="btn primary" data-act="pnext" style="margin-left:auto">Otra →</button>':lesson.practice?'<button class="btn primary" data-act="pnext" style="margin-left:auto">Otra →</button>':'<button class="btn primary" data-act="next" style="margin-left:auto">'+(n===E?'Terminar lección →':'Siguiente →')+'</button>';
     h+=f+'</div>';
   }else{
     var nxt=li+1<LESSONS.length?li+1:-1;
@@ -3642,7 +3657,7 @@ panel.addEventListener('click',function(ev){
   else if(a==='reset'){requestReset();}
   else if(a==='undo'){undoLast();}
   else if(a==='redo'){redoLast();}
-  else if(a==='hint'&&e){giveHint(e);}
+  else if(a==='hint'&&e){giveHint(e);renderPanel();}
   else if(a==='replay'&&e&&e.anim){playSeq(e.anim,e.pre||[],e.t==='write'?ex.status==='pending':ex.status!=='ok');}
   else if(a==='opt'&&e){
     var v=b.dataset.v;

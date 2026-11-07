@@ -364,7 +364,7 @@ S.test('bloque 2: el mini-examen tiene pistas, mantiene sus 10 ejercicios y acab
   assert((await pg.$$('[data-act=hint]')).length === 1, 'debe haber botón de pista en el examen');
   assert((await pg.$$('.goalnote .lg')).length === 3, 'el ejercicio 9 sí resalta');
   await goTo(pg, 'ex9');
-  assert((await pg.textContent('.q')).includes('Final'), 'el último es el final');
+  assert((await pg.textContent('.q')).includes('Reto final'), 'el último es el final');
   eq((await pg.$$('.goalnote .lg')).length, 0, 'el último se ve con todo el cubo, sin resaltado');
   await pg.click('[data-act=hint]'); await pg.waitForTimeout(200);
   assert((await pg.textContent('#fb')).includes('Pista'), 'la pista sale');
@@ -564,7 +564,7 @@ S.test('exámenes de 2×2, avanzado y 4×4: pista disponible y último ejercicio
     assert((await pg.$$('[data-act=hint]')).length === 1, course + ' ' + id + ': debe haber pista');
     assert((await pg.$$('.goalnote .lg')).length === 3, course + ' ' + id + ': el ejercicio 9 resalta');
     await goTo(pg, 'ex9');
-    assert((await pg.textContent('.q')).includes('Final'), course + ' ' + id + ': el último es el final');
+    assert((await pg.textContent('.q')).includes('Reto final'), course + ' ' + id + ': el último es el final');
     eq((await pg.$$('.goalnote .lg')).length, 0, course + ' ' + id + ': sin resaltado en el final');
     await T(pg, 'solveStep'); await pg.waitForSelector('[data-act=next]', { timeout: 90000 });
   }
