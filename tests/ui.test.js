@@ -570,6 +570,36 @@ S.test('exámenes de 2×2, avanzado y 4×4: pista disponible y último ejercicio
   }
 });
 
+
+S.test('training: «letras normales» activa por defecto; sin ningún tipo los botones se desactivan; solo x/y/z', async c => {
+  const pg = await openTrain(c);
+  eq(await pg.$eval('[data-topt=faces]', e => e.checked), true, 'letras normales activas por defecto');
+  eq(await pg.$eval('[data-topt=xyz]', e => e.checked), false); eq(await pg.$eval('[data-topt=mes]', e => e.checked), false);
+  await pg.uncheck('[data-topt=faces]'); await pg.waitForTimeout(200);
+  eq(await pg.$eval('[data-tmode=do]', e => e.disabled), true, 'sin letras: «hacer» desactivado');
+  eq(await pg.$eval('[data-tmode=write]', e => e.disabled), true, 'sin letras: «escribir» desactivado');
+  await pg.check('[data-topt=xyz]'); await pg.waitForTimeout(200);
+  eq(await pg.$eval('[data-tmode=do]', e => e.disabled), false);
+  await pg.click('[data-tlv="3"]'); await pg.click('[data-tmode=do]'); await pg.waitForTimeout(400);
+  for (let i = 0; i < 8; i++) {
+    const sq = await T(pg, 'seq'); assert(sq.every(m => 'xyz'.includes(m[0])), 'solo x/y/z: ' + sq.join(' '));
+    await pg.evaluate(() => window.__T.trainNext()); await pg.waitForTimeout(60);
+  }
+});
+
+S.test('móvil: las pestañas caben en su fila y el botón de ajustes se ve', async c => {
+  const pg = await c.app({ viewport: { width: 390, height: 780 } });
+  const r = await pg.evaluate(() => {
+    const t = document.querySelector('#tabs').getBoundingClientRect(), g = document.querySelector('#settingsBtn').getBoundingClientRect();
+    return { tabsR: t.right, tabsW: t.width, gearL: g.left, gearR: g.right, vw: innerWidth, doc: document.documentElement.scrollWidth };
+  });
+  assert(r.tabsR <= r.vw + 1, 'las pestañas no deben salirse: ' + JSON.stringify(r));
+  assert(r.gearR <= r.vw && r.gearL >= 0, 'los ajustes deben verse: ' + JSON.stringify(r));
+  assert(r.doc <= r.vw + 1, 'no debe haber scroll horizontal: ' + JSON.stringify(r));
+  await pg.click('#settingsBtn'); await pg.waitForTimeout(200);
+  assert(await pg.isVisible('#settingsPanel'), 'el panel de ajustes se abre');
+});
+
 /* ---------- ajustes ---------- */
 S.test('ajustes: sin «girar capas arrastrando» y con todos los checks del mismo tamaño', async c => {
   const pg = await c.lesson('3x3', '1.1', { viewport: { width: 390, height: 800 } });

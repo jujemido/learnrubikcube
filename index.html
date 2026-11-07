@@ -120,6 +120,15 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .brand h1{font-size:1.3rem;font-weight:800;letter-spacing:-.01em}
 .tabs{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
 .tab{border:0;background:transparent;color:var(--muted);padding:6px 16px;border-radius:8px;cursor:pointer;font-family:var(--f-mono);font-weight:700}
+@media (max-width:760px){
+  .top{gap:10px;margin-bottom:16px}
+  .top .brand{flex:1 1 0;min-width:0}
+  .top .brand h1{font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .top #settingsBtn{order:2;flex:0 0 auto}
+  .top .tabs{order:3;display:flex;width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .top .tabs::-webkit-scrollbar{display:none}
+  .top .tab{flex:1 0 auto;padding:7px 12px;font-size:.84rem;white-space:nowrap}
+}
 .tab[aria-selected=true]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.18)}
 
 .btn{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 18px;font-weight:700;cursor:pointer;min-height:44px}
@@ -3655,10 +3664,10 @@ mapView.addEventListener('click',function(ev){
 /* ================= TRAINING: notación ================= */
 BLOCKS[100]='Training · Notación';
 var TR_KEY='rubik-training';
-var train={opts:{level:2,xyz:false,mes:false},log:[]};
+var train={opts:{level:2,faces:true,xyz:false,mes:false},log:[]};
 function trainLoad(t){
   if(!t||typeof t!=='object')return;
-  if(t.opts&&typeof t.opts==='object'){var l=t.opts.level|0;if(l>=1&&l<=5)train.opts.level=l;train.opts.xyz=!!t.opts.xyz;train.opts.mes=!!t.opts.mes;}
+  if(t.opts&&typeof t.opts==='object'){var l=t.opts.level|0;if(l>=1&&l<=5)train.opts.level=l;train.opts.faces=(typeof t.opts.faces==='boolean')?t.opts.faces:true;train.opts.xyz=!!t.opts.xyz;train.opts.mes=!!t.opts.mes;}
   if(Array.isArray(t.log))train.log=t.log.filter(function(r){return r&&typeof r.t==='string'&&typeof r.ok==='boolean';}).slice(-5000);
   saveTrain();}
 try{trainLoad(JSON.parse(localStorage.getItem(TR_KEY)));}catch(e){}
@@ -3678,7 +3687,7 @@ var TRAIN_CAT=[
   var PR=[['R','U'],['L','U'],['F','R'],['U','R'],['R','F'],['L','D'],['D','R'],['B','U'],['F','U'],['U','F'],['D','L'],['B','R']];
   PR.forEach(function(q){TRAIN_CAT.push([q[0]+' '+q[1],''],[q[0]+"' "+q[1]+"'",''],[q[0]+' '+q[1]+' '+q[0]+"'",''],[q[0]+' '+q[1]+' '+q[0]+"' "+q[1]+"'",'']);});})();
 var TRAIN_SYM=[['R','R\'','R2'],['L','L\'','L2'],['U','U\'','U2'],['D','D\'','D2'],['F','F\'','F2'],['B','B\'','B2']];
-function trainAllowed(){var a=['R','L','U','D','F','B'];if(train.opts.xyz)a=a.concat(['x','y','z']);if(train.opts.mes)a=a.concat(['M','E','S']);return a;}
+function trainAllowed(){var a=[];if(train.opts.faces)a=a.concat(['R','L','U','D','F','B']);if(train.opts.xyz)a=a.concat(['x','y','z']);if(train.opts.mes)a=a.concat(['M','E','S']);return a;}
 function trainPad(){var P=[];trainAllowed().forEach(function(L){P.push(L,L+"'",L+'2');});return P;}
 var TR_LEN=[[1,1],[2,3],[4,6],[7,10],[11,16]];
 function trRand(n){return Math.floor(Math.random()*n);}
@@ -3690,7 +3699,7 @@ function trainRandomSeq(len,allowed){
 function trainPick(){
   var lv=train.opts.level,rng=TR_LEN[lv-1],al=trainAllowed(),allowedSet={};al.forEach(function(x){allowedSet[x]=1;});
   function okSeq(seq){return seq.every(function(m){return allowedSet[m.charAt(0)];});}
-  var extra=train.opts.xyz||train.opts.mes;
+  var extra=(train.opts.xyz||train.opts.mes);
   if(lv===1){var L=al[trRand(al.length)];var r=Math.random();return {seq:[L+(r<.45?'':(r<.8?"'":'2'))],name:''};}
   var cands=TRAIN_CAT.filter(function(c){var q=P(c[0]);return q.length>=rng[0]&&q.length<=rng[1]&&okSeq(q);});
   if(extra){var ex2=cands.filter(function(c){return P(c[0]).some(function(m){return 'xyzMES'.indexOf(m.charAt(0))>=0;});});if(ex2.length&&Math.random()<.5)cands=ex2;}
@@ -3709,6 +3718,7 @@ function trainLog(tr,ok){
   if(train.log.length>5000)train.log=train.log.slice(-5000);
   saveTrain();}
 function startTraining(mode){
+  if(!trainAllowed().length)return;
   histIn();useCourse('3x3');if(renderer)makeGeos();
   lesson={id:'T:'+mode,disp:'T',block:100,title:mode==='do'?'Hacer la notación':'Escribir la notación',sub:'',practice:true,training:true,tmode:mode,pad:trainPad(),pre:[],exercises:[mode==='do'?trainDoEx():trainWriteEx()]};
   li=0;lessonErrors=0;maxStep=0;
@@ -3725,14 +3735,16 @@ function trainStats(){
 function pct(a,b){return (a+b)?Math.round(a/(a+b)*100)+' %':'–';}
 function fmtDate(iso){try{var d=new Date(iso);return d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});}catch(e){return iso.slice(0,16).replace('T',' ');}}
 function renderTrain(){
-  var o=train.opts,S=trainStats(),h='<section class="hero"><h2>Training: notación</h2>'+
+  var o=train.opts,none=!(o.faces||o.xyz||o.mes),S=trainStats(),h='<section class="hero"><h2>Training: notación</h2>'+
     '<p class="sub">Practica la notación del cubo: leerla y hacerla, o verla y escribirla. Cuanto mayor la dificultad, más larga la secuencia.</p>'+
     '<span class="tr-lbl">Dificultad</span><div class="tr-lv">'+[1,2,3,4,5].map(function(n){return '<button data-tlv="'+n+'" aria-pressed="'+(o.level===n)+'" aria-label="Dificultad '+n+'">'+n+'</button>';}).join('')+'</div>'+
     '<span class="mono" style="font-size:.8rem;color:var(--muted)">'+(TR_LEN[o.level-1][0]===TR_LEN[o.level-1][1]?'1 movimiento':TR_LEN[o.level-1][0]+' a '+TR_LEN[o.level-1][1]+' movimientos')+'</span>'+
-    '<div class="tr-opts"><label class="toggle"><input type="checkbox" data-topt="xyz"'+(o.xyz?' checked':'')+'> Incluir giros del cubo: x, y, z y sus primas</label>'+
-    '<label class="toggle"><input type="checkbox" data-topt="mes"'+(o.mes?' checked':'')+'> Incluir capas del medio: M, E, S y sus primas</label></div>'+
-    '<div class="tr-modes"><button class="btn primary" data-tmode="do">Hacer la notación<small>Te digo la secuencia y la haces en el cubo.</small></button>'+
-    '<button class="btn primary" data-tmode="write">Escribir la notación<small>El cubo se mueve y tú eliges las letras.</small></button></div></section>';
+    '<span class="tr-lbl">Letras</span><div class="tr-opts"><label class="toggle"><input type="checkbox" data-topt="faces"'+(o.faces?' checked':'')+'> Las normales: R, L, U, D, F, B y sus primas</label>'+
+    '<label class="toggle"><input type="checkbox" data-topt="xyz"'+(o.xyz?' checked':'')+'> Giros del cubo: x, y, z y sus primas</label>'+
+    '<label class="toggle"><input type="checkbox" data-topt="mes"'+(o.mes?' checked':'')+'> Capas del medio: M, E, S y sus primas</label></div>'+
+    (none?'<p class="sub" role="status">Activa al menos un tipo de letras para empezar.</p>':'')+
+    '<div class="tr-modes"><button class="btn primary" data-tmode="do"'+(none?' disabled':'')+'>Hacer la notación<small>Te digo la secuencia y la haces en el cubo.</small></button>'+
+    '<button class="btn primary" data-tmode="write"'+(none?' disabled':'')+'>Escribir la notación<small>El cubo se mueve y tú eliges las letras.</small></button></div></section>';
   h+='<div class="blk-title">Estadísticas</div><section class="hero">';
   if(!train.log.length)h+='<p class="sub">Aún no hay intentos. Cada acierto y cada fallo se guarda con su fecha y hora.</p>';
   else{
