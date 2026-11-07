@@ -3548,7 +3548,7 @@ function renderPanel(){
   var h='<div class="meta"><span>'+blkFull(lesson.block)+'</span><span>'+dl(lesson)+'</span></div><h2>'+lesson.title+'</h2>'+stepper()+'<div class="body">';
   if(kind==='intro'){
     h+='<div class="mono eyebrow">EN ESTA LECCIÓN</div><p class="goal">'+(INTRO[lesson.id]||lesson.sub)+'</p>'+
-       '<ul class="agenda">'+(lesson.exam?'<li><b>'+E+' ejercicios</b> que mezclan todo el bloque, cada vez más difíciles, con pista si la necesitas</li>':(prevIdx(li)>=0?'<li><b>Repaso</b> de «'+LESSONS[prevIdx(li)].title+'»</li>':'')+'<li><b>Aprende</b> y <b>prueba</b> con el cubo</li><li><b>'+E+' ejercicios</b> para abrir la siguiente lección</li>')+'</ul></div>'+
+       (lesson.exam?'<p class="sub">'+E+' ejercicios del bloque, cada vez más difíciles. Tienes pista.</p>':'')+'</div>'+
        '<div class="row"><button class="btn primary" data-act="next" style="margin-left:auto">Empezar →</button></div>';
   }else if(kind==='recap'){
     var pv=LESSONS[prevIdx(li)];
