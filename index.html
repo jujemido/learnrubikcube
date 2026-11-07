@@ -783,8 +783,8 @@ LESSONS.push({id:'F2',block:2,title:'La flor: arista abajo de lado',sub:'El blan
   exercises:[
     solveEx({q:'Completa la flor: la arista de abajo tiene el blanco mirando a la derecha.',pre:FLOWER,sol:S_BS,goal:'flower',hint:'Primero R para subirla al medio, después F\' para llevarla arriba y por último R\' para deshacer.',hl:'g:flower'}),
     withPre(choiceEx('Una arista blanca está abajo con el blanco hacia un lado. ¿Qué haces primero?',shuffle([opt('a','La subo a la capa del medio con un cuarto de vuelta'),opt('b','Le doy media vuelta a su cara'),opt('c','Giro D hasta que mire arriba'),opt('d','Giro todo el cubo con z')]),'a','Con media vuelta el blanco acabaría de lado. Hay que subirla antes al medio.'),FLO(S_BS),'g:flower'),
-    solveEx({q:'Completa la flor: esta vez la arista está abajo a la izquierda.',pre:FLOWER,sol:S_BS2,goal:'flower',hint:'Es el mismo truco al otro lado: L, B\' y L\'.',hl:'g:flower'}),
-    solveEx({q:'Completa la flor: otra arista con el blanco de lado.',pre:FLOWER,sol:S_BS3,goal:'flower',hint:'Primero R\' para subirla al medio, luego B y R.',hl:'g:flower'})]});
+    solveEx({q:'Completa la flor: esta vez la arista está abajo a la izquierda. Es el mismo movimiento de antes pero <b>reflejado</b>: la cara izquierda en vez de la derecha.',pre:FLOWER,sol:S_BS2,goal:'flower',hint:'Es el mismo truco al otro lado: L, B\' y L\'.',hl:'g:flower'}),
+    solveEx({q:'Completa la flor: otra arista con el blanco de lado. Misma idea con otras caras: las letras cambian según dónde esté la arista.',pre:FLOWER,sol:S_BS3,goal:'flower',hint:'Primero R\' para subirla al medio, luego B y R.',hl:'g:flower'})]});
 
 LESSONS.push({id:'2.4',block:2,title:'La flor: arista del medio',sub:'Gira la cara del otro color hacia arriba',
   recap:'Una arista blanca de la <b>capa del medio</b> se sube girando la cara <b>del otro color</b> (no la del blanco) hacia arriba. Si tropieza con un pétalo, aparta antes con '+K('U')+'.',
@@ -815,7 +815,7 @@ LESSONS.push({id:'F3',block:2,title:'La flor: arista arriba de lado',sub:'Está 
   exercises:[
     solveEx({q:'Completa la flor: la arista de arriba a la derecha tiene el blanco de lado.',pre:FLOWER,sol:S_TS,goal:'flower',hint:'Bájala con R\', aparta con U y súbela con F\'.',hl:'g:flower'}),
     withPre(choiceEx('Una arista blanca está arriba, pero con el blanco mirando a un lado. ¿Está bien colocada en la flor?',shuffle([opt('a','No: hay que sacarla y volver a meterla'),opt('b','Sí: está en la capa de arriba'),opt('c','Sí, si el otro color coincide con su centro'),opt('d','Se arregla con x2')]),'a','En la flor el blanco tiene que mirar hacia arriba. Si mira a un lado, hay que recolocarla.'),FLO(S_TS),'g:flower'),
-    solveEx({q:'Completa la flor: otra arista de arriba con el blanco de lado.',pre:FLOWER,sol:S_TS2,goal:'flower',hint:'Bájala a la capa del medio, aparta con U y súbela con la cara del otro color.',hl:'g:flower'})]});
+    solveEx({q:'Completa la flor: otra arista de arriba con el blanco de lado. Es el mismo movimiento reflejado: la cara izquierda en vez de la derecha.',pre:FLOWER,sol:S_TS2,goal:'flower',hint:'Bájala a la capa del medio, aparta con U y súbela con la cara del otro color.',hl:'g:flower'})]});
 
 LESSONS.push({id:'F4',block:2,title:'La flor: reconocer el caso',sub:'Cuatro situaciones, cuatro movimientos',
   recap:'Antes de mover, <b>mira dónde está la arista blanca</b> y cómo mira el blanco: abajo con el blanco abajo (media vuelta), abajo de lado (tres pasos), en el medio (cuarto de vuelta) o arriba de lado (tres pasos).',
