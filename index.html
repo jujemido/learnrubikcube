@@ -2621,7 +2621,7 @@ function examHint(e){
    Hay que mantenerlo al día: cada botón o gesto nuevo del visor entra aquí (lo vigila tests/logic.test.js). */
 BLOCKS[99]='Empieza aquí · Cómo usar el visor';
 (function(){
-  function visorTutorial(arr,id,gest,hintTxt){
+  function visorTutorial(arr,id,gest,hlk){
     var KS=K("R U R' U'");
     var pages=[
       {t:'<p>Arriba está el <b>cubo</b> y debajo, este <b>panel</b>. Todo lo que necesitas está en el visor, y te lo enseño en un minuto.</p><p>Para mirar el cubo desde otro lado, <b>arrastra el fondo</b>. Con dos dedos puedes hacer <b>zoom</b>.</p>',pre:[]},
@@ -2629,7 +2629,7 @@ BLOCKS[99]='Empieza aquí · Cómo usar el visor';
               :'<p><b>Mover una capa:</b> usa la botonera que hay bajo el cubo. Cada botón gira una capa.</p><p>Para mirar el cubo desde otro lado, arrastra el fondo.</p>',pre:[]},
       {t:'<p>Abajo a la izquierda del visor hay tres botones:</p><ul><li><b>Deshacer</b> (flecha hacia atrás): quita tu último movimiento.</li><li><b>Rehacer</b>: lo vuelve a poner.</li><li><b>Reiniciar</b>: vuelve al principio del ejercicio. Si llevas 3 movimientos o más, te pide confirmar.</li></ul>',pre:[]},
       {t:'<p>La <b>bombilla</b> te da una pista. Si la pulsas otra vez, te enseña una solución posible.</p><p>Solo aparece en los ejercicios que tienen pista: si no la ves, ese ejercicio no la lleva.</p>',pre:[]},
-      {t:'<p>Arriba a la derecha del visor:</p><ul><li>El <b>ojo</b> pone o quita el <b>resaltado</b>. Borde morado: lo que falta. Color: ya está bien. Gris: ahora no importa.</li>'+(gest?'<li>El <b>?</b> te recuerda cómo mover el cubo.</li>':'')+'</ul>',pre:[],hl:'edge',note:'Prueba el ojo: el resaltado se apaga y se enciende.'},
+      {t:'<p>Arriba a la derecha del visor:</p><ul><li>El <b>ojo</b> pone o quita el <b>resaltado</b>. Borde morado: lo que falta. Color: ya está bien. Gris: ahora no importa.</li>'+(gest?'<li>El <b>?</b> te recuerda cómo mover el cubo.</li>':'')+'</ul>',pre:[],hl:hlk,note:'Prueba el ojo: el resaltado se apaga y se enciende.'},
       {t:'<p>El botón de las <b>cuatro esquinas</b> pone el cubo a pantalla completa y deja abajo solo el objetivo. Púlsalo otra vez para volver.</p>',pre:[]},
       {t:'<p>En los ejercicios de resolver aparecen botones de <b>Atajos</b>: cada uno hace por ti un algoritmo que ya has aprendido, entero. Se van activando a medida que avanzas.</p><p>Un atajo actúa sobre lo que tienes <b>ahora</b> a la derecha, delante o arriba. Si giras el cubo, cambia la pieza a la que afecta.</p>',pre:[]},
       {t:'<p>Cuando ves una demostración, debajo del cubo aparece la <b>línea de tiempo</b>:</p><ul><li><b>Reproducir / pausa</b>: empieza o para la demostración.</li><li><b>Cuadrado</b>: vuelve al principio.</li><li>El selector cambia la <b>velocidad</b>.</li><li>Toca un paso de la barra para ir directo a ese punto.</li></ul>',pre:[],demo:SEX},
@@ -2641,12 +2641,12 @@ BLOCKS[99]='Empieza aquí · Cómo usar el visor';
       choiceEx('¿Qué significa el borde morado en el cubo?',shuffle([opt('a','Lo que falta por colocar'),opt('b','Lo que ya está bien'),opt('c','Lo que no importa'),opt('d','Tu último movimiento')]),'a','Morado: lo que falta. Color: ya está bien. Gris: no importa.'),
       choiceEx('¿Qué hace un atajo?',shuffle([opt('a','Hace por ti un algoritmo entero que ya conoces'),opt('b','Reinicia el ejercicio'),opt('c','Salta al siguiente ejercicio'),opt('d','Quita el resaltado')]),'a','Un atajo es un algoritmo ya aprendido, en un solo botón.'),
       choiceEx('En la línea de tiempo, ¿qué botón vuelve la demostración al principio?',shuffle([opt('a','El cuadrado'),opt('b','Reproducir'),opt('c','El ojo'),opt('d','La bombilla')]),'a','El cuadrado vuelve al inicio.')];
-    var l={id:id,disp:'Visor',optional:true,block:99,title:'Cómo usar el visor',sub:'Vas a aprender a usar el visor: mover el cubo, deshacer, pistas, resaltado, atajos y línea de tiempo.',
+    var l={id:id,disp:'·',optional:true,block:99,title:'Cómo usar el visor',sub:'Vas a aprender a usar el visor: mover el cubo, deshacer, pistas, resaltado, atajos y línea de tiempo.',
       recap:'En el visor mueves el cubo, deshaces, pides pistas, resaltas, usas atajos y reproduces demostraciones.',
       learn:'<p>Un minuto para conocer el visor.</p>',pages:pages,pad:['R','U',"R'","U'"],tryKind:'moves',
       tryText:'Prueba tú: mueve el cubo, deshaz, rehaz, reinicia, y enciende y apaga el ojo.',pre:[],exercises:ex};
     arr.unshift(l);return l;}
-  visorTutorial(LESSONS3,'U3',true);visorTutorial(LESSONS2,'U2',false);visorTutorial(LESSONS4,'U4',false);visorTutorial(LESSONSA,'UA',true);
+  visorTutorial(LESSONS3,'U3',true,'edge');visorTutorial(LESSONS2,'U2',false,'corner');visorTutorial(LESSONS4,'U4',false,'edge');visorTutorial(LESSONSA,'UA',true,'edge');
 })();
 /*DATA-END*/
 
