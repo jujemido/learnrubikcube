@@ -768,6 +768,29 @@ S.test('secuencia larga con atajos: «Tu secuencia» ocupa su sitio y el botón 
   assert(r.mt >= r.hb - 1, 'los atajos tapan la secuencia');
 });
 
+S.test('al acertar, el «¡Bien!» y «Siguiente» quedan a la vista aunque el panel sea largo (se pegan abajo)', async c => {
+  const pg = await c.lesson('3x3', '1.3'); await pg.setViewportSize({ width: 360, height: 520 }); await pg.waitForTimeout(200);
+  await goTo(pg, 'ex1');
+  const ans = await T(pg, 'ans');
+  await pg.evaluate(() => { document.querySelector('#panel').scrollTop = 0; });
+  await pg.click('[data-act=opt][data-v="' + ans + '"]'); await pg.waitForTimeout(300);
+  const r = await pg.evaluate(() => { const p = document.querySelector('#panel').getBoundingClientRect(), n = document.querySelector('.stickyok [data-act=next]'); if (!n) return null; const b = n.getBoundingClientRect(); return { top: b.top, bottom: b.bottom, pTop: p.top, pBottom: p.bottom, fb: !!document.querySelector('.stickyok .fb.ok') }; });
+  assert(r, 'no hay bloque pegado con «Siguiente»');
+  assert(r.fb, 'el aviso verde debe ir dentro del bloque pegado');
+  assert(r.top >= r.pTop - 1 && r.bottom <= r.pBottom + 1, 'el botón «Siguiente» debe verse dentro del panel sin hacer scroll (' + JSON.stringify(r) + ')');
+});
+
+S.test('sin pista no hay botón de pista (bombilla ni «Pista»)', async c => {
+  const pg = await c.lesson('3x3', '1.3'); await goTo(pg, 'ex1');
+  const has = await pg.evaluate(() => window.__T.hasHint());
+  eq(has, true, 'este ejercicio tiene pista');
+  eq(await pg.isVisible('#hintBtn'), true, 'con pista, se ve la bombilla');
+  const pg2 = await c.lesson('3x3', '1.3'); await goTo(pg2, 'ex1');
+  await pg2.evaluate(() => window.__T.dropHint());
+  await pg2.evaluate(() => window.__T.refresh());
+  eq(await pg2.isVisible('#hintBtn'), false, 'sin pista, la bombilla no se ve');
+});
+
 S.test('lecciones largas: ningún texto con secuencias largas ensancha el panel y las rayitas caben', async c => {
   const pg = await c.app({ viewport: { width: 360, height: 760 } });
   const ids = await pg.evaluate(() => window.__T.ids('3x3')); const idx = ids.indexOf('3.3');

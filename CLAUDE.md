@@ -9,4 +9,6 @@ App web para aprender a resolver el cubo de Rubik (2×2, 3×3, 4×4, Avanzado y 
 3. **Flujo de trabajo:** desplegar primero (merge/push a `main`, subir la versión de caché en `sw.js`), luego pasar los tests, y si algo falla, corregir y volver a desplegar.
 4. No crear PRs salvo petición. No borrar ramas remotas salvo petición.
 5. Los atajos (botones «Atajos») se mantienen. El resaltado gris es el normal; color completo y marco magenta solo en «Algoritmo completo» y en los finales. El selector «Repetir» sigue oculto tras `SHOW_MACRO_REPEAT`.
-6. Idioma: español, claro y breve.
+6. **El tutorial del visor se mantiene al día.** La primera lección de cada curso (`U3`, `U2`, `U4`, `UA`, opcionales) enseña cómo usar el visor: mover, deshacer/rehacer/reiniciar, pista, ojo, ayuda «?», modo completo, atajos, línea de tiempo y ajustes. Cada vez que se añada, quite o cambie un botón o gesto del visor, hay que actualizar ese tutorial; `tests/logic.test.js` falla si hay un control del visor que el tutorial no explica.
+7. El botón de pista (bombilla y «Pista») solo se muestra si el ejercicio tiene pista. Al acertar, «¡Bien!» y «Siguiente» quedan pegados abajo, siempre a la vista.
+8. Idioma: español, claro y breve.

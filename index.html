@@ -359,6 +359,9 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .stage #helpBtn[hidden]{display:none}
 .helpTip{position:absolute;top:52px;right:10px;z-index:4;width:min(320px,calc(100% - 20px));background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:.84rem;line-height:1.45;box-shadow:0 6px 22px rgba(0,0,0,.28);max-height:calc(100% - 64px);overflow-y:auto}
 .helpTip[hidden]{display:none}
+.stickyok{position:sticky;bottom:-20px;z-index:6;display:flex;flex-direction:column;gap:10px;background:var(--panel);margin:0 -20px -20px;padding:10px 20px 20px;border-top:1px solid var(--line);box-shadow:0 -10px 16px -12px rgba(0,0,0,.3)}
+.stickyok .fb{margin:0}
+html.in-lesson.full-mode .stickyok{bottom:-12px;margin:0 -16px -12px;padding:8px 16px 12px}
 .helpTip p{margin:6px 0 0}
 html.in-lesson.full-mode .stage #helpBtn,html.in-lesson.full-mode .stage #hlt{top:calc(10px + env(safe-area-inset-top,0px))}
 html.in-lesson.full-mode,html.in-lesson.full-mode body{overflow:hidden}
@@ -2613,6 +2616,38 @@ function examHint(e){
 /* Todo ejercicio de resolver marca lo que falta (borde), lo que ya está bien (color) y deja en gris lo que no importa */
 [LESSONS3,LESSONS4,LESSONS2,LESSONSA].forEach(function(L){L.forEach(function(l){(l.exercises||[]).forEach(function(e){
   if(e.t==='solve'&&e.goal&&!e.noHl)e.hl='g:'+e.goal;});});});
+
+/* ---------- Tutorial del visor: la primera lección de cada curso (opcional, no bloquea nada) ----------
+   Hay que mantenerlo al día: cada botón o gesto nuevo del visor entra aquí (lo vigila tests/logic.test.js). */
+BLOCKS[99]='Empieza aquí · Cómo usar el visor';
+(function(){
+  function visorTutorial(arr,id,gest,hintTxt){
+    var KS=K("R U R' U'");
+    var pages=[
+      {t:'<p>Arriba está el <b>cubo</b> y debajo, este <b>panel</b>. Todo lo que necesitas está en el visor, y te lo enseño en un minuto.</p><p>Para mirar el cubo desde otro lado, <b>arrastra el fondo</b>. Con dos dedos puedes hacer <b>zoom</b>.</p>',pre:[]},
+      {t:gest?'<p><b>Mover una capa:</b> arrastra una pieza del cubo en la dirección en que quieres girar su capa.</p><p><b>Girar el cubo entero:</b> desliza con dos dedos hacia arriba o abajo, hacia los lados, o gira los dedos. En el ordenador, clic derecho y arrastra, o las teclas '+K('X')+', '+K('Y')+', '+K('Z')+'.</p><p>Si se te olvida, pulsa el <b>?</b> arriba a la derecha del visor.</p>'
+              :'<p><b>Mover una capa:</b> usa la botonera que hay bajo el cubo. Cada botón gira una capa.</p><p>Para mirar el cubo desde otro lado, arrastra el fondo.</p>',pre:[]},
+      {t:'<p>Abajo a la izquierda del visor hay tres botones:</p><ul><li><b>Deshacer</b> (flecha hacia atrás): quita tu último movimiento.</li><li><b>Rehacer</b>: lo vuelve a poner.</li><li><b>Reiniciar</b>: vuelve al principio del ejercicio. Si llevas 3 movimientos o más, te pide confirmar.</li></ul>',pre:[]},
+      {t:'<p>La <b>bombilla</b> te da una pista. Si la pulsas otra vez, te enseña una solución posible.</p><p>Solo aparece en los ejercicios que tienen pista: si no la ves, ese ejercicio no la lleva.</p>',pre:[]},
+      {t:'<p>Arriba a la derecha del visor:</p><ul><li>El <b>ojo</b> pone o quita el <b>resaltado</b>. Borde morado: lo que falta. Color: ya está bien. Gris: ahora no importa.</li>'+(gest?'<li>El <b>?</b> te recuerda cómo mover el cubo.</li>':'')+'</ul>',pre:[],hl:'edge',note:'Prueba el ojo: el resaltado se apaga y se enciende.'},
+      {t:'<p>El botón de las <b>cuatro esquinas</b> pone el cubo a pantalla completa y deja abajo solo el objetivo. Púlsalo otra vez para volver.</p>',pre:[]},
+      {t:'<p>En los ejercicios de resolver aparecen botones de <b>Atajos</b>: cada uno hace por ti un algoritmo que ya has aprendido, entero. Se van activando a medida que avanzas.</p><p>Un atajo actúa sobre lo que tienes <b>ahora</b> a la derecha, delante o arriba. Si giras el cubo, cambia la pieza a la que afecta.</p>',pre:[]},
+      {t:'<p>Cuando ves una demostración, debajo del cubo aparece la <b>línea de tiempo</b>:</p><ul><li><b>Reproducir / pausa</b>: empieza o para la demostración.</li><li><b>Cuadrado</b>: vuelve al principio.</li><li>El selector cambia la <b>velocidad</b>.</li><li>Toca un paso de la barra para ir directo a ese punto.</li></ul>',pre:[],demo:SEX},
+      {t:'<p>Las secuencias de movimientos van en cajitas, como '+KS+'. <b>Toca una letra</b> y te dice qué significa.</p><p>El <b>engranaje</b> de arriba a la derecha abre los <b>Ajustes</b>: velocidad de los giros, sonido, notación, y exportar o importar tu progreso.</p>',pre:[]}];
+    var ex=[
+      choiceEx('¿Qué hace la flecha hacia atrás, abajo a la izquierda del visor?',shuffle([opt('a','Deshace tu último movimiento'),opt('b','Reinicia todo el ejercicio'),opt('c','Da una pista'),opt('d','Pone el cubo a pantalla completa')]),'a','Es «Deshacer».'),
+      choiceEx('¿Para qué sirve el ojo de arriba a la derecha?',shuffle([opt('a','Para poner o quitar el resaltado'),opt('b','Para pedir una pista'),opt('c','Para deshacer'),opt('d','Para cambiar la velocidad')]),'a','Resalta lo que falta; apagado, no se resalta nada.'),
+      choiceEx('¿Cómo se pide una pista?',shuffle([opt('a','Con la bombilla'),opt('b','Con el ojo'),opt('c','Con el engranaje'),opt('d','Con el botón de deshacer')]),'a','La bombilla; solo está si el ejercicio tiene pista.'),
+      choiceEx('¿Qué significa el borde morado en el cubo?',shuffle([opt('a','Lo que falta por colocar'),opt('b','Lo que ya está bien'),opt('c','Lo que no importa'),opt('d','Tu último movimiento')]),'a','Morado: lo que falta. Color: ya está bien. Gris: no importa.'),
+      choiceEx('¿Qué hace un atajo?',shuffle([opt('a','Hace por ti un algoritmo entero que ya conoces'),opt('b','Reinicia el ejercicio'),opt('c','Salta al siguiente ejercicio'),opt('d','Quita el resaltado')]),'a','Un atajo es un algoritmo ya aprendido, en un solo botón.'),
+      choiceEx('En la línea de tiempo, ¿qué botón vuelve la demostración al principio?',shuffle([opt('a','El cuadrado'),opt('b','Reproducir'),opt('c','El ojo'),opt('d','La bombilla')]),'a','El cuadrado vuelve al inicio.')];
+    var l={id:id,disp:'Visor',optional:true,block:99,title:'Cómo usar el visor',sub:'Vas a aprender a usar el visor: mover el cubo, deshacer, pistas, resaltado, atajos y línea de tiempo.',
+      recap:'En el visor mueves el cubo, deshaces, pides pistas, resaltas, usas atajos y reproduces demostraciones.',
+      learn:'<p>Un minuto para conocer el visor.</p>',pages:pages,pad:['R','U',"R'","U'"],tryKind:'moves',
+      tryText:'Prueba tú: mueve el cubo, deshaz, rehaz, reinicia, y enciende y apaga el ojo.',pre:[],exercises:ex};
+    arr.unshift(l);return l;}
+  visorTutorial(LESSONS3,'U3',true);visorTutorial(LESSONS2,'U2',false);visorTutorial(LESSONS4,'U4',false);visorTutorial(LESSONSA,'UA',true);
+})();
 /*DATA-END*/
 
 var INTRO={
@@ -3239,7 +3274,7 @@ function updateCtl(){
   u.hidden=rb.hidden=$('#rstBtn').hidden=!showU;
   u.disabled=!(showU&&ex&&ex.moves.length&&ex.groups.length&&!ex.queued);
   rb.disabled=!(showU&&ex&&ex.redo&&ex.redo.length&&!ex.queued);
-  $('#hintBtn').hidden=!(e&&ex&&ex.status==='pending'&&e.hint);
+  $('#hintBtn').hidden=!(e&&ex&&ex.status==='pending'&&hasHint(e));
   var hl=(e&&e.t==='solve'&&ex&&ex.hints>=1)?'Ver solución':'Pista';$('#hintBtn').title=hl;$('#hintBtn').setAttribute('aria-label',hl);
   $('#ctl').hidden=!tl.seq.length;}
 /* reiniciar: con más de 2 movimientos pide confirmación */
@@ -3257,6 +3292,7 @@ $('#rstYes').addEventListener('click',function(){$('#rstConf').hidden=true;reset
 $('#rstNo').addEventListener('click',function(){$('#rstConf').hidden=true;});
 document.addEventListener('click',function(ev){var c=$('#rstConf');if(c&&!c.hidden&&!ev.target.closest('#rstConf')&&ev.target.id!=='rstBtn'&&!ev.target.closest('[data-act=reset]'))c.hidden=true;});
 /* pista: la misma del panel, también desde el botón de la bombilla */
+function hasHint(e){return !!(e&&!e.nohint&&e.hint);}
 function giveHint(e){
   if(!e||ex.status!=='pending')return;
   ex.hints++;
@@ -3605,8 +3641,8 @@ function renderPanel(){
     h+='<div class="mono eyebrow">PREGUNTA RELÁMPAGO · DE «'+qk.title+'»</div><div class="q">'+qk.q+'</div></div>'+
       '<div class="opts">'+qk.opts.map(function(o,oi){var cls='opt'+(qk.status==='ok'&&o===qk.answer?' right':'')+(qk.wrong[oi]?' wrong':'');
         return '<button class="'+cls+'" data-act="quick" data-v="'+oi+'"'+((qk.status!=='pending'||qk.wrong[oi])?' disabled':'')+'>'+o+'</button>';}).join('')+'</div>'+
-      (qk.status==='ok'?'<div class="fb ok" role="status">¡Correcto!</div>':(Object.keys(qk.wrong).length?'<div class="fb bad" role="status">No es esa. Prueba otra.</div>':''))+
-      '<div class="row"><button class="btn primary" data-act="next" style="margin-left:auto"'+(qk.status==='ok'?'':' disabled')+'>Siguiente →</button></div>';
+      (qk.status==='ok'?'<div class="stickyok">':'')+(qk.status==='ok'?'<div class="fb ok" role="status">¡Correcto!</div>':(Object.keys(qk.wrong).length?'<div class="fb bad" role="status">No es esa. Prueba otra.</div>':''))+
+      '<div class="row"><button class="btn primary" data-act="next" style="margin-left:auto"'+(qk.status==='ok'?'':' disabled')+'>Siguiente →</button></div>'+(qk.status==='ok'?'</div>':'');
   }else if(kind==='learn'&&lesson.pages){
     var pgs=lesson.pages,pi=ex.page||0,pg=pgs[pi],hs=pg.hl||lesson.hl;
     h+=pg.t;
@@ -3639,15 +3675,16 @@ function renderPanel(){
         var cls='opt'+(e.mono?' mono':'');if(ex.status==='ok'&&o.v===e.answer)cls+=' right';if(ex.wrong[o.v])cls+=' wrong';
         return '<button class="'+cls+'" data-act="opt" data-v="'+String(o.v).replace(/"/g,'&quot;')+'"'+((ex.status!=='pending'||ex.wrong[o.v])?' disabled':'')+'>'+(o.sw?sw(o.sw):'')+o.label+'</button>';}).join('')+'</div>';
     }
-    h+=fbHtml();
+    var stk=(ex.status==='ok'||(e.t==='write'&&ex.status==='bad'));
+    h+=(stk?'<div class="stickyok">':'')+fbHtml();
     var f='<div class="row'+(e.t==='choice'?' actions':'')+'">';
     if((e.t==='choice'||e.t==='write')&&e.anim)f+=REPLAY_BTN('replay');
     if(e.t==='write'&&ex.status==='pending')f+='<button class="btn sm ghost" data-act="wdel">Borrar</button><button class="btn primary" data-act="wok" style="margin-left:auto">Comprobar</button>';
     if(lesson.training&&ex.status==='bad'&&e.t==='do')f+='<button class="btn ghost" data-act="pnext">Otra →</button>';
-    if(e.t==='solve'&&ex.status==='pending')f+='<button class="btn sm ghost" data-act="reset">Reiniciar</button>'+(e.nohint?'':'<button class="btn sm" data-act="hint">'+(ex.hints>=1?'Ver solución':'Pista')+'</button>');
+    if(e.t==='solve'&&ex.status==='pending')f+='<button class="btn sm ghost" data-act="reset">Reiniciar</button>'+(hasHint(e)?'<button class="btn sm" data-act="hint">'+(ex.hints>=1?'Ver solución':'Pista')+'</button>':'');
     if(e.t==='do'&&ex.status!=='ok')f+='<button class="btn'+(ex.status==='bad'?' primary':' ghost')+'" data-act="reset">'+(ex.status==='bad'?'Reintentar':'Reiniciar')+'</button>';
     if((ex.status==='ok'||(e.t==='write'&&ex.status==='bad')))f+=lesson.training?'<button class="btn primary" data-act="pnext" style="margin-left:auto">Otra →</button>':lesson.practice?'<button class="btn primary" data-act="pnext" style="margin-left:auto">Otra →</button>':'<button class="btn primary" data-act="next" style="margin-left:auto">'+(n===E?'Terminar lección →':'Siguiente →')+'</button>';
-    h+=f+'</div>';
+    h+=f+'</div>'+(stk?'</div>':'');
   }else{
     var nxt=li+1<LESSONS.length?li+1:-1;
     h+='<div class="done-mark">'+I_CHECK.replace('width="16" height="16"','width="30" height="30"')+'</div><p class="q" style="margin-top:12px">Lección completada.</p><p>'+

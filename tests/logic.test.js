@@ -62,7 +62,8 @@ const result = new Function(html.slice(a, b) + `
     ['R3','R4'].forEach(function(id){var r=F(LESSONS3,id);if(!r||!r.optional)bad.push(id+': falta el repaso o no es opcional');});
   })();
   chk('2x2',LESSONS2,2);chk('adv',LESSONSA,3);chk('3x3',LESSONS3,3);chk('4x4',LESSONS4,4);
-  return {bad:bad,lessons:lessons,solve:solve,exams:exams};
+  var tut=[LESSONS3[0],LESSONS2[0],LESSONS4[0],LESSONSA[0]].map(function(l){return {id:l.id,optional:!!l.optional,exs:l.exercises.length,text:(l.pages||[]).map(function(p){return p.t}).join(' ').replace(/<[^>]+>/g,' ')+' '+l.exercises.map(function(e){return e.q}).join(' ')};});
+  return {bad:bad,lessons:lessons,solve:solve,exams:exams,tut:tut};
 `)();
 
 console.log('\nContenido de los cursos');
@@ -71,5 +72,19 @@ let failed = 0;
 result.bad.forEach(m => { failed++; console.log('  ✗ ' + m); });
 result.exams.forEach(m => { failed++; console.log('  ✗ ' + m); });
 if (result.lessons < 100 || result.solve < 300) { failed++; console.log('  ✗ hay muchas menos lecciones o ejercicios de los esperados'); }
+
+/* Tutorial del visor: la primera lección de cada curso, opcional, y explica TODOS los controles del visor.
+   Si añades o cambias un botón del visor, actualiza el tutorial (y esta tabla). */
+const CONTROLS = { hlt: /ojo/i, helpBtn: /\?/, undoBtn: /Deshacer/, redoBtn: /Rehacer/, rstBtn: /Reiniciar/, hintBtn: /bombilla/i, fullBtn: /pantalla completa/i, rstNo: null, rstYes: null, tlPlay: /Reproducir/, tlStop: /cuadrado/i, tlSpeed: /velocidad/i };
+const sa = html.indexOf('<div class="stage" id="stage">'), sb = html.indexOf('id="panel"');
+const stageIds = [...html.slice(sa, sb).matchAll(/<(?:button|select|input)[^>]*?id="(\w+)"/g)].map(m => m[1]);
+console.log('\nTutorial del visor');
+result.tut.forEach(t => {
+  if (!t.optional) { failed++; console.log('  ✗ ' + t.id + ': el tutorial debe ser opcional (no bloquea el progreso)'); }
+  if (t.exs < 3) { failed++; console.log('  ✗ ' + t.id + ': el tutorial necesita preguntas de repaso'); }
+  Object.keys(CONTROLS).forEach(id => { if (CONTROLS[id] && !CONTROLS[id].test(t.text)) { failed++; console.log('  ✗ ' + t.id + ': el tutorial no explica el control «' + id + '»'); } });
+  if (!/Atajos/.test(t.text) || !/Ajustes/.test(t.text) || !/Pista|pista/.test(t.text)) { failed++; console.log('  ✗ ' + t.id + ': faltan atajos, ajustes o pistas'); }
+});
+stageIds.forEach(id => { if (!(id in CONTROLS)) { failed++; console.log('  ✗ hay un control nuevo en el visor («' + id + '») que el tutorial no explica: añádelo al tutorial y a CONTROLS'); } });
 if (!failed) console.log('  ✓ todo correcto');
 process.exit(failed ? 1 : 0);
