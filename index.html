@@ -3488,6 +3488,18 @@ function markInteracted(){
   if(curKind()==='try'&&!ex.interacted){ex.interacted=true;var c=$('#cont');if(c)c.disabled=false;}}
 function okFb(){return ['¡Bien!','¡Correcto!','¡Exacto!'][Math.floor(Math.random()*3)];}
 function qturns(a){return a.reduce(function(n,m){return n+(/2$/.test(m)?2:1);},0);}
+
+/* ¿Se cumple el objetivo antes de acabar el algoritmo? Entonces exigimos terminarlo (el resto del cubo, como estaba) */
+var ROTSEQ=null;
+function rotSeqs(){if(ROTSEQ)return ROTSEQ;ROTSEQ=[];[[],['x'],['x2'],["x'"],['z'],["z'"]].forEach(function(t){for(var k=0;k<4;k++){var q=t.slice();for(var i=0;i<k;i++)q.push('y');ROTSEQ.push(q);}});return ROTSEQ;}
+function exactInfo(e){
+  if(e._ex!==undefined)return e._ex;
+  var r=null;
+  if(!e.rand&&e.sol&&e.sol.length>1&&(e.goal==='layer1'||e.goal==='layer1x2'||e.goal==='paired')){
+    var st=exStart(e),g=goalFn(e.goal);
+    for(var k=1;k<e.sol.length;k++){if(g(seqState(e.sol.slice(0,k),st))){r={fin:key(seqState(e.sol,st))};break;}}}
+  e._ex=r;return r;}
+function sameFinal(fin,cs){return rotSeqs().some(function(q){return key(seqState(q,cs))===fin;});}
 function handleMove(mv){
   var e=curExercise(),kind=curKind();
   if(ex.queued>0)ex.queued--;
@@ -3499,6 +3511,8 @@ function handleMove(mv){
     if(key(state)===key(seqState(e.seq))){ex.status='ok';stageFlash('ok');ex.fb={kind:'ok',html:okFb()};if(lesson.training&&e.train)trainLog(e.train,true);}
     else{ex.status='bad';stageFlash('bad');lessonErrors++;ex.fb={kind:'bad',html:'No es esa.'+(e.nohint?'':' '+hintTxt(e))};if(lesson.training&&e.train)trainLog(e.train,false);}
     renderPanel();
+  }else if(e.t==='solve'&&goalFn(e.goal)(state)&&exactInfo(e)&&!sameFinal(exactInfo(e).fin,state)){
+    if(!ex.almost){ex.almost=true;setFb('info','¡Casi! Ya está lo que pedía, pero el algoritmo no ha terminado: acábalo para dejar el resto del cubo como estaba.');}
   }else if(e.t==='solve'&&goalFn(e.goal)(state)){
     ex.status='ok';epoch++;stageFlash('ok');if(lesson.practice){prog.prac=prog.prac||{};prog.prac[lesson.st.key]=(prog.prac[lesson.st.key]||0)+1;saveProg();}ex.fb={kind:'ok',html:okFb()+' Lo has conseguido en '+ex.moves.length+' movimientos.'};renderPanel();}}
 function handleTap(p){
