@@ -465,6 +465,18 @@ S.test('«Reiniciar» y cambiar de paso devuelven el cubo a la posición inicial
   eq(await T(pg, 'az'), az0, 'Reiniciar en un ejercicio también');
 });
 
+
+S.test('si la pieza que falta queda por detrás o debajo, la vista gira sola hasta verla (y «Reiniciar» lo repite)', async c => {
+  const pg = await c.lesson('3x3', '2.3'); await goTo(pg, 'ex3');
+  const az = await T(pg, 'az');
+  assert(Math.abs(az - 0.62) > 0.5, 'la vista debería haberse girado para ver las aristas de abajo (az=' + az + ')');
+  await T(pg, 'view', 0.62, 0.5);
+  await pg.click('[data-act=reset]'); await pg.waitForTimeout(300);
+  assert(Math.abs((await T(pg, 'az')) - 0.62) > 0.5, 'tras reiniciar vuelve a la vista adecuada');
+  const pg2 = await c.lesson('3x3', '2.3'); await goTo(pg2, 'ex1');
+  eq(await T(pg2, 'az'), 0.62, 'si la pieza ya se ve, la vista no se toca');
+});
+
 /* ---------- ajustes ---------- */
 S.test('ajustes: sin «girar capas arrastrando» y con todos los checks del mismo tamaño', async c => {
   const pg = await c.lesson('3x3', '1.1', { viewport: { width: 390, height: 800 } });
