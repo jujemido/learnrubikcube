@@ -2421,6 +2421,57 @@ var QPRE={
     whole(sx('Final: con todo el cubo a la vista, orienta y coloca las esquinas amarillas desde cero.',SUNE.concat(['U2'],SUNE,SUNE,['U'],CORN,['U']),'corners',X2))]);
 })();
 
+
+/* ---- 2×2, avanzado y 4×4: exámenes más difíciles desde la mitad y final con todo el cubo a la vista ---- */
+(function(){
+  function swapIn(arr,id,n,list){var l=arr.filter(function(x){return x.id===id})[0];if(!l)throw new Error('examen '+id);l.exercises.splice(l.exercises.length-n,n);list.forEach(function(e){l.exercises.push(e);});}
+  function V(q,sol,goal,pre,whole){var e=solveEx({q:q,pre:pre,sol:sol,goal:goal,hint:''});if(whole)e.noHl=true;return e;}
+  var Y=['y'],Y2=['y2'],YP=["y'"];
+  /* 2×2 */
+  swapIn(LESSONS2,'XT1',1,[doEx(P("R U' F2 D R' U2 F' D2"),'Haz la secuencia '+K("R U' F2 D R' U2 F' D2")+'.','')]);
+  swapIn(LESSONS2,'XT2',3,[
+    V('Haz la primera capa: tres esquinas por colocar.',['U'].concat(rep(SEX,3),Y,rep(SEX,2),Y,SEX),'layer1x2',X2),
+    V('Haz la primera capa: cuatro esquinas, una de cada tipo.',rep(SEX,5).concat(Y,rep(SEX,3),Y,rep(SEX,2),Y,SEX),'layer1x2',X2),
+    V('Final: con todo el cubo a la vista, haz la primera capa. Hay cuatro esquinas, algunas atascadas.',['U'].concat(rep(SEX,3),Y2,['U2'],rep(SEX,5),YP,rep(SEX,2),Y,rep(SEX,4)),'layer1x2',X2,true)]);
+  swapIn(LESSONS2,'XT3',3,[
+    V('Pon el amarillo arriba: ninguna esquina mira arriba y la capa está girada.',['U'].concat(SUNE,SUNE),'oll2',X2),
+    V('Termina el cubo: orienta las esquinas y colócalas.',SUNE.concat(SUNE,['U'],TPERM),'solved2',X2),
+    V('Final: con todo el cubo a la vista, orienta y coloca las esquinas desde cero.',SUNE.concat(['U2'],SUNE,SUNE,['U'],YPERM,['U']),'solved2',X2,true)]);
+  /* avanzado */
+  swapIn(LESSONSA,'XV1',3,[
+    V('Completa las dos primeras capas: tres pares.',['U'].concat(F2L1,Y,F2L5,YP,F2L4),'layer2',X2),
+    V('Completa las dos primeras capas: cuatro pares, uno atascado.',F2L6.concat(Y,F2L1,Y,F2L3,Y2,F2L5),'layer2',X2),
+    V('Final: con todo el cubo a la vista, completa las dos primeras capas. Hay cuatro pares.',['U'].concat(F2L5,Y,F2L6,YP,F2L2,Y2,F2L4,Y,F2L1),'layer2',X2,true)]);
+  swapIn(LESSONSA,'XV2',3,[
+    V('Orienta las esquinas desde el punto: cruz y esquinas.',YA.concat(['U2'],YB,SUNE),'yface',X2),
+    V('Orienta toda la última capa: forma de L y ninguna esquina mira arriba.',['U'].concat(YB,SUNE,SUNE),'yface',X2),
+    V('Final: con todo el cubo a la vista, orienta la última capa desde el punto.',YA.concat(['U2'],YB,['U'],SUNE,SUNE,['U2'],ANTI),'yface',X2,true)]);
+  swapIn(LESSONSA,'XV3',3,[
+    V('Coloca las esquinas y las aristas.',['U'].concat(YPERM,UA),'solved',X2),
+    V('Termina el cubo: esquinas, y después dos tipos de aristas.',APERM.concat(['U'],UB,['U2'],HPERM),'solved',X2),
+    V('Final: con todo el cubo a la vista, coloca todas las piezas de la última capa.',YPERM.concat(['U'],APERM,['U2'],UB,['U'],ZPERM),'solved',X2,true)]);
+  /* 4×4 */
+  swapIn(LESSONS4,'XA',1,[doEx(P("Dw 2R B' Uw2 Lw' 2F U"),'Haz la secuencia '+K("Dw 2R B' Uw2 Lw' 2F U")+'.','')]);
+  var C1=P("2R' 2U 2R 2U'"),C2=P("2L 2F 2L' 2F'"),C3=P("2D 2B 2D' 2B'");
+  swapIn(LESSONS4,'XB',3,[
+    V('Deja los centros bien: tres conmutadores.',C1.concat(C2,C3),'centers',[]),
+    V('Deja los centros bien: conmutadores con preparación.',['U'].concat(C1,["U'"],['D2'],C2,['D2'],C3),'centers',[]),
+    V('Final: con todo el cubo a la vista, deja los seis centros bien.',['F'].concat(C2,["F'"],['R'],C3,["R'"],['2U2'],C1,['U'],C2,["U'"]),'centers',[],true)]);
+  var EA=P("Rw U R' U' Rw' F R F'"),EB=P("Lw' U' L U Lw F' L' F");
+  swapIn(LESSONS4,'XC',3,[
+    V('Empareja las aristas: tres grupos.',EA.concat(Y,EA,Y,EB),'paired',[]),
+    V('Empareja las aristas: cuatro grupos, a los dos lados.',EA.concat(Y2,EB,YP,EA,['U'],EB),'paired',[]),
+    V('Final: con todo el cubo a la vista, empareja todas las aristas.',EB.concat(Y,EA,['U2'],EB,YP,EA,Y2,EA,['U'],EB),'paired',[],true)]);
+  swapIn(LESSONS4,'XD',3,[
+    V('Coloca las esquinas: ninguna mira arriba.',SUNE.concat(['U'],CORN),'corners',X2),
+    V('Termina la capa de arriba: de la cruz al cubo completo.',YA.concat(['U2'],YB,SUNE,CORN,UA),'solved',X2),
+    V('Final: con todo el cubo a la vista, resuelve las dos capas de arriba.',AR.concat(Y,AL,YA,['U2'],YB,SUNE,CORN,UA),'solved',X2,true)]);
+  swapIn(LESSONS4,'XE',3,[
+    V('Arregla el cubo: una paridad y esquinas por colocar.',OP.concat(['U'],CORN),'solved',X2),
+    V('Arregla el cubo: las dos paridades.',OP.concat(PP),'solved',X2),
+    V('Final: con todo el cubo a la vista, arregla las dos paridades y termina como un 3×3.',OP.concat(PP,SUNE,['U'],CORN,UA),'solved',X2,true)]);
+})();
+
 var HINT_GOAL={
   flower:"Mira dónde está cada arista blanca que falta. Abajo con el blanco abajo: media vuelta de su cara. Abajo de lado: súbela al medio, a la flor y deshaz el primer giro. En el medio: gira la cara del otro color. Arriba de lado: bájala, aparta con U y súbela. Si el hueco de arriba está ocupado, aparta antes con U.",
   cross:"Gira U hasta que el color de lado de un pétalo coincida con su centro y bájalo con media vuelta. Repite con los demás.",

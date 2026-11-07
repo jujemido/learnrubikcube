@@ -557,6 +557,19 @@ S.test('training: la dificultad fija la longitud y x/y/z y M/E/S solo salen si s
   const rx = await draw(3, true, true); assert(rx.some(s => s.some(m => 'xyzMES'.includes(m[0]))), 'con las opciones activas salen x/y/z o M/E/S');
 });
 
+
+S.test('exámenes de 2×2, avanzado y 4×4: pista disponible y último ejercicio sin resaltado y resoluble', async c => {
+  for (const [course, id] of [['2x2', 'XT2'], ['adv', 'XV3'], ['4x4', 'XD']]) {
+    const pg = await c.lesson(course, id); await goTo(pg, 'ex8');
+    assert((await pg.$$('[data-act=hint]')).length === 1, course + ' ' + id + ': debe haber pista');
+    assert((await pg.$$('.goalnote .lg')).length === 3, course + ' ' + id + ': el ejercicio 9 resalta');
+    await goTo(pg, 'ex9');
+    assert((await pg.textContent('.q')).includes('Final'), course + ' ' + id + ': el último es el final');
+    eq((await pg.$$('.goalnote .lg')).length, 0, course + ' ' + id + ': sin resaltado en el final');
+    await T(pg, 'solveStep'); await pg.waitForSelector('[data-act=next]', { timeout: 90000 });
+  }
+});
+
 /* ---------- ajustes ---------- */
 S.test('ajustes: sin «girar capas arrastrando» y con todos los checks del mismo tamaño', async c => {
   const pg = await c.lesson('3x3', '1.1', { viewport: { width: 390, height: 800 } });
