@@ -56,6 +56,9 @@ const result = new Function(html.slice(a, b) + `
     ['3.1','3.2','3.3','3.4','4.1','4.2','4.3'].forEach(function(id){F(LESSONS3,id).exercises.forEach(function(e,i){
       if((e.sol||[]).some(function(m){return /^y/.test(m);}))bad.push('3x3 '+id+' ex'+(i+1)+': pide girar el cubo con y antes de que se enseñe (3.5 / 4.4)');});});
     F(LESSONSA,'V3').exercises.forEach(function(e,i){if((e.sol||[]).some(function(m){return /^y/.test(m);}))bad.push('adv V3 ex'+(i+1)+': pide y antes de V4');});
+    (function(){var e3=F(LESSONS3,'e3'),e4=F(LESSONS3,'e4');
+      e3.exercises.forEach(function(e,i){if((e.sol||[]).some(function(m){return /^y/.test(m);}))bad.push('3x3 e3 (tras 3.3) ej'+(i+1)+': pide y, que se enseña en 3.5');});
+      e4.exercises.forEach(function(e,i){if(e.goal!=='ycross')bad.push('3x3 e4 (tras 5.3) ej'+(i+1)+': pide '+e.goal+', y solo se ha enseñado la cruz amarilla');});})();
     ['R3','R4'].forEach(function(id){var r=F(LESSONS3,id);if(!r||!r.optional)bad.push(id+': falta el repaso o no es opcional');});
   })();
   chk('2x2',LESSONS2,2);chk('adv',LESSONSA,3);chk('3x3',LESSONS3,3);chk('4x4',LESSONS4,4);
