@@ -619,31 +619,43 @@ S.test('training: con solo x/y/z o solo M/E/S hay variedad (no se repite la mism
 });
 
 
-S.test('algoritmo completo: con R U R\' la primera capa aún no se da por buena; hace falta el U\'', async c => {
+
+
+
+
+
+
+S.test('colocar vs algoritmo completo (3.1): con R U R\' el ejercicio normal se aprueba y avisa del U\'', async c => {
   const pg = await c.lesson('3x3', '3.1'); await goTo(pg, 'ex0');
   await T(pg, 'play', ['R', 'U', "R'"]); await pg.waitForTimeout(1500);
-  eq(await T(pg, 'status'), 'pending', 'con tres movimientos no debe darse por resuelto');
-  assert((await pg.textContent('#fb')).includes('Casi'), 'avisa de que falta acabar el algoritmo');
+  eq(await T(pg, 'status'), 'ok', 'colocar la esquina basta en un ejercicio normal');
+  const fb = await pg.textContent('#fb');
+  assert(fb.includes("U'") && fb.includes('Algoritmo completo'), 'avisa del final y de dónde practicarlo: ' + fb);
+});
+
+S.test('colocar vs algoritmo completo (3.1): el ejercicio «Algoritmo completo» exige los cuatro movimientos y se ve qué falta', async c => {
+  const pg = await c.lesson('3x3', '3.1'); await goTo(pg, 'ex4');
+  assert((await pg.textContent('.q')).includes('Algoritmo completo'), 'es el de algoritmo completo');
+  const t = await pg.textContent('.goalnote');
+  assert(t.includes('entero') && !t.includes('gris'), 'la leyenda: ' + t);
+  await T(pg, 'play', ['R', 'U', "R'"]); await pg.waitForTimeout(1500);
+  eq(await T(pg, 'status'), 'pending', 'con tres movimientos no se da por bueno');
+  assert((await pg.textContent('#fb')).includes('Casi'), 'avisa de que falta acabar');
+  assert((await pg.evaluate(() => window.__T.framed())) > 0, 'se ve con borde lo que falta');
   await T(pg, 'play', ["U'"]); await pg.waitForTimeout(1200);
-  eq(await T(pg, 'status'), 'ok', 'con el algoritmo completo sí');
-});
-
-S.test('algoritmo completo: lo mismo en el 2×2 y en el 4×4 (primera capa)', async c => {
-  for (const [course, id] of [['2x2', 'T4'], ['4x4', 'D1']]) {
-    const pg = await c.lesson(course, id); await goTo(pg, 'ex0');
-    await T(pg, 'play', ['R', 'U', "R'"]); await pg.waitForTimeout(1500);
-    eq(await T(pg, 'status'), 'pending', course + ': tres movimientos no bastan');
-    await T(pg, 'play', ["U'"]); await pg.waitForTimeout(1200);
-    eq(await T(pg, 'status'), 'ok', course + ': con el algoritmo completo sí');
-  }
-});
-
-S.test('4×4 emparejar aristas: sin devolver los centros (F R F\') no se da por resuelto', async c => {
-  const pg = await c.lesson('4x4', 'C2'); await goTo(pg, 'ex0');
-  await T(pg, 'play', ['Rw', 'U', "R'", "U'", "Rw'"]); await pg.waitForTimeout(2500);
-  eq(await T(pg, 'status'), 'pending', 'faltan los tres últimos movimientos');
-  await T(pg, 'play', ['F', 'R', "F'"]); await pg.waitForTimeout(1500);
   eq(await T(pg, 'status'), 'ok');
+  eq(await pg.evaluate(() => window.__T.framed()), 0, 'al acabar no queda nada con borde');
+});
+
+S.test('colocar vs algoritmo completo: 2×2 (T4), 4×4 primera capa (D1) y emparejar aristas (C2)', async c => {
+  for (const [course, id, ex, first, rest] of [['2x2', 'T4', 'ex4', ['R', 'U', "R'"], ["U'"]], ['4x4', 'D1', 'ex3', ['R', 'U', "R'"], ["U'"]], ['4x4', 'C2', 'ex3', ['Rw', 'U', "R'", "U'", "Rw'"], ['F', 'R', "F'"]]]) {
+    const pg = await c.lesson(course, id); await goTo(pg, ex);
+    assert((await pg.textContent('.q')).includes('Algoritmo completo'), course + ' ' + id + ': último ejercicio = algoritmo completo');
+    await T(pg, 'play', first); await pg.waitForTimeout(2500);
+    eq(await T(pg, 'status'), 'pending', course + ' ' + id + ': a medias no se aprueba');
+    await T(pg, 'play', rest); await pg.waitForTimeout(1500);
+    eq(await T(pg, 'status'), 'ok', course + ' ' + id + ': completo sí');
+  }
 });
 
 /* ---------- ajustes ---------- */
