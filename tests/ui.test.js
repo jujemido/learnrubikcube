@@ -443,10 +443,10 @@ S.test('las páginas de F2L, 2×2 y 4×4 existen y se recorren hasta «Continuar
 
 
 /* ---------- vista: etiquetas de cara y reinicio de la posición ---------- */
-S.test('el cubo muestra las etiquetas Frente, Derecha y Arriba', async c => {
+S.test('el cubo muestra las letras F, R y U en las caras que se ven', async c => {
   const pg = await c.lesson('3x3', '3.5'); await goTo(pg, 'ex2');
   const t = (await pg.$$eval('#flbl i', els => els.map(e => e.textContent))).join(',');
-  assert(t.includes('Frente') && t.includes('Derecha') && t.includes('Arriba'), 'etiquetas: ' + t);
+  assert(t.split(',').sort().join('') === 'FRU', 'etiquetas: ' + t);
 });
 
 S.test('«Reiniciar» y cambiar de paso devuelven el cubo a la posición inicial de la vista', async c => {

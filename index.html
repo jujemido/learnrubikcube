@@ -282,7 +282,7 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .lg.c{background:#2f9e5b}
 .lg.d{background:var(--dim)}
 #flbl{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-#flbl i{position:absolute;transform:translate(-50%,-50%);font:700 .7rem var(--f-mono);font-style:normal;padding:2px 7px;border-radius:99px;background:var(--panel);color:var(--muted);border:1px solid var(--line);opacity:.9;white-space:nowrap}
+#flbl i{position:absolute;transform:translate(-50%,-50%);font:700 .8rem var(--f-mono);font-style:normal;padding:1px 6px;border-radius:99px;background:var(--panel);color:var(--muted);border:1px solid var(--line);opacity:.5;white-space:nowrap}
 .gesturehint.compact{font-size:.86rem;padding:8px 12px}
 .gesturehint summary{cursor:pointer;font-weight:700;list-style:none}
 .gesturehint summary::-webkit-details-marker{display:none}
@@ -2639,7 +2639,7 @@ function resize(){
   dist=11.8/Math.min(1,camera.aspect*1.08);camera.updateProjectionMatrix();setCam();}
 function holdCue(){viewEl.classList.add('holdcue');setTimeout(function(){viewEl.classList.remove('holdcue');},420);
   try{if(navigator.vibrate)navigator.vibrate(12);}catch(e){}}
-var FLBL=[[[0,0,1],'Frente'],[[1,0,0],'Derecha'],[[-1,0,0],'Izquierda'],[[0,0,-1],'Atrás'],[[0,1,0],'Arriba'],[[0,-1,0],'Abajo']];
+var FLBL=[[[0,0,1],'F'],[[1,0,0],'R'],[[-1,0,0],'L'],[[0,0,-1],'B'],[[0,1,0],'U'],[[0,-1,0],'D']];
 function updateFaceLabels(){
   var box=$('#flbl');if(!box||!renderer||!camera)return;
   if(!visible||!lesson){box.innerHTML='';return;}
