@@ -29,7 +29,7 @@ const result = new Function(html.slice(a, b) + `
       if(!l.exam&&!l.pages&&/^(2|3|4|5)\./.test(l.id)===false&&l.block>=3&&['3x3'].indexOf(name)<0&&l.id!=='F1')bad.push(name+' '+l.id+': la lección no tiene páginas');
       l.exercises.forEach(function(e,i){
         var tag=name+' '+l.id+' ex'+(i+1);
-        if(e.t==='solve'&&(!e.hl||String(e.hl).indexOf('g:')!==0))bad.push(tag+': el ejercicio de resolver no resalta lo que falta (hl g:objetivo)');
+        if(e.t==='solve'&&!e.noHl&&(!e.hl||String(e.hl).indexOf('g:')!==0))bad.push(tag+': el ejercicio de resolver no resalta lo que falta (hl g:objetivo)');
         (e.seq||e.anim||[]).forEach(function(m){try{parseMove(m)}catch(x){bad.push('movimiento inválido '+tag+' '+m)}});
         if(e.t==='solve'){
           solve++;

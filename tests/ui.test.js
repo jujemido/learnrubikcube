@@ -357,11 +357,18 @@ S.test('bloque 2: se puede completar cada lección de la flor y la cruz (gestos 
   }
 });
 
-S.test('bloque 2: el mini-examen no enseña ayudas y mantiene sus 10 ejercicios', async c => {
-  const pg = await c.lesson('3x3', '2.6'); await goTo(pg, 'ex0');
+S.test('bloque 2: el mini-examen tiene pistas, mantiene sus 10 ejercicios y acaba con uno sin resaltado', async c => {
+  const pg = await c.lesson('3x3', '2.6'); await goTo(pg, 'ex8');
   const kinds = (await T(pg, 'kinds')).split(',');
   eq(kinds.filter(k => k.indexOf('ex') === 0).length, 10);
-  eq((await pg.$$('[data-act=hint]')).length, 0, 'sin botón de pista en el examen');
+  assert((await pg.$$('[data-act=hint]')).length === 1, 'debe haber botón de pista en el examen');
+  assert((await pg.$$('.goalnote .lg')).length === 3, 'el ejercicio 9 sí resalta');
+  await goTo(pg, 'ex9');
+  assert((await pg.textContent('.q')).includes('Final'), 'el último es el final');
+  eq((await pg.$$('.goalnote .lg')).length, 0, 'el último se ve con todo el cubo, sin resaltado');
+  await pg.click('[data-act=hint]'); await pg.waitForTimeout(200);
+  assert((await pg.textContent('#fb')).includes('Pista'), 'la pista sale');
+  await T(pg, 'solveStep'); await pg.waitForSelector('[data-act=next]', { timeout: 8000 });
 });
 
 
@@ -477,6 +484,79 @@ S.test('si la pieza que falta queda por detrás o debajo, la vista gira sola has
   eq(await T(pg2, 'az'), 0.62, 'si la pieza ya se ve, la vista no se toca');
 });
 
+
+/* ---------- Training: notación ---------- */
+const trLog = pg => pg.evaluate(() => JSON.parse(localStorage.getItem('rubik-training') || '{"log":[]}').log);
+async function openTrain(c) {
+  const pg = await c.app({}); await pg.click('.tab[data-course="train"]'); await pg.waitForTimeout(300); return pg;
+}
+
+S.test('training: la pestaña existe y recuerda dificultad y opciones', async c => {
+  const pg = await openTrain(c);
+  assert(await pg.$('[data-tmode=do]') && await pg.$('[data-tmode=write]'), 'debe haber los dos modos');
+  await pg.click('[data-tlv="4"]'); await pg.check('[data-topt=xyz]'); await pg.check('[data-topt=mes]'); await pg.waitForTimeout(200);
+  await pg.reload(); await pg.waitForTimeout(500); await pg.click('.tab[data-course="train"]'); await pg.waitForTimeout(300);
+  eq(await pg.$eval('[data-tlv="4"]', e => e.getAttribute('aria-pressed')), 'true', 'dificultad guardada');
+  eq(await pg.$eval('[data-topt=xyz]', e => e.checked), true); eq(await pg.$eval('[data-topt=mes]', e => e.checked), true);
+});
+
+S.test('training «hacer»: acierto y fallo se guardan con fecha; la botonera está y hay estadísticas', async c => {
+  const pg = await openTrain(c);
+  await pg.click('[data-tlv="2"]'); await pg.click('[data-tmode=do]'); await pg.waitForTimeout(500);
+  assert((await pg.$$('.mvbtn')).length >= 18, 'botonera de movimientos visible');
+  const seq = await T(pg, 'seq');
+  assert(seq.length >= 2 && seq.length <= 3, 'nivel 2: 2 o 3 movimientos, salió ' + seq.join(' '));
+  assert(seq.every(m => 'RLUDFB'.includes(m[0])), 'sin x/y/z ni M/E/S si no se piden: ' + seq.join(' '));
+  await T(pg, 'play', ['U2', 'U2', 'U2']); await pg.waitForTimeout(1500); /* movimientos de más: fallo */
+  eq(await T(pg, 'status'), 'bad');
+  await pg.click('[data-act=reset]'); await pg.waitForTimeout(300);
+  await T(pg, 'play', seq); await pg.waitForTimeout(2500);
+  eq(await T(pg, 'status'), 'ok');
+  const log = await trLog(pg);
+  eq(log.length, 2); eq(log[0].ok, false); eq(log[1].ok, true); eq(log[1].m, 'do'); eq(log[1].l, 2);
+  assert(/^\d{4}-\d{2}-\d{2}T/.test(log[1].t), 'fecha ISO');
+  await pg.click('#backBtn'); await pg.waitForTimeout(400);
+  const t = await pg.textContent('.tr-stats'); assert(t.includes('1') && t.includes('aciertos'), 'estadísticas: ' + t);
+});
+
+S.test('training «escribir»: se eligen las letras, se comprueba y se guarda', async c => {
+  const pg = await openTrain(c);
+  await pg.click('[data-tlv="2"]'); await pg.click('[data-tmode=write]'); await pg.waitForTimeout(600);
+  const seq = await T(pg, 'seq');
+  for (const m of seq) { await pg.click('[data-act=wmv][data-mv="' + m + '"]'); }
+  assert((await pg.textContent('#wrhist')).includes(seq.join(' ')), 'muestra lo elegido');
+  await pg.click('[data-act=wok]'); await pg.waitForTimeout(300);
+  eq(await T(pg, 'status'), 'ok');
+  await pg.click('[data-act=pnext]'); await pg.waitForTimeout(500);
+  const seq2 = await T(pg, 'seq');
+  const wrong = seq2[0][0] === 'R' ? "L'" : "R'";
+  await pg.click('[data-act=wmv][data-mv="' + wrong + '"]'); await pg.click('[data-act=wok]'); await pg.waitForTimeout(300);
+  eq(await T(pg, 'status'), 'bad');
+  assert((await pg.textContent('#fb')).includes(seq2.join(' ')), 'enseña la notación correcta');
+  const log = await trLog(pg);
+  eq(log.map(r => r.ok).join(), 'true,false'); eq(log[0].m, 'write');
+});
+
+S.test('training: la dificultad fija la longitud y x/y/z y M/E/S solo salen si se piden', async c => {
+  const pg = await openTrain(c);
+  const draw = async (lv, xyz, mes) => {
+    await pg.evaluate(([lv, xyz, mes]) => {
+      const t = JSON.parse(localStorage.getItem('rubik-training') || '{}'); t.opts = { level: lv, xyz, mes }; t.log = t.log || [];
+      localStorage.setItem('rubik-training', JSON.stringify(t));
+    }, [lv, xyz, mes]);
+    await pg.reload(); await pg.waitForTimeout(400); await pg.click('.tab[data-course="train"]'); await pg.waitForTimeout(200);
+    await pg.click('[data-tmode=do]'); await pg.waitForTimeout(300);
+    const out = [];
+    for (let i = 0; i < 12; i++) { out.push(await T(pg, 'seq')); await pg.evaluate(() => window.__T.trainNext()); await pg.waitForTimeout(80); }
+    await pg.click('#backBtn'); await pg.waitForTimeout(300);
+    return out;
+  };
+  const r1 = await draw(1, false, false); assert(r1.every(s => s.length === 1), 'nivel 1: un movimiento');
+  const r5 = await draw(5, false, false); assert(r5.every(s => s.length >= 11 && s.length <= 16), 'nivel 5: 11 a 16 movimientos');
+  assert(r5.every(s => s.every(m => 'RLUDFB'.includes(m[0]))), 'sin extras si no se piden');
+  const rx = await draw(3, true, true); assert(rx.some(s => s.some(m => 'xyzMES'.includes(m[0]))), 'con las opciones activas salen x/y/z o M/E/S');
+});
+
 /* ---------- ajustes ---------- */
 S.test('ajustes: sin «girar capas arrastrando» y con todos los checks del mismo tamaño', async c => {
   const pg = await c.lesson('3x3', '1.1', { viewport: { width: 390, height: 800 } });
@@ -505,7 +585,7 @@ S.test('ajustes: exportar e importar progreso y ajustes (y el formato antiguo)',
   const pg = await c.lesson('3x3', '1.1');
   await pg.click('.js-settings >> nth=1'); await pg.click('#progShow'); await pg.waitForTimeout(150);
   const exp = JSON.parse(await pg.$eval('#progBox', e => e.value));
-  assert(exp.v === 2 && exp.progress && exp.settings, 'formato {v:2, progress, settings}');
+  assert(exp.v === 3 && exp.progress && exp.settings && exp.training, 'formato {v:3, progress, settings, training}');
   exp.settings.sound = false; exp.settings.hidePad = true;
   await pg.fill('#progBox', JSON.stringify(exp)); await pg.click('#progLoad'); await pg.waitForTimeout(200);
   eq(await pg.$eval('#setSound', e => e.checked), false); eq(await pg.$eval('#setHidePad', e => e.checked), true);
@@ -539,6 +619,7 @@ S.test('sonido: con el ajuste encendido, un movimiento suena', async c => {
         pages.push(pg);
         return pg;
       },
+      async app(opts) { const pg = await openApp(browser, file, opts); pages.push(pg); return pg; },
       async errors() { const errs = []; pages.forEach(p => (p.errors || []).forEach(e => errs.push(e))); return errs; },
       async close() { for (const p of pages) await p.close().catch(() => {}); }
     };
