@@ -600,6 +600,24 @@ S.test('móvil: las pestañas caben en su fila y el botón de ajustes se ve', as
   assert(await pg.isVisible('#settingsPanel'), 'el panel de ajustes se abre');
 });
 
+
+S.test('training: con solo x/y/z o solo M/E/S hay variedad (no se repite la misma secuencia seguida)', async c => {
+  const pg = await openTrain(c);
+  for (const opt of ['xyz', 'mes']) {
+    await pg.evaluate(o => { const t = { opts: { level: 1, faces: false, xyz: o === 'xyz', mes: o === 'mes' }, log: [] }; localStorage.setItem('rubik-training', JSON.stringify(t)); }, opt);
+    await pg.reload(); await pg.waitForTimeout(400); await pg.click('.tab[data-course="train"]'); await pg.waitForTimeout(200);
+    for (const lv of [1, 2]) {
+      await pg.click('[data-tlv="' + lv + '"]'); await pg.click('[data-tmode=do]'); await pg.waitForTimeout(300);
+      const seen = [];
+      for (let i = 0; i < 14; i++) { seen.push((await T(pg, 'seq')).join(' ')); await pg.evaluate(() => window.__T.trainNext()); await pg.waitForTimeout(40); }
+      const distinct = new Set(seen).size;
+      assert(distinct >= (lv === 1 ? 7 : 12), opt + ' nivel ' + lv + ': solo ' + distinct + ' distintas de 14: ' + seen.join(' | '));
+      for (let i = 1; i < seen.length; i++) assert(seen[i] !== seen[i - 1], opt + ' nivel ' + lv + ': repite seguida ' + seen[i]);
+      await pg.click('#backBtn'); await pg.waitForTimeout(300);
+    }
+  }
+});
+
 /* ---------- ajustes ---------- */
 S.test('ajustes: sin «girar capas arrastrando» y con todos los checks del mismo tamaño', async c => {
   const pg = await c.lesson('3x3', '1.1', { viewport: { width: 390, height: 800 } });

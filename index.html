@@ -3689,21 +3689,30 @@ var TRAIN_CAT=[
 var TRAIN_SYM=[['R','R\'','R2'],['L','L\'','L2'],['U','U\'','U2'],['D','D\'','D2'],['F','F\'','F2'],['B','B\'','B2']];
 function trainAllowed(){var a=[];if(train.opts.faces)a=a.concat(['R','L','U','D','F','B']);if(train.opts.xyz)a=a.concat(['x','y','z']);if(train.opts.mes)a=a.concat(['M','E','S']);return a;}
 function trainPad(){var P=[];trainAllowed().forEach(function(L){P.push(L,L+"'",L+'2');});return P;}
-var TR_LEN=[[1,1],[2,3],[4,6],[7,10],[11,16]];
+var TR_LEN=[[1,1],[2,3],[4,6],[7,10],[11,16]],TR_LEN_X=[[1,2],[2,4],[4,7],[7,11],[11,16]];
+function trainRange(lv){return train.opts.faces?TR_LEN[lv-1]:TR_LEN_X[lv-1];}
 function trRand(n){return Math.floor(Math.random()*n);}
 function trainRandomSeq(len,allowed){
   var w=[];allowed.forEach(function(L){var k='RLUDFB'.indexOf(L)>=0?3:1;for(var i=0;i<k;i++)w.push(L);});
   var out=[],last='';
   while(out.length<len){var L=w[trRand(w.length)];if(L===last)continue;last=L;var r=Math.random();out.push(L+(r<.45?'':(r<.8?"'":'2')));}
   return out;}
+var trRecent=[];
 function trainPick(){
-  var lv=train.opts.level,rng=TR_LEN[lv-1],al=trainAllowed(),allowedSet={};al.forEach(function(x){allowedSet[x]=1;});
+  var al=trainAllowed(),lv=train.opts.level,rng=trainRange(lv),it,k;
+  /* ventana de «no repetir»: más pequeña cuando hay pocas combinaciones posibles */
+  var win=Math.max(1,Math.min(12,(lv===1&&rng[1]===1?al.length*3:(al.length*3)*(al.length*3-3)/2)-2));
+  for(var t=0;t<40;t++){it=trainPick1();k=it.seq.join(' ');if(trRecent.indexOf(k)<0)break;}
+  trRecent.push(k);while(trRecent.length>win)trRecent.shift();
+  return it;}
+function trainPick1(){
+  var lv=train.opts.level,rng=trainRange(lv),al=trainAllowed(),allowedSet={};al.forEach(function(x){allowedSet[x]=1;});
   function okSeq(seq){return seq.every(function(m){return allowedSet[m.charAt(0)];});}
   var extra=(train.opts.xyz||train.opts.mes);
-  if(lv===1){var L=al[trRand(al.length)];var r=Math.random();return {seq:[L+(r<.45?'':(r<.8?"'":'2'))],name:''};}
+  if(lv===1&&rng[1]===1){var L=al[trRand(al.length)];var r=Math.random();return {seq:[L+(r<.45?'':(r<.8?"'":'2'))],name:''};}
   var cands=TRAIN_CAT.filter(function(c){var q=P(c[0]);return q.length>=rng[0]&&q.length<=rng[1]&&okSeq(q);});
   if(extra){var ex2=cands.filter(function(c){return P(c[0]).some(function(m){return 'xyzMES'.indexOf(m.charAt(0))>=0;});});if(ex2.length&&Math.random()<.5)cands=ex2;}
-  if(cands.length&&Math.random()<.5){var c=cands[trRand(cands.length)];return {seq:P(c[0]),name:c[1]};}
+  if(cands.length>=6&&Math.random()<.35){var c=cands[trRand(cands.length)];return {seq:P(c[0]),name:c[1]};}
   return {seq:trainRandomSeq(rng[0]+trRand(rng[1]-rng[0]+1),al),name:''};}
 function trainDoEx(){
   var it=trainPick(),txt=it.seq.join(' ');
@@ -3738,7 +3747,7 @@ function renderTrain(){
   var o=train.opts,none=!(o.faces||o.xyz||o.mes),S=trainStats(),h='<section class="hero"><h2>Training: notación</h2>'+
     '<p class="sub">Practica la notación del cubo: leerla y hacerla, o verla y escribirla. Cuanto mayor la dificultad, más larga la secuencia.</p>'+
     '<span class="tr-lbl">Dificultad</span><div class="tr-lv">'+[1,2,3,4,5].map(function(n){return '<button data-tlv="'+n+'" aria-pressed="'+(o.level===n)+'" aria-label="Dificultad '+n+'">'+n+'</button>';}).join('')+'</div>'+
-    '<span class="mono" style="font-size:.8rem;color:var(--muted)">'+(TR_LEN[o.level-1][0]===TR_LEN[o.level-1][1]?'1 movimiento':TR_LEN[o.level-1][0]+' a '+TR_LEN[o.level-1][1]+' movimientos')+'</span>'+
+    '<span class="mono" style="font-size:.8rem;color:var(--muted)">'+(trainRange(o.level)[0]===trainRange(o.level)[1]?'1 movimiento':trainRange(o.level)[0]+' a '+trainRange(o.level)[1]+' movimientos')+'</span>'+
     '<span class="tr-lbl">Letras</span><div class="tr-opts"><label class="toggle"><input type="checkbox" data-topt="faces"'+(o.faces?' checked':'')+'> Las normales: R, L, U, D, F, B y sus primas</label>'+
     '<label class="toggle"><input type="checkbox" data-topt="xyz"'+(o.xyz?' checked':'')+'> Giros del cubo: x, y, z y sus primas</label>'+
     '<label class="toggle"><input type="checkbox" data-topt="mes"'+(o.mes?' checked':'')+'> Capas del medio: M, E, S y sus primas</label></div>'+
