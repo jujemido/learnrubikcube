@@ -40,6 +40,7 @@ const HOOK = `window.__T={
   cue:function(){return viewEl.classList.contains('holdcue');},
   holdView:function(v){settings.holdView=v;},
   speed:function(){return tl.speed;},
+  trainNext:function(){trainNext();},
   disp:function(c,b){return courseLessons(c).filter(function(l){return l.block===b&&!l.exam;}).map(function(l){return l.disp||l.id;});},
   page:function(){return ex?(ex.page||0):0;},
   pages:function(){return lesson&&lesson.pages?lesson.pages.length:0;},
