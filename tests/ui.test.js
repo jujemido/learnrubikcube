@@ -332,8 +332,15 @@ S.test('bloque 2: cada página enseña un movimiento y se reproduce con su cubo'
 
 S.test('bloque 2: el resaltado de la flor ilumina solo la arista que falta; con la flor hecha, las cuatro', async c => {
   const pg = await c.lesson('3x3', '2.3'); await goTo(pg, 'learn');
-  assert(await pg.$('#hlt'), 'debe existir «Resaltar en el cubo»');
-  eq(await pg.$eval('#hlt', e => e.checked), true);
+  assert(await pg.isVisible('#hlt'), 'debe existir el ojo «Resaltar en el cubo» dentro del visor');
+  eq(await pg.$eval('#hlt', e => e.getAttribute('aria-pressed')), 'true');
+  eq(await pg.$('.toggle'), null, 'ya no hay casilla en el panel');
+  const pos = await pg.evaluate(() => { const e = document.querySelector('#hlt').getBoundingClientRect(), h = document.querySelector('#helpBtn').getBoundingClientRect(), s = document.querySelector('#stage').getBoundingClientRect(); return { eyeRight: s.right - e.right, helpLeftOfEye: h.right <= e.left + 1, same: Math.abs(h.top - e.top) < 2, size: [e.width, e.height] }; });
+  assert(pos.eyeRight < 30, 'el ojo va arriba a la derecha del visor');
+  await pg.click('#hlt'); await pg.waitForTimeout(150);
+  eq(await pg.$eval('#hlt', e => e.getAttribute('aria-pressed')), 'false', 'al pulsarlo se apaga el resaltado');
+  await pg.click('#hlt'); await pg.waitForTimeout(150);
+  eq(await pg.$eval('#hlt', e => e.getAttribute('aria-pressed')), 'true');
 });
 
 S.test('bloque 2: se puede completar cada lección de la flor y la cruz (gestos y pasos incluidos)', async c => {

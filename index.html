@@ -349,12 +349,18 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .rstconf span{flex:1 1 100%}
 .rstconf[hidden]{display:none}
 .stage .uredo .btn[hidden]{display:none}
+.stage #hlt{position:absolute;top:10px;right:10px;z-index:3;background:color-mix(in srgb,var(--panel) 88%,transparent);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.stage #hlt[hidden]{display:none}
+#hlt .eye-off{display:none}
+#hlt[aria-pressed=false] .eye-on{display:none}
+#hlt[aria-pressed=false] .eye-off{display:block}
+.stage #helpBtn.with-eye{right:56px}
 .stage #helpBtn{position:absolute;top:10px;right:10px;z-index:3;background:color-mix(in srgb,var(--panel) 88%,transparent);box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .stage #helpBtn[hidden]{display:none}
 .helpTip{position:absolute;top:52px;right:10px;z-index:4;width:min(320px,calc(100% - 20px));background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:.84rem;line-height:1.45;box-shadow:0 6px 22px rgba(0,0,0,.28);max-height:calc(100% - 64px);overflow-y:auto}
 .helpTip[hidden]{display:none}
 .helpTip p{margin:6px 0 0}
-html.in-lesson.full-mode .stage #helpBtn{top:calc(10px + env(safe-area-inset-top,0px))}
+html.in-lesson.full-mode .stage #helpBtn,html.in-lesson.full-mode .stage #hlt{top:calc(10px + env(safe-area-inset-top,0px))}
 html.in-lesson.full-mode,html.in-lesson.full-mode body{overflow:hidden}
 html.in-lesson.full-mode .lbar{position:fixed;top:8px;left:10px;right:10px;margin:0;z-index:70}
 html.in-lesson.full-mode .stagebox{position:fixed;top:0;left:0;right:0;bottom:var(--sheet,180px);z-index:60;padding:0;background:var(--bg)}
@@ -411,7 +417,7 @@ html.in-lesson.full-mode.full-nopad .panel .pad,html.in-lesson.full-mode.full-no
       <div class="stagebox">
         <div class="stage" id="stage">
           <div class="view" id="view"><div id="flbl" aria-hidden="true"></div><span class="tip">Arrastra una pieza para girar la capa · desliza con 2 dedos para girar el cubo</span>
-          <button class="btn sm icon" id="helpBtn" aria-label="¿Cómo mover el cubo?" aria-expanded="false" aria-controls="helpTip" title="¿Cómo mover el cubo?" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5"/><path d="M12 17h.01"/></svg></button><div class="helpTip" id="helpTip" role="tooltip" hidden><b>¿Cómo mover el cubo?</b><p>Arrastra una pieza para girar su capa. Con dos dedos: arriba o abajo (x), a los lados (y), girar (z); separarlos o juntarlos, zoom. En el ordenador: clic derecho y arrastra, o las teclas <b>X</b>, <b>Y</b>, <b>Z</b> (Mayús, al revés). Para mover la vista, arrastra el fondo.</p></div>
+          <button class="btn sm icon" id="hlt" aria-label="Resaltar en el cubo" title="Resaltar en el cubo" aria-pressed="true" hidden><svg class="eye-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 19C5.6 19 2 12 2 12a18 18 0 0 1 4.1-5.1"/><path d="M9.9 5.2A9.6 9.6 0 0 1 12 5c6.4 0 10 7 10 7a18 18 0 0 1-2.2 3.2"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/><path d="M2 2l20 20"/></svg></button><button class="btn sm icon" id="helpBtn" aria-label="¿Cómo mover el cubo?" aria-expanded="false" aria-controls="helpTip" title="¿Cómo mover el cubo?" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5"/><path d="M12 17h.01"/></svg></button><div class="helpTip" id="helpTip" role="tooltip" hidden><b>¿Cómo mover el cubo?</b><p>Arrastra una pieza para girar su capa. Con dos dedos: arriba o abajo (x), a los lados (y), girar (z); separarlos o juntarlos, zoom. En el ordenador: clic derecho y arrastra, o las teclas <b>X</b>, <b>Y</b>, <b>Z</b> (Mayús, al revés). Para mover la vista, arrastra el fondo.</p></div>
           <div class="uredo" id="uredo" hidden><button class="btn sm icon" id="undoBtn" aria-label="Deshacer" title="Deshacer" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button><button class="btn sm icon" id="redoBtn" aria-label="Rehacer" title="Rehacer" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button><button class="btn sm icon" id="rstBtn" aria-label="Reiniciar" title="Reiniciar" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="btn sm icon" id="hintBtn" aria-label="Pista" title="Pista" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg></button><button class="btn sm icon" id="fullBtn" aria-label="Modo completo" title="Modo completo" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg></button></div><div class="rstconf" id="rstConf" role="alertdialog" aria-label="Confirmar reinicio" hidden><span>¿Seguro que quieres reiniciar? Se perderán tus movimientos.</span><button class="btn sm" id="rstNo">Cancelar</button><button class="btn sm primary" id="rstYes">Sí, reiniciar</button></div></div>
           <div class="ctl" id="ctl" hidden>
             <div class="tl" id="tl" hidden>
@@ -3218,6 +3224,9 @@ function renderTl(){
   $('#tlCur').textContent=tl.hide?'?':tl.seq[tl.idx===0?0:tl.idx-1];
   $('#tlSpeed').value=String(tl.speed);}
 var I_FULL='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg>',I_SMALL='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4"/><path d="M15 4v5h5"/><path d="M9 20v-5H4"/><path d="M15 20v-5h5"/></svg>';
+function hlSpecNow(){var k=curKind();if(k==='recap'){var pv=LESSONS[prevIdx(li)];return pv&&pv.hl||null;}
+  if(k==='learn'){var pg=lesson.pages&&lesson.pages[ex.page||0];return (pg&&pg.hl)||lesson.hl||null;}return null;}
+function syncEye(){var b=$('#hlt'),has=!!(lesson&&visible&&ex&&hlSpecNow());b.hidden=!has;$('#helpBtn').classList.toggle('with-eye',has);b.setAttribute('aria-pressed',String(!!hlOn));}
 function closeHelp(){var t=$('#helpTip'),b=$('#helpBtn');if(t)t.hidden=true;if(b)b.setAttribute('aria-expanded','false');}
 $('#helpBtn').addEventListener('click',function(ev){ev.stopPropagation();var t=$('#helpTip'),open=t.hidden;t.hidden=!open;this.setAttribute('aria-expanded',String(open));});
 document.addEventListener('pointerdown',function(ev){var t=$('#helpTip');if(t&&!t.hidden&&!ev.target.closest('#helpTip,#helpBtn'))closeHelp();});
@@ -3226,7 +3235,7 @@ function updateCtl(){
   var showU=acceptsMoves(),u=$('#undoBtn'),rb=$('#redoBtn'),e=lesson&&ex?curExercise():null;
   var inL=!!(lesson&&visible);
   $('#uredo').hidden=!inL;
-  var hb=$('#helpBtn');hb.hidden=!(inL&&gestureOn()&&acceptsMoves());if(hb.hidden)closeHelp();
+  syncEye();var hb=$('#helpBtn');hb.hidden=!(inL&&gestureOn()&&acceptsMoves());if(hb.hidden)closeHelp();
   u.hidden=rb.hidden=$('#rstBtn').hidden=!showU;
   u.disabled=!(showU&&ex&&ex.moves.length&&ex.groups.length&&!ex.queued);
   rb.disabled=!(showU&&ex&&ex.redo&&ex.redo.length&&!ex.queued);
@@ -3590,7 +3599,6 @@ function renderPanel(){
     var pv=LESSONS[prevIdx(li)];
     h+='<div class="mono" style="font-size:.8rem;color:var(--muted);margin-bottom:6px">REPASO DE LA LECCIÓN ANTERIOR</div>'+
        '<div class="recap"><b>'+dl(pv)+' · '+pv.title+'</b><p>'+pv.recap+'</p></div>';
-    if(pv.hl)h+='<label class="toggle"><input type="checkbox" id="hlt"'+(hlOn?' checked':'')+'> Resaltar en el cubo</label>';
     h+='</div><div class="row actions">'+(pv.demo?REPLAY_BTN('demo'):'')+'<button class="btn primary" data-act="next">Siguiente →</button></div>';
   }else if(kind==='quick'){
     var qk=ex.quick;
@@ -3602,14 +3610,12 @@ function renderPanel(){
   }else if(kind==='learn'&&lesson.pages){
     var pgs=lesson.pages,pi=ex.page||0,pg=pgs[pi],hs=pg.hl||lesson.hl;
     h+=pg.t;
-    if(hs)h+='<label class="toggle"><input type="checkbox" id="hlt"'+(hlOn?' checked':'')+'> Resaltar en el cubo</label>';
     h+='</div>';
     if(pg.note)h+='<p class="fb info" style="margin:0">'+pg.note+'</p>';
     h+='<div class="row actions">'+(pi>0?'<button class="btn icon outline" data-act="lpprev" aria-label="Paso anterior" title="Paso anterior">←</button>':'')+(pg.demo?REPLAY_BTN('demo'):'')+
        (pi<pgs.length-1?'<button class="btn primary" data-act="lpnext">Siguiente →</button>':'<button class="btn primary" data-act="next">Siguiente →</button>')+'</div>';
   }else if(kind==='learn'){
     h+=lesson.learn;
-    if(lesson.hl)h+='<label class="toggle"><input type="checkbox" id="hlt"'+(hlOn?' checked':'')+'> Resaltar en el cubo</label>';
     h+='</div>';
     if(lesson.demoNote)h+='<p class="fb info" style="margin:0">'+lesson.demoNote+'</p>';
     h+='<div class="row actions">'+(lesson.demo?REPLAY_BTN('demo'):'')+'<button class="btn primary" data-act="next">Siguiente →</button></div>';
@@ -3765,12 +3771,7 @@ panel.addEventListener('click',function(ev){
   else if(a==='again'){enterLesson(li);}
 });
 
-panel.addEventListener('change',function(ev){
-  if(ev.target.id==='hlt'){
-    hlOn=ev.target.checked;
-    var src=curKind()==='recap'?LESSONS[prevIdx(li)]:lesson,hs=src.hl||null;
-    if(curKind()==='learn'&&lesson.pages)hs=lesson.pages[ex.page||0].hl||lesson.hl||null;
-    setHl(hlOn?hs:null);}});
+$('#hlt').addEventListener('click',function(){hlOn=!hlOn;var hs=hlSpecNow();setHl(hlOn?hs:null);syncEye();});
 
 function leaveLesson(){try{if(history.state&&history.state.rubikLesson){history.back();return;}}catch(e){}showMap();}
 window.addEventListener('popstate',function(){if(!lessonView.hidden)showMap();});
