@@ -740,6 +740,21 @@ S.test('línea de tiempo: con muchos pasos es una barra con contador (no decenas
 });
 
 
+S.test('secuencia larga con atajos: «Tu secuencia» ocupa su sitio y el botón de atajos no la tapa', async c => {
+  const pg = await c.app({ viewport: { width: 390, height: 780 } });
+  const ids = await pg.evaluate(() => window.__T.ids('3x3')); const idx = ids.indexOf('3.3');
+  const done = {}; ids.slice(0, idx).forEach(x => done[x] = { errors: 0, tries: 1 });
+  await pg.evaluate(d => localStorage.setItem('rubik-paso-a-paso-v1', JSON.stringify({ done: d })), done);
+  await pg.reload(); await pg.waitForTimeout(500);
+  await pg.click('.tab[data-course="3x3"]'); await pg.click('.lrow[data-lesson="' + idx + '"]'); await pg.waitForTimeout(400);
+  await pg.evaluate(() => window.__T.go('ex1')); await pg.waitForTimeout(300);
+  for (let i = 0; i < 9; i++) { await pg.click('.macro >> nth=0'); await pg.waitForTimeout(120); }
+  await pg.waitForTimeout(1500);
+  const r = await pg.evaluate(() => { const h = document.querySelector('#hist'), m = document.querySelector('.macros'); return { hb: h.getBoundingClientRect().bottom, mt: m.getBoundingClientRect().top, hh: h.getBoundingClientRect().height, sh: h.scrollHeight }; });
+  assert(r.hh >= r.sh - 1, 'la secuencia se sale de su caja (' + r.hh + ' < ' + r.sh + ')');
+  assert(r.mt >= r.hb - 1, 'los atajos tapan la secuencia');
+});
+
 S.test('lecciones largas: ningún texto con secuencias largas ensancha el panel y las rayitas caben', async c => {
   const pg = await c.app({ viewport: { width: 360, height: 760 } });
   const ids = await pg.evaluate(() => window.__T.ids('3x3')); const idx = ids.indexOf('3.3');

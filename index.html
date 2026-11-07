@@ -201,7 +201,8 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .stage .uredo .btn{background:color-mix(in srgb,var(--panel) 88%,transparent);box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .stage .tip{position:absolute;right:12px;top:10px;font-size:.78rem;color:var(--muted);font-family:var(--f-mono)}
 .nogl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--muted)}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0;display:grid;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.panel>*{flex-shrink:0;min-width:0}
 .panel{overflow-x:hidden}
 .panel .meta{display:flex;gap:10px;align-items:center;justify-content:space-between;font-family:var(--f-mono);font-size:.78rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
 .panel h2{font-size:1.5rem;font-weight:800}
