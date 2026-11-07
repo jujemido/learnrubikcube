@@ -2500,6 +2500,23 @@ function examHint(e){
   if(!l.exam)return;
   l.exercises.forEach(function(e){delete e.nohint;if(!e.hint)e.hint=examHint(e);});});});
 
+
+/* ---- «Algoritmo completo»: colocar es una cosa y aprender el algoritmo entero, otra ---- */
+(function(){
+  function add(arr,id,sol,pre){
+    var l=arr.filter(function(x){return x.id===id})[0];if(!l)throw new Error('lección '+id);
+    var e0=l.exercises.filter(function(x){return x.t==='solve';})[0];
+    var e=solveEx({q:'<b>Algoritmo completo.</b> Haz la secuencia entera, '+K(sol.join(' '))+', y deja todo el cubo resuelto.',pre:pre||e0.pre,sol:sol,goal:e0.goal,hint:'Hazla completa, sin dejarte el final: '+sol.join(' ')+'.'});
+    e.algo=true;l.exercises.push(e);}
+  var Y=['y'];
+  add(LESSONS3,'3.1',SEX);add(LESSONS3,'3.2',rep(SEX,3));add(LESSONS3,'3.3',rep(SEX,5));add(LESSONS3,'3.4',rep(SEX,2));add(LESSONS3,'3.5',SEX.concat(Y,rep(SEX,3)));
+  add(LESSONS2,'T4',SEX);add(LESSONS2,'T5',SEX.concat(Y,rep(SEX,3)));
+  add(LESSONS4,'D1',SEX);add(LESSONS4,'D2',SEX.concat(Y,rep(SEX,3)));
+  var EA=P("Rw U R' U' Rw' F R F'"),EB=P("Lw' U' L U Lw F' L' F");
+  add(LESSONS4,'C2',EA);add(LESSONS4,'C3',EA.concat(Y,EA));add(LESSONS4,'C4',EB);
+  add(LESSONS4,'B3',P("U 2R' 2U 2R 2U' U'"));add(LESSONS4,'B4',P("2L 2F 2L' 2F' U 2F' 2R 2F 2R' U'"));
+})();
+
 /* Todo ejercicio de resolver marca lo que falta (borde), lo que ya está bien (color) y deja en gris lo que no importa */
 [LESSONS3,LESSONS4,LESSONS2,LESSONSA].forEach(function(L){L.forEach(function(l){(l.exercises||[]).forEach(function(e){
   if(e.t==='solve'&&e.goal&&!e.noHl)e.hl='g:'+e.goal;});});});
@@ -3314,7 +3331,7 @@ function applyStep(){
   onTap=handleTap;onApplied=handleMove;
   if(k==='recap'){var pv=LESSONS[prevIdx(li)];hlOn=true;setHl(pv.hl||null);}
   else if(k==='learn'){hlOn=true;setHl((lesson.pages&&lesson.pages[0].hl)||lesson.hl||null);pageView(lesson.pages&&lesson.pages[0]);}
-  else{setHl(e&&e.hl?e.hl:null);if(e&&e.hl)autoView(e.hl);if(e&&e.t==='solve'&&exactInfo(e)){setHl('x');autoView('g:'+e.goal);}}
+  else{setHl(e&&e.hl?e.hl:null);if(e&&e.hl)autoView(e.hl);if(e&&e.t==='solve'&&e.algo&&exactInfo(e)){setHl('x');autoView('g:'+e.goal);}}
   if(e&&e.t==='choice'){ex.opts=shuffle(e.options);}
   if(k==='quick'){ex.quick=pickQuick();
     var qp=QPRE[ex.quick.id];resetView();
@@ -3407,8 +3424,8 @@ function goalNote(e){
   var g=e.goal,tx=GOALTXT[g]||(g.indexOf('cf:')===0?'los centros de ese color juntos en una misma cara.':'');
   if(!tx)return '';
   var gh=typeof e.hl==='string'&&e.hl.indexOf('g:')===0;
-  var xe=gh&&exactInfo(e);
-  if(xe)return '<div class="goalnote"><b>Objetivo:</b> '+tx+' Acaba el algoritmo entero: <b>todo el cubo</b> debe quedar como al empezar a resolver.<span class="lgd"><i class="lg f"></i>borde: aún no está en su sitio <i class="lg c"></i>en color: ya está bien</span></div>';
+  var xe=gh&&e.algo&&exactInfo(e);
+  if(xe)return '<div class="goalnote"><b>Objetivo:</b> '+tx+' Aquí cuenta el algoritmo <b>entero</b>: al acabar, <b>todo el cubo</b> debe quedar resuelto.<span class="lgd"><i class="lg f"></i>borde: aún no está en su sitio <i class="lg c"></i>en color: ya está bien</span></div>';
   return '<div class="goalnote"><b>Objetivo:</b> '+tx+(gh?'<span class="lgd"><i class="lg f"></i>borde: lo que falta <i class="lg c"></i>en color: ya está bien <i class="lg d"></i>gris: ahora no importa</span>':'')+'</div>';}
 function padHidden(e){return (e.t==='do'&&gestureDo(e))||(settings.hidePad&&gestureOn());}
 function hintTxt(e){var h=e.hint||'';return padHidden(e)?h.replace(/\b([Pp])ulsa(?!\s*«)/g,function(m,a){return a==='P'?'Haz':'haz';}):h;}
@@ -3498,7 +3515,7 @@ function rotSeqs(){if(ROTSEQ)return ROTSEQ;ROTSEQ=[];[[],['x'],['x2'],["x'"],['z
 function exactInfo(e){
   if(e._ex!==undefined)return e._ex;
   var r=null;
-  if(!e.rand&&e.sol&&e.sol.length>1&&(e.goal==='layer1'||e.goal==='layer1x2'||e.goal==='paired')){
+  if(!e.rand&&e.sol&&e.sol.length>1&&(e.algo||e.noHl)){
     var st=exStart(e),g=goalFn(e.goal);
     for(var k=1;k<e.sol.length;k++){if(g(seqState(e.sol.slice(0,k),st))){var fs=seqState(e.sol,st);r={fin:key(fs),finSt:fs};break;}}}
   e._ex=r;return r;}
@@ -3513,6 +3530,14 @@ function exactLevels(e,cs){
   rotSeqs().forEach(function(q){var r=q.length?seqState(q,cs):cs,bad=[];r.forEach(function(c,i){if(!pieceSame(c,fin[i]))bad.push(i);});if(!best||bad.length<best.length)best=bad;});
   cs.forEach(function(c,i){map.set(c,best.indexOf(i)>=0?2:1);});
   return map;}
+
+function algoTip(e){
+  if(e.rand||!e.sol||e.sol.length<2||(e.algo&&exactInfo(e)))return '';
+  if(e._er===undefined){e._er=null;var st=exStart(e),g=goalFn(e.goal);
+    for(var k=1;k<e.sol.length;k++){if(g(seqState(e.sol.slice(0,k),st))){e._er={rem:e.sol.slice(k),fin:key(seqState(e.sol,st))};break;}}}
+  var er=e._er;if(!er||er.rem.length>5||sameFinal(er.fin,state))return '';
+  var has=lesson.exercises.some(function(x){return x.algo;});
+  return '<br><span class="trname">El algoritmo completo acaba con '+K(er.rem.join(' '))+' para dejar el resto del cubo alineado.'+(has?' Lo practicas en «Algoritmo completo», al final de la lección.':'')+'</span>';}
 function handleMove(mv){
   var e=curExercise(),kind=curKind();
   if(ex.queued>0)ex.queued--;
@@ -3527,7 +3552,7 @@ function handleMove(mv){
   }else if(e.t==='solve'&&goalFn(e.goal)(state)&&exactInfo(e)&&!sameFinal(exactInfo(e).fin,state)){
     if(!ex.almost){ex.almost=true;setFb('info','¡Casi! Ya está lo que pedía, pero el algoritmo no ha terminado: acábalo para dejar el resto del cubo como estaba.');}
   }else if(e.t==='solve'&&goalFn(e.goal)(state)){
-    ex.status='ok';epoch++;stageFlash('ok');if(lesson.practice){prog.prac=prog.prac||{};prog.prac[lesson.st.key]=(prog.prac[lesson.st.key]||0)+1;saveProg();}ex.fb={kind:'ok',html:okFb()+' Lo has conseguido en '+ex.moves.length+' movimientos.'};renderPanel();}}
+    ex.status='ok';epoch++;stageFlash('ok');if(lesson.practice){prog.prac=prog.prac||{};prog.prac[lesson.st.key]=(prog.prac[lesson.st.key]||0)+1;saveProg();}ex.fb={kind:'ok',html:okFb()+' Lo has conseguido en '+ex.moves.length+' movimientos.'+algoTip(e)};renderPanel();}}
 function handleTap(p){
   var e=curExercise(),kind=curKind();
   if(kind==='try'&&lesson.tryKind==='tap'){markInteracted();flash('info',pieceItems(p.ci));setFb('info','Has tocado '+describe(p)+'.');return;}
@@ -3561,7 +3586,7 @@ panel.addEventListener('click',function(ev){
     else playSeq(lesson.demo,lesson.pre);}
   else if(a==='lpnext'){learnPage((ex.page||0)+1);}
   else if(a==='lpprev'){learnPage((ex.page||0)-1);}
-  else if(a==='reset'){ex=newEx();resetView();setState(curStart());if(e&&e.hl)autoView(e.hl);if(e&&e.t==='solve'&&exactInfo(e)){GH.st=null;setHl('x');}if(tl.seq.length){tl.token++;tl.playing=false;tl.idx=0;tl.dirty=false;renderTl();}if(e&&e.t==='choice')ex.opts=shuffle(e.options);renderPanel();}
+  else if(a==='reset'){ex=newEx();resetView();setState(curStart());if(e&&e.hl)autoView(e.hl);if(e&&e.t==='solve'&&e.algo&&exactInfo(e)){GH.st=null;setHl('x');}if(tl.seq.length){tl.token++;tl.playing=false;tl.idx=0;tl.dirty=false;renderTl();}if(e&&e.t==='choice')ex.opts=shuffle(e.options);renderPanel();}
   else if(a==='undo'){undoLast();}
   else if(a==='redo'){redoLast();}
   else if(a==='hint'&&e){
