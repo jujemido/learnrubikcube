@@ -634,7 +634,7 @@ S.test('colocar vs algoritmo completo (3.1): con R U R\' el ejercicio normal se 
 });
 
 S.test('colocar vs algoritmo completo (3.1): el ejercicio «Algoritmo completo» exige los cuatro movimientos y se ve qué falta', async c => {
-  const pg = await c.lesson('3x3', '3.1'); await goTo(pg, 'ex4');
+  const pg = await c.lesson('3x3', '3.1'); await goTo(pg, 'ex3');
   assert((await pg.textContent('.q')).includes('Algoritmo completo'), 'es el de algoritmo completo');
   const t = await pg.textContent('.goalnote');
   assert(t.includes('entero') && !t.includes('gris'), 'la leyenda: ' + t);
@@ -699,6 +699,25 @@ S.test('modo completo: el cubo ocupa la pantalla y abajo queda el objetivo; se s
   eq(await T(pg, 'hist'), 'U', 'se puede mover el cubo en modo completo');
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(400);
   eq(await pg.evaluate(() => document.documentElement.classList.contains('full-mode')), false, 'Escape sale');
+});
+
+
+S.test('lecciones granulares: los repasos R3 y R4 existen, son opcionales y no bloquean ni cierran el 3×3', async c => {
+  const pg0 = await c.app({}); const ids = await pg0.evaluate(() => window.__T.ids('3x3'));
+  assert(ids.indexOf('R3') === ids.indexOf('3.5') + 1 && ids.indexOf('R4') === ids.indexOf('4.4') + 1, 'R3 va tras 3.5 y R4 tras 4.4: ' + ids.join(' '));
+  const all = {}; ids.filter(x => x !== 'R3' && x !== 'R4').forEach(x => all[x] = { errors: 0, tries: 1 });
+  const pg = await c.app({ done: all });
+  await pg.click('.tab[data-course="4x4"]'); await pg.waitForTimeout(300);
+  eq((await pg.$$('.lrow.soon')).length, 0, 'con todo el 3×3 hecho (sin los repasos opcionales) el 4×4 se abre');
+  await pg.click('.tab[data-course="3x3"]'); await pg.waitForTimeout(300);
+  const idx = ids.indexOf('3.6');
+  eq(await pg.$eval('.lrow[data-lesson="' + idx + '"]', e => e.disabled), false, '3.6 sigue abierta aunque R3 no esté hecho');
+});
+
+S.test('lecciones granulares: el repaso R3 se puede completar y las lecciones 3.1 a 3.4 ya no piden girar el cubo', async c => {
+  const pg = await c.lesson('3x3', 'R3'); await goTo(pg, 'learn');
+  assert((await T(pg, 'pages')) >= 3, 'R3 explica con páginas');
+  await goTo(pg, 'ex0'); await T(pg, 'solveStep'); await pg.waitForSelector('[data-act=next]', { timeout: 30000 });
 });
 
 /* ---------- ajustes ---------- */
