@@ -123,7 +123,29 @@ function checkConcepts(){
       if(first<0)viol.push(c[0]+' '+lname(l)+' ej.'+(j+1)+': nombra «'+k[0]+'» y ninguna lección lo explica');
       else if(first>i)viol.push(c[0]+' '+lname(l)+' ej.'+(j+1)+': nombra «'+k[0]+'» y se explica en '+lname(arr[first]));});});});});}
 
-checkNotation3();checkAlgs();checkConcepts();
+
+/* ---------- 4. cobertura: toda la solución se explica con algoritmos ya enseñados + giros sueltos de U/y ----------
+   Si añades una lección con un algoritmo nuevo, hay que registrarlo aquí: mientras no esté, falla. */
+function seqStr(x){return x.join(' ');}
+function ex2(a){var o=[];a.forEach(function(m){if(m==='U2')o.push('U','U');else if(m==='y2')o.push('y','y');else o.push(m);});return o;}
+function covered(sol0,pieces0,i,arr){
+  var sol=ex2(sol0),pieces=pieces0.map(function(p){return [ex2(p[0]),p[1]];}),memo={};
+  function go(k){if(k>=sol.length)return true;if(k in memo)return memo[k];var ok=false;
+    if(/^(U|U'|U2|y|y'|y2)$/.test(sol[k]))ok=go(k+1);
+    for(var p=0;p<pieces.length&&!ok;p++){var seq=pieces[p][0],at=idxOf(arr,pieces[p][1]);
+      if(at<0||at>i)continue;if(match(sol,k,seq)&&go(k+seq.length))ok=true;}
+    return memo[k]=ok;}
+  return go(0);}
+function checkCoverage(name,arr,firstId,pieces,skipIds){
+  var f=idxOf(arr,firstId);
+  arr.forEach(function(l,i){if(i<f||skipIds.indexOf(l.id)>=0)return;(l.exercises||[]).forEach(function(e,j){
+    if(e.t!=='solve'||!e.sol||e.rand)return;checked++;
+    if(!covered(e.sol,pieces,i,arr))viol.push(name+' '+lname(l)+' ej.'+(j+1)+': su solución usa movimientos que ninguna lección anterior enseña ('+seqStr(e.sol)+')');});});}
+function checkCoverageAll(){
+  checkCoverage('3×3',LESSONS3,'3.1',[[SEX,'3.1'],[AR,'4.1'],[AL,'4.2'],[AR.slice(1),'4.3'],[AL.slice(1),'4.3'],[YA,'5.1'],[YB,'5.2'],[SUNE,'5.4'],[CORN,'5.6'],[UA,'5.7']],['6.1']);
+  checkCoverage('2×2',LESSONS2,'T4',[[SEX,'T4'],[SUNE,'T6'],[ANTI,'T6'],[HOLL,'T7'],[PIOLL,'T7'],[UOLL,'T7'],[TOLL2,'T7'],[LOLL2,'T7'],[TPERM,'T8'],[YPERM,'T8']],['T9']);
+  checkCoverage('Avanzado',LESSONSA,'V2',[[F2L1,'V2'],[F2L2,'V2'],[F2L3,'V2'],[F2L4,'V2'],[F2L5,'V3'],[F2L6,'V3'],[YA,'V5'],[YB,'V5'],[SUNE,'V6'],[ANTI,'V6'],[HOLL,'V7'],[PIOLL,'V7'],[UOLL,'V7'],[TOLL,'V8'],[LOLL,'V8'],[APERM,'V9'],[YPERM,'V9'],[UA,'V10'],[UB,'V10'],[HPERM,'V10'],[ZPERM,'V10']],['V11']);}
+checkNotation3();checkAlgs();checkConcepts();checkCoverageAll();
 return {viol:viol,checked:checked};
 `)();
 

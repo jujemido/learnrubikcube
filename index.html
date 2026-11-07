@@ -543,7 +543,7 @@ function goalFn(name){
 
 /*DATA-START*/
 function P(s){return s.split(' ')}
-function K(s){return '<kbd class="mv'+(String(s).length>34?' long':'')+'">'+s+'</kbd>'}
+function K(s){return '<kbd class="mv'+(String(s).length>24?' long':'')+'">'+s+'</kbd>'}
 function sw(c){return '<i class="sw" style="--c:'+HEX[c]+'"></i>'}
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function sameCols(a,b){return a.slice().sort().join()===b.slice().sort().join();}
@@ -1891,7 +1891,7 @@ LESSONS.push({id:'V10',block:19,title:'PLL: las aristas',sub:'Ua, Ub, H y Z',
     ta('Termina el cubo: dos pares de aristas opuestas.',HPERM,'solved','Aplica la H.','corners'),
     ta('Termina el cubo: dos pares de aristas contiguas.',ZPERM,'solved','Aplica la Z.','corners')]});
 var XV3=examA('XV3',19,'Mini-examen: PLL','Esquinas y aristas','Repaso: esquinas con A e Y, y aristas con Ua, Ub, H y Z.',[
-  ta('Coloca las esquinas.',APERM,'corners','','yface'),ta('Coloca las esquinas.',YPERM,'corners','','yface'),ta('Coloca las esquinas.',['U'].concat(APERM),'corners','','yface'),ta('Coloca las esquinas.',TPERM,'corners','','yface'),
+  ta('Coloca las esquinas.',APERM,'corners','','yface'),ta('Coloca las esquinas.',YPERM,'corners','','yface'),ta('Coloca las esquinas.',['U'].concat(APERM),'corners','','yface'),ta('Coloca las esquinas.',['U2'].concat(YPERM),'corners','','yface'),
   ta('Coloca las aristas.',UA,'solved','','corners'),ta('Coloca las aristas.',UB,'solved','','corners'),ta('Coloca las aristas.',HPERM,'solved','','corners'),ta('Coloca las aristas.',ZPERM,'solved','','corners'),
   ta('Termina el cubo.',APERM.concat(UA),'solved','','yface'),ta('Termina el cubo.',YPERM.concat(HPERM),'solved','','yface')]);
 LESSONS.push({id:'V11',block:20,title:'Examen final: método avanzado',sub:'Resuelve cubos mezclados con CFOP',
