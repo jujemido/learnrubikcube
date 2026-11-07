@@ -3391,12 +3391,14 @@ function padHtml(list,disabled,compact,act){
   var cols=plain?Math.min(6,shown.length):(shown.some(function(m){return /2$/.test(m)})?3:2);
   return tabs+'<div class="pad'+(compact?' compact':'')+'" style="--cols:'+cols+'">'+srt.map(function(m){return '<button class="mvbtn" data-act="'+act+'" data-mv="'+m+'"'+(disabled?' disabled':'')+'>'+m+'</button>';}).join('')+'</div>';}
 var macroRep=1;
+/* El selector «Repetir ×1 ×2 ×3 ×5» de los atajos está escondido a propósito; poner SHOW_MACRO_REPEAT a true para volver a mostrarlo (todo lo demás sigue en su sitio) */
+var SHOW_MACRO_REPEAT=false;
 function curExIndex(){var k=curKind();return k&&k.indexOf('ex')===0?parseInt(k.slice(2),10):-1;}
 function availMacros(){if(lesson&&lesson.practice)return curMacros().slice();return curMacros().filter(function(m){var idx=LESSONS.findIndex(function(l){return l.id===m.from});return li>=idx||(li===idx-1&&curExIndex()>=1);});}
 function macrosHtml(disabled){
   var a=availMacros();if(!a.length)return '';
   var btns=a.map(function(m){return '<button class="macro" data-act="macro" data-m="'+curMacros().indexOf(m)+'"'+(disabled?' disabled':'')+'>'+m.seq.join(' ')+'</button>';}).join('');
-  var reps='<span class="mrep"><span class="mlabel">Repetir</span>'+[1,2,3,5].map(function(n){return '<button data-act="mrep" data-n="'+n+'" aria-pressed="'+(macroRep===n)+'"'+(disabled?' disabled':'')+'>×'+n+'</button>';}).join('')+'</span>';
+  var reps=!SHOW_MACRO_REPEAT?'':'<span class="mrep"><span class="mlabel">Repetir</span>'+[1,2,3,5].map(function(n){return '<button data-act="mrep" data-n="'+n+'" aria-pressed="'+(macroRep===n)+'"'+(disabled?' disabled':'')+'>×'+n+'</button>';}).join('')+'</span>';
   if(a.length>5)return '<details class="macdet"><summary>Atajos ('+a.length+')</summary>'+reps+'<div class="macros">'+btns+'</div></details>';
   return '<div class="macros"><span class="mlabel">Atajos</span>'+btns+'</div>'+reps;}
 function histHtml(){var sq=simplify(ex.moves);return ex.moves.length?'Tu secuencia: <b>'+(sq.length?sq.join(' '):'(se ha anulado)')+'</b>':'Tu secuencia: aún no has pulsado nada';}
@@ -3579,7 +3581,7 @@ panel.addEventListener('click',function(ev){
   }else if(a==='padtab'){padTab=b.dataset.c;renderPanel();}
   else if(a==='mv'){tlUserMoved();pushGroup(1);ex.queued++;move(b.dataset.mv,{user:true});}
   else if(a==='mrep'){macroRep=parseInt(b.dataset.n,10);renderPanel();}
-  else if(a==='macro'){tlUserMoved();var mc=curMacros()[parseInt(b.dataset.m,10)],rp=macroRep,full=[];for(var q0=0;q0<rp;q0++)full=full.concat(mc.seq);pushGroup(full.length);ex.queued+=full.length;full.forEach(function(x){move(x,{user:true,speed:1.7})});macroRep=1;renderPanel();}
+  else if(a==='macro'){tlUserMoved();var mc=curMacros()[parseInt(b.dataset.m,10)],rp=SHOW_MACRO_REPEAT?macroRep:1,full=[];for(var q0=0;q0<rp;q0++)full=full.concat(mc.seq);pushGroup(full.length);ex.queued+=full.length;full.forEach(function(x){move(x,{user:true,speed:1.7})});macroRep=1;renderPanel();}
   else if(a==='demo'){
     if(kind==='recap')playSeq(LESSONS[prevIdx(li)].demo,LESSONS[prevIdx(li)].pre);
     else if(kind==='learn'&&lesson.pages){var cp=lesson.pages[ex.page||0];if(cp.demo)playSeq(cp.demo,cp.pre||lesson.pre||[]);}
