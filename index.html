@@ -2942,6 +2942,7 @@ function setHl(spec){
     var isW=function(c){return c.s.length===2&&c.s.some(function(s){return s.c==='w'})},
         isBad=function(c){return isW(c)&&!(c.p[1]===1&&c.s.some(function(s){return s.c==='w'&&s.n[1]===1}));};
     hlFn=function(c){return state.some(isBad)?isBad(c):isW(c);};}
+  else if(spec==='x'){var xe=curExercise();hlFn=function(c){if(GH.st!==state||GH.g!=='x'){GH.st=state;GH.g='x';GH.map=xe&&exactInfo(xe)?exactLevels(xe,state):new Map();}var v=GH.map.get(c);return v===undefined?1:v;};}
   else if(typeof spec==='string'&&spec.indexOf('g:')===0){var gname=spec.slice(2);hlFn=function(c){if(GH.st!==state||GH.g!==gname){GH.st=state;GH.g=gname;GH.map=goalLevels(gname,state);}var v=GH.map.get(c);return v===undefined?0:v;};}
   else if(spec.edge){var ec=spec.edge,cc=spec.center,allc=spec.centers;hlFn=function(c){return (c.s.length===2&&c.s.some(function(s){return s.c===ec}))||(!!allc&&c.s.length===1)||(!!cc&&c.s.length===1&&c.s[0].c===cc);};}
   else if(spec.has){var col=spec.has;hlFn=function(c){return c.s.some(function(s){return s.c===col})};}
@@ -3313,7 +3314,7 @@ function applyStep(){
   onTap=handleTap;onApplied=handleMove;
   if(k==='recap'){var pv=LESSONS[prevIdx(li)];hlOn=true;setHl(pv.hl||null);}
   else if(k==='learn'){hlOn=true;setHl((lesson.pages&&lesson.pages[0].hl)||lesson.hl||null);pageView(lesson.pages&&lesson.pages[0]);}
-  else{setHl(e&&e.hl?e.hl:null);if(e&&e.hl)autoView(e.hl);}
+  else{setHl(e&&e.hl?e.hl:null);if(e&&e.hl)autoView(e.hl);if(e&&e.t==='solve'&&exactInfo(e)){setHl('x');autoView('g:'+e.goal);}}
   if(e&&e.t==='choice'){ex.opts=shuffle(e.options);}
   if(k==='quick'){ex.quick=pickQuick();
     var qp=QPRE[ex.quick.id];resetView();
@@ -3406,6 +3407,8 @@ function goalNote(e){
   var g=e.goal,tx=GOALTXT[g]||(g.indexOf('cf:')===0?'los centros de ese color juntos en una misma cara.':'');
   if(!tx)return '';
   var gh=typeof e.hl==='string'&&e.hl.indexOf('g:')===0;
+  var xe=gh&&exactInfo(e);
+  if(xe)return '<div class="goalnote"><b>Objetivo:</b> '+tx+' Acaba el algoritmo entero: <b>todo el cubo</b> debe quedar como al empezar a resolver.<span class="lgd"><i class="lg f"></i>borde: aún no está en su sitio <i class="lg c"></i>en color: ya está bien</span></div>';
   return '<div class="goalnote"><b>Objetivo:</b> '+tx+(gh?'<span class="lgd"><i class="lg f"></i>borde: lo que falta <i class="lg c"></i>en color: ya está bien <i class="lg d"></i>gris: ahora no importa</span>':'')+'</div>';}
 function padHidden(e){return (e.t==='do'&&gestureDo(e))||(settings.hidePad&&gestureOn());}
 function hintTxt(e){var h=e.hint||'';return padHidden(e)?h.replace(/\b([Pp])ulsa(?!\s*«)/g,function(m,a){return a==='P'?'Haz':'haz';}):h;}
@@ -3497,9 +3500,19 @@ function exactInfo(e){
   var r=null;
   if(!e.rand&&e.sol&&e.sol.length>1&&(e.goal==='layer1'||e.goal==='layer1x2'||e.goal==='paired')){
     var st=exStart(e),g=goalFn(e.goal);
-    for(var k=1;k<e.sol.length;k++){if(g(seqState(e.sol.slice(0,k),st))){r={fin:key(seqState(e.sol,st))};break;}}}
+    for(var k=1;k<e.sol.length;k++){if(g(seqState(e.sol.slice(0,k),st))){var fs=seqState(e.sol,st);r={fin:key(fs),finSt:fs};break;}}}
   e._ex=r;return r;}
 function sameFinal(fin,cs){return rotSeqs().some(function(q){return key(seqState(q,cs))===fin;});}
+
+function pieceSame(c,f){
+  if(c.p.join()!==f.p.join()||c.s.length!==f.s.length)return false;
+  for(var j=0;j<c.s.length;j++){if(c.s[j].c!==f.s[j].c||c.s[j].n.join()!==f.s[j].n.join())return false;}
+  return true;}
+function exactLevels(e,cs){
+  var fin=exactInfo(e).finSt,best=null,map=new Map();
+  rotSeqs().forEach(function(q){var r=q.length?seqState(q,cs):cs,bad=[];r.forEach(function(c,i){if(!pieceSame(c,fin[i]))bad.push(i);});if(!best||bad.length<best.length)best=bad;});
+  cs.forEach(function(c,i){map.set(c,best.indexOf(i)>=0?2:1);});
+  return map;}
 function handleMove(mv){
   var e=curExercise(),kind=curKind();
   if(ex.queued>0)ex.queued--;
@@ -3548,7 +3561,7 @@ panel.addEventListener('click',function(ev){
     else playSeq(lesson.demo,lesson.pre);}
   else if(a==='lpnext'){learnPage((ex.page||0)+1);}
   else if(a==='lpprev'){learnPage((ex.page||0)-1);}
-  else if(a==='reset'){ex=newEx();resetView();setState(curStart());if(e&&e.hl)autoView(e.hl);if(tl.seq.length){tl.token++;tl.playing=false;tl.idx=0;tl.dirty=false;renderTl();}if(e&&e.t==='choice')ex.opts=shuffle(e.options);renderPanel();}
+  else if(a==='reset'){ex=newEx();resetView();setState(curStart());if(e&&e.hl)autoView(e.hl);if(e&&e.t==='solve'&&exactInfo(e)){GH.st=null;setHl('x');}if(tl.seq.length){tl.token++;tl.playing=false;tl.idx=0;tl.dirty=false;renderTl();}if(e&&e.t==='choice')ex.opts=shuffle(e.options);renderPanel();}
   else if(a==='undo'){undoLast();}
   else if(a==='redo'){redoLast();}
   else if(a==='hint'&&e){

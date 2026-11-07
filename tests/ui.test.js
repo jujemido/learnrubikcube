@@ -646,6 +646,18 @@ S.test('4×4 emparejar aristas: sin devolver los centros (F R F\') no se da por 
   eq(await T(pg, 'status'), 'ok');
 });
 
+
+S.test('algoritmo completo: lo que falta se ve (borde) y no hay nada en gris; tras el último movimiento desaparece', async c => {
+  const pg = await c.lesson('3x3', '3.1'); await goTo(pg, 'ex0');
+  const t = await pg.textContent('.goalnote');
+  assert(t.includes('todo el cubo') && !t.includes('gris'), 'la leyenda explica que se ve todo el cubo: ' + t);
+  await T(pg, 'play', ['R', 'U', "R'"]); await pg.waitForTimeout(1500);
+  const f = await pg.evaluate(() => window.__T.framed());
+  assert(f > 0, 'tras R U R\' aún hay piezas con borde (la capa de arriba sin alinear)');
+  await T(pg, 'play', ["U'"]); await pg.waitForTimeout(1200);
+  eq(await pg.evaluate(() => window.__T.framed()), 0, 'al acabar no queda ninguna con borde');
+});
+
 /* ---------- ajustes ---------- */
 S.test('ajustes: sin «girar capas arrastrando» y con todos los checks del mismo tamaño', async c => {
   const pg = await c.lesson('3x3', '1.1', { viewport: { width: 390, height: 800 } });
