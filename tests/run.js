@@ -8,7 +8,7 @@
 const { spawnSync } = require('child_process');
 const path = require('path');
 
-const all = { logic: 'logic.test.js', ui: 'ui.test.js', offline: 'offline.test.js' };
+const all = { logic: 'logic.test.js', curriculum: 'curriculum.test.js', ui: 'ui.test.js', offline: 'offline.test.js' };
 const want = process.argv.slice(2);
 const names = want.length ? want : Object.keys(all);
 let failed = [];

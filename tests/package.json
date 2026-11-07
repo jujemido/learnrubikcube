@@ -5,6 +5,7 @@
   "scripts": {
     "test": "node run.js",
     "test:logic": "node run.js logic",
+    "test:curriculum": "node curriculum.test.js",
     "test:ui": "node run.js ui",
     "test:offline": "node run.js offline"
   },

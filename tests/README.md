@@ -11,6 +11,7 @@ npx playwright install chromium   # una vez: descarga el navegador
 
 npm test                    # todo (≈ 2 min)
 npm run test:logic          # solo el contenido de los cursos (segundos, sin navegador)
+npm run test:curriculum     # coherencia del temario: nada se pregunta antes de enseñarse
 npm run test:ui             # solo la interfaz
 npm run test:offline        # solo la versión instalable / sin conexión
 ```
@@ -28,6 +29,7 @@ RUBIK_HTML=/ruta/a/otro.html npm test
 | Archivo | Qué cubre |
 |---|---|
 | `logic.test.js` | Los 4 cursos sin navegador: todos los movimientos son válidos, cada ejercicio de «resolver» parte de un cubo sin resolver, su solución cumple el objetivo y **resalta lo que falta** (`hl: 'g:objetivo'`), las páginas de «Aprende» tienen texto y movimientos válidos, una capa del medio o un giro del cubo no vale como solución de la flor, las preguntas de elegir tienen respuesta entre sus opciones y los mini-exámenes tienen 10 ejercicios. |
+| `curriculum.test.js` | **Nada se pregunta antes de enseñarse**: en los 4 cursos (lecciones, mini-exámenes y exámenes finales) cada letra, apóstrofo, 2, x/y/z/M/E/S, algoritmo, repetición, giro con `y` y concepto (Sune, F2L, paridad…) debe enseñarse en una lección anterior o en la misma. Las tablas del test son el mapa de dependencias: actualízalas al añadir lecciones o algoritmos. |
 | `ui.test.js` | Gestos (girar capa, 90° y 180°, mantener pulsado, dos dedos, **clic derecho y teclas X/Y/Z en el ordenador**, límites del zoom), lecciones nuevas (M, E y S; x, y y z con práctica real), objetivo y leyenda del resaltado en los ejercicios, pistas coherentes con la botonera visible, páginas de F2L, 2×2 y 4×4, deshacer y rehacer, secuencia fusionada (`R R` → `R2`), ejercicios con medios giros, botonera, retomar lecciones y mini-exámenes, rayitas de pasos, pregunta relámpago sin saltar, pantalla de lección completada, ajustes (sonido, velocidad, exportar e importar) y que no haya errores de JavaScript. |
 | `offline.test.js` | Manifiesto e iconos, color de la barra de estado en claro y oscuro, service worker, y que la app abre **sin conexión** y sin pedir nada a internet. |
 
