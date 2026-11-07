@@ -443,10 +443,10 @@ S.test('las páginas de F2L, 2×2 y 4×4 existen y se recorren hasta «Continuar
 
 
 /* ---------- vista: etiquetas de cara y reinicio de la posición ---------- */
-S.test('el cubo muestra las etiquetas Frente, Derecha y Arriba', async c => {
+S.test('el cubo muestra las letras F, R y U en las caras que se ven', async c => {
   const pg = await c.lesson('3x3', '3.5'); await goTo(pg, 'ex2');
   const t = (await pg.$$eval('#flbl i', els => els.map(e => e.textContent))).join(',');
-  assert(t.includes('Frente') && t.includes('Derecha') && t.includes('Arriba'), 'etiquetas: ' + t);
+  assert(t.split(',').sort().join('') === 'FRU', 'etiquetas: ' + t);
 });
 
 S.test('«Reiniciar» y cambiar de paso devuelven el cubo a la posición inicial de la vista', async c => {
@@ -463,6 +463,18 @@ S.test('«Reiniciar» y cambiar de paso devuelven el cubo a la posición inicial
   await T(pg, 'view', 2.5, 0.1);
   await pg.click('[data-act=reset]'); await pg.waitForTimeout(300);
   eq(await T(pg, 'az'), az0, 'Reiniciar en un ejercicio también');
+});
+
+
+S.test('si la pieza que falta queda por detrás o debajo, la vista gira sola hasta verla (y «Reiniciar» lo repite)', async c => {
+  const pg = await c.lesson('3x3', '2.3'); await goTo(pg, 'ex3');
+  const az = await T(pg, 'az');
+  assert(Math.abs(az - 0.62) > 0.5, 'la vista debería haberse girado para ver las aristas de abajo (az=' + az + ')');
+  await T(pg, 'view', 0.62, 0.5);
+  await pg.click('[data-act=reset]'); await pg.waitForTimeout(300);
+  assert(Math.abs((await T(pg, 'az')) - 0.62) > 0.5, 'tras reiniciar vuelve a la vista adecuada');
+  const pg2 = await c.lesson('3x3', '2.3'); await goTo(pg2, 'ex1');
+  eq(await T(pg2, 'az'), 0.62, 'si la pieza ya se ve, la vista no se toca');
 });
 
 /* ---------- ajustes ---------- */

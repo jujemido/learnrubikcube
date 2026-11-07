@@ -282,7 +282,7 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .lg.c{background:#2f9e5b}
 .lg.d{background:var(--dim)}
 #flbl{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-#flbl i{position:absolute;transform:translate(-50%,-50%);font:700 .7rem var(--f-mono);font-style:normal;padding:2px 7px;border-radius:99px;background:var(--panel);color:var(--muted);border:1px solid var(--line);opacity:.9;white-space:nowrap}
+#flbl i{position:absolute;transform:translate(-50%,-50%);font:700 .8rem var(--f-mono);font-style:normal;padding:1px 6px;border-radius:99px;background:var(--panel);color:var(--muted);border:1px solid var(--line);opacity:.5;white-space:nowrap}
 .gesturehint.compact{font-size:.86rem;padding:8px 12px}
 .gesturehint summary{cursor:pointer;font-weight:700;list-style:none}
 .gesturehint summary::-webkit-details-marker{display:none}
@@ -2639,7 +2639,7 @@ function resize(){
   dist=11.8/Math.min(1,camera.aspect*1.08);camera.updateProjectionMatrix();setCam();}
 function holdCue(){viewEl.classList.add('holdcue');setTimeout(function(){viewEl.classList.remove('holdcue');},420);
   try{if(navigator.vibrate)navigator.vibrate(12);}catch(e){}}
-var FLBL=[[[0,0,1],'Frente'],[[1,0,0],'Derecha'],[[-1,0,0],'Izquierda'],[[0,0,-1],'Atrás'],[[0,1,0],'Arriba'],[[0,-1,0],'Abajo']];
+var FLBL=[[[0,0,1],'F'],[[1,0,0],'R'],[[-1,0,0],'L'],[[0,0,-1],'B'],[[0,1,0],'U'],[[0,-1,0],'D']];
 function updateFaceLabels(){
   var box=$('#flbl');if(!box||!renderer||!camera)return;
   if(!visible||!lesson){box.innerHTML='';return;}
@@ -2655,6 +2655,20 @@ function updateFaceLabels(){
 function setCam(){if(!camera)return;
   var dd=dist/zoom;camera.position.set(dd*Math.sin(az)*Math.cos(el),dd*Math.sin(el),dd*Math.cos(az)*Math.cos(el));
   camera.lookAt(0,0,0);updateFaceLabels();}
+
+/* Si la pieza que hay que mirar queda por detrás, a la izquierda o debajo, se gira la vista hasta verla */
+var AV_CANDS=null;
+function faceSeen(n,a,e){var dd=11.8,x=dd*Math.sin(a)*Math.cos(e),y=dd*Math.sin(e),z=dd*Math.cos(a)*Math.cos(e);return n[0]*x+n[1]*y+n[2]*z>1.6;}
+function autoView(spec){
+  if(typeof spec!=='string'||spec.indexOf('g:')!==0)return;
+  var m=goalLevels(spec.slice(2),state),foc=[];
+  m.forEach(function(v,c){if(v===2)foc.push(c);});
+  if(!foc.length)return;
+  function cnt(a,e){return foc.filter(function(c){return c.s.some(function(s){return faceSeen(s.n,a,e);});}).length;}
+  var base=cnt(DEF_AZ,DEF_EL);if(base===foc.length)return;
+  var P=Math.PI,cands=[[DEF_AZ+P/2,DEF_EL],[DEF_AZ-P/2,DEF_EL],[DEF_AZ+P,DEF_EL],[DEF_AZ,-0.6],[DEF_AZ+P/2,-0.6],[DEF_AZ-P/2,-0.6],[DEF_AZ+P,-0.6]],best=null,bc=base;
+  cands.forEach(function(c){var k=cnt(c[0],c[1]);if(k>bc){bc=k;best=c;}});
+  if(best){az=best[0];el=best[1];viewTouched=true;setCam();}}
 function resetView(){az=DEF_AZ;el=DEF_EL;zoom=1;viewTouched=false;setCam();}
 function css(v,d){var s=getComputedStyle(document.documentElement).getPropertyValue(v).trim();return s||d;}
 
@@ -3137,7 +3151,7 @@ function learnPage(n){
   if(n>pageMax)pageMax=n;
   epoch++;ex.page=n;saveRes();tlClear();pageView(pg);
   var pre=pg.pre||lesson.pre||[];
-  setState(seqState(pre));hlOn=true;setHl(pg.hl||lesson.hl||null);
+  setState(seqState(pre));hlOn=true;setHl(pg.hl||lesson.hl||null);if(!pg.view)autoView(pg.hl||lesson.hl);
   renderPanel();panel.scrollTop=0;
   var ep=epoch;if(pg.demo)setTimeout(function(){if(ep===epoch)playSeq(pg.demo,pre);},500);}
 
@@ -3149,7 +3163,7 @@ function applyStep(){
   onTap=handleTap;onApplied=handleMove;
   if(k==='recap'){var pv=LESSONS[prevIdx(li)];hlOn=true;setHl(pv.hl||null);}
   else if(k==='learn'){hlOn=true;setHl((lesson.pages&&lesson.pages[0].hl)||lesson.hl||null);pageView(lesson.pages&&lesson.pages[0]);}
-  else setHl(e&&e.hl?e.hl:null);
+  else{setHl(e&&e.hl?e.hl:null);if(e&&e.hl)autoView(e.hl);}
   if(e&&e.t==='choice'){ex.opts=shuffle(e.options);}
   if(k==='quick')ex.quick=pickQuick();
   renderPanel();
@@ -3363,7 +3377,7 @@ panel.addEventListener('click',function(ev){
     else playSeq(lesson.demo,lesson.pre);}
   else if(a==='lpnext'){learnPage((ex.page||0)+1);}
   else if(a==='lpprev'){learnPage((ex.page||0)-1);}
-  else if(a==='reset'){ex=newEx();resetView();setState(curStart());if(tl.seq.length){tl.token++;tl.playing=false;tl.idx=0;tl.dirty=false;renderTl();}if(e&&e.t==='choice')ex.opts=shuffle(e.options);renderPanel();}
+  else if(a==='reset'){ex=newEx();resetView();setState(curStart());if(e&&e.hl)autoView(e.hl);if(tl.seq.length){tl.token++;tl.playing=false;tl.idx=0;tl.dirty=false;renderTl();}if(e&&e.t==='choice')ex.opts=shuffle(e.options);renderPanel();}
   else if(a==='undo'){undoLast();}
   else if(a==='redo'){redoLast();}
   else if(a==='hint'&&e){
