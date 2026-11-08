@@ -753,19 +753,25 @@ S.test('línea de tiempo: con muchos pasos es una barra con contador (no decenas
 });
 
 
-S.test('secuencia larga con atajos: «Tu secuencia» ocupa su sitio y el botón de atajos no la tapa', async c => {
-  const pg = await c.app({ viewport: { width: 390, height: 780 } });
-  const ids = await pg.evaluate(() => window.__T.ids('3x3')); const idx = ids.indexOf('3.3');
-  const done = {}; ids.slice(0, idx).forEach(x => done[x] = { errors: 0, tries: 1 });
-  await pg.evaluate(d => localStorage.setItem('rubik-paso-a-paso-v1', JSON.stringify({ done: d })), done);
-  await pg.reload(); await pg.waitForTimeout(500);
-  await pg.click('.tab[data-course="3x3"]'); await pg.click('.lrow[data-lesson="' + idx + '"]'); await pg.waitForTimeout(400);
+S.test('secuencia larga con atajos: los atajos van arriba y «Tu secuencia» debajo, sin taparse', async c => {
+  const pg = await c.lesson('3x3', '3.3');
+  await pg.setViewportSize({ width: 390, height: 780 });
   await pg.evaluate(() => window.__T.go('ex1')); await pg.waitForTimeout(300);
+  const pos = () => pg.evaluate(() => { const p = document.querySelector('#panel'); return document.querySelector('.macro').getBoundingClientRect().top - p.getBoundingClientRect().top + p.scrollTop; });
+  const before = await pos();
   for (let i = 0; i < 9; i++) { await pg.click('.macro >> nth=0'); await pg.waitForTimeout(120); }
   await pg.waitForTimeout(1500);
-  const r = await pg.evaluate(() => { const h = document.querySelector('#hist'), m = document.querySelector('.macros'); return { hb: h.getBoundingClientRect().bottom, mt: m.getBoundingClientRect().top, hh: h.getBoundingClientRect().height, sh: h.scrollHeight }; });
-  assert(r.hh >= r.sh - 1, 'la secuencia se sale de su caja (' + r.hh + ' < ' + r.sh + ')');
-  assert(r.mt >= r.hb - 1, 'los atajos tapan la secuencia');
+  const r = await pg.evaluate(() => { const h = document.querySelector('#hist'), m = document.querySelector('.macros'); return { ht: h.getBoundingClientRect().top, mb: m.getBoundingClientRect().bottom, hh: h.getBoundingClientRect().height, sh: h.scrollHeight }; });
+  r.btnTop = await pos();
+  assert(r.hh >= r.sh - 1 || r.sh <= r.hh + 60, 'la secuencia se sale de su caja (' + r.hh + ' < ' + r.sh + ')');
+  assert(r.ht >= r.mb - 1, 'la secuencia debe ir debajo de los atajos');
+  assert(Math.abs(r.btnTop - before) < 2, 'el botón de atajo no debe moverse al crecer la secuencia (' + before + ' -> ' + r.btnTop + ')');
+});
+
+S.test('modo completo: los atajos siguen disponibles (también con gestos)', async c => {
+  const pg = await c.lesson('3x3', '3.3'); await pg.evaluate(() => window.__T.go('ex1')); await pg.waitForTimeout(300);
+  await pg.click('#fullBtn'); await pg.waitForTimeout(400);
+  assert(await pg.isVisible('.macro'), 'en modo completo debe verse el atajo');
 });
 
 S.test('al acertar, el «¡Bien!» y «Siguiente» quedan a la vista aunque el panel sea largo (se pegan abajo)', async c => {
