@@ -3720,10 +3720,11 @@ var RENDER={
     var e=c.e,E=c.E,n=parseInt(c.kind.slice(2),10)+1,stk=(ex.status==='ok'||(e.t==='write'&&ex.status==='bad'));
     var h=UI.meta((lesson.training?'TRAINING · NIVEL '+e.train.level:'EJERCICIO '+n+' DE '+E)+(e.mixed?' · <span class="mixtag">MEZCLADO CON LECCIONES ANTERIORES</span>':''))+
       '<div class="q">'+e.q+'</div>'+goalNote(e)+'</div>';
-    h+=EXBODY[e.t](e);
+    h+=(EXBODY[e.t]||EXBODY.none)(e);
     return h+UI.sticky(stk,fbHtml()+exActions(e,n,E));}
 };
 var EXBODY={
+  none:function(e){return '';}, /* tap: se responde tocando el cubo, no hay cuerpo */
   'do':function(e){return gestureDo(e)?seqCard(''):seqCard('')+padHtml(e.pad||lesson.pad,ex.status!=='pending');},
   solve:function(e){return seqCard(macrosHtml(ex.status!=='pending'))+padHtml(course==='4x4'?PAD4:PALL,ex.status!=='pending',true);},
   write:function(e){return '<div class="hist wr" id="wrhist">'+wrHtml()+'</div>'+padHtml(e.pad,ex.status!=='pending',true,'wmv');},
