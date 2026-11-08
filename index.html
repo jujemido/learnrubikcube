@@ -303,9 +303,9 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .lbl.acc{color:var(--accent)}
 .legrow{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);background:var(--panel)}
 .legrow.n2{grid-template-columns:repeat(2,1fr)}
-.legrow div{padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.76rem;color:var(--muted);text-align:center;line-height:1.3}
+.legrow div{padding:6px 4px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:6px;font-size:.72rem;color:var(--muted);text-align:center;line-height:1.2;white-space:nowrap}
 .legrow div+div{border-left:1px solid var(--line)}
-.legrow .lg{width:14px;height:14px;margin:0;border-radius:4px}
+.legrow .lg{width:11px;height:11px;margin:0;border-radius:3px;flex:none}
 .seqhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .cnt{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);white-space:nowrap}
 .seqcard .hist{max-height:4.8em;overflow:hidden}
@@ -3647,8 +3647,8 @@ function goalNote(e){
   var gh=typeof e.hl==='string'&&e.hl.indexOf('g:')===0;
   var xe=gh&&e.algo&&exactInfo(e);
   var more=xe?' Aquí cuenta el algoritmo <b>entero</b>: al acabar, <b>todo el cubo</b> debe quedar resuelto.':'';
-  var leg=xe?'<div class="legrow n2"><div><i class="lg f"></i>Aún no está en su sitio</div><div><i class="lg c"></i>Ya está bien</div></div>'
-    :(gh?'<div class="legrow"><div><i class="lg f"></i>Lo que falta</div><div><i class="lg c"></i>Ya está bien</div><div><i class="lg d"></i>No importa</div></div>':'');
+  var leg=xe?'<div class="legrow n2"><div><i class="lg f"></i>Falta</div><div><i class="lg c"></i>Bien</div></div>'
+    :(gh?'<div class="legrow"><div><i class="lg f"></i>Falta</div><div><i class="lg c"></i>Bien</div><div><i class="lg d"></i>No importa</div></div>':'');
   return '<div class="goalnote card"><div class="in"><span class="lbl acc">Objetivo</span><span class="gtx">'+tx+more+'</span></div>'+leg+'</div>';}
 function padHidden(e){return (e.t==='do'&&gestureDo(e))||(settings.hidePad&&gestureOn());}
 function hintTxt(e){var h=e.hint||'';return padHidden(e)?h.replace(/\b([Pp])ulsa(?!\s*«)/g,function(m,a){return a==='P'?'Haz':'haz';}):h;}
