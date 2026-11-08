@@ -437,7 +437,7 @@ S.test('M, E y S: lección nueva, con páginas y ejercicios que se completan', a
 S.test('ejercicio de resolver: muestra el objetivo y la leyenda del resaltado, con la flor ya hecha a la vista', async c => {
   const pg = await c.lesson('3x3', '2.3'); await goTo(pg, 'ex1');
   const t = await pg.textContent('.goalnote');
-  assert(t.includes('Objetivo') && t.includes('borde') && t.includes('gris'), 'falta el objetivo o la leyenda: ' + t);
+  assert(t.includes('Objetivo') && t.includes('falta') && t.includes('importa'), 'falta el objetivo o la leyenda: ' + t);
   assert(t.includes('deben seguir así'), 'debe decir que los pétalos hechos no se estropeen');
   eq((await pg.$$('.goalnote .lg')).length, 3, 'tres muestras de la leyenda');
 });
