@@ -339,12 +339,6 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .tr-tbl .okc{color:var(--ok)}.tr-tbl .badc{color:var(--bad,#d33)}
 .trname{color:var(--muted);font-size:.9em}
 .hist.wr b{font-family:var(--f-mono)}
-.gesturehint.compact{font-size:.86rem;padding:8px 12px}
-.gesturehint summary{cursor:pointer;font-weight:700;list-style:none}
-.gesturehint summary::-webkit-details-marker{display:none}
-.gesturehint summary::before{content:'▸ ';display:inline-block;width:1em}
-.gesturehint[open] summary::before{content:'▾ '}
-.gesturehint p{margin:6px 0 0}
 .mixtag{color:var(--accent);font-weight:700}
 .quick{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px}
 .quick .q{font-size:1rem}
@@ -367,11 +361,12 @@ kbd.mv{font-family:var(--f-mono);font-weight:700;font-size:.92em;background:var(
 .rstconf span{flex:1 1 100%}
 .rstconf[hidden]{display:none}
 .stage .uredo .btn[hidden]{display:none}
+.ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}
 .stage #hlt{position:absolute;top:10px;right:10px;z-index:3;background:color-mix(in srgb,var(--panel) 88%,transparent);box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .stage #hlt[hidden]{display:none}
 #hlt .eye-off{display:none}
 #hlt[aria-pressed=false] .eye-on{display:none}
-#hlt[aria-pressed=false] .eye-off{display:block}
+#hlt[aria-pressed=false] .eye-off{display:inline-flex}
 .stage #helpBtn.with-eye{right:56px}
 .stage #helpBtn{position:absolute;top:10px;right:10px;z-index:3;background:color-mix(in srgb,var(--panel) 88%,transparent);box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .stage #helpBtn[hidden]{display:none}
@@ -388,7 +383,7 @@ html.in-lesson.full-mode .stagebox{position:fixed;top:0;left:0;right:0;bottom:va
 html.in-lesson.full-mode .stage{height:100%;max-height:none;aspect-ratio:auto;border-radius:0;border:0}
 html.in-lesson.full-mode .lgrid{display:block}
 html.in-lesson.full-mode .panel{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(760px,100%);max-height:44vh;overflow-y:auto;z-index:65;border-radius:16px 16px 0 0;padding:12px 16px;gap:8px;box-shadow:0 -6px 24px rgba(0,0,0,.25)}
-html.in-lesson.full-mode .panel .meta,html.in-lesson.full-mode .panel h2,html.in-lesson.full-mode .panel .steps,html.in-lesson.full-mode .panel .goalnote,html.in-lesson.full-mode .panel .gesturehint,html.in-lesson.full-mode .panel .toggle,html.in-lesson.full-mode .panel [data-act=reset],html.in-lesson.full-mode .panel [data-act=hint]{display:none}
+html.in-lesson.full-mode .panel .meta,html.in-lesson.full-mode .panel h2,html.in-lesson.full-mode .panel .steps,html.in-lesson.full-mode .panel .goalnote,html.in-lesson.full-mode .panel .toggle,html.in-lesson.full-mode .panel [data-act=reset],html.in-lesson.full-mode .panel [data-act=hint]{display:none}
 html.in-lesson.full-mode.full-nopad .panel .pad,html.in-lesson.full-mode.full-nopad .panel .padtabs{display:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -404,7 +399,7 @@ html.in-lesson.full-mode.full-nopad .panel .pad,html.in-lesson.full-mode.full-no
       <button class="tab" role="tab" data-course="adv" aria-selected="false">Avanzado</button>
       <button class="tab" role="tab" data-course="train" aria-selected="false">Training</button>
     </div>
-    <button class="btn sm icon js-settings" id="settingsBtn" aria-label="Ajustes" aria-haspopup="dialog"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    <button class="btn sm icon js-settings" id="settingsBtn" aria-label="Ajustes" aria-haspopup="dialog"><span class="ico" data-icon="settings"></span></button>
 
   </header>
     <div id="settingsPanel" class="popover" hidden role="dialog" aria-label="Ajustes">
@@ -431,15 +426,15 @@ html.in-lesson.full-mode.full-nopad .panel .pad,html.in-lesson.full-mode.full-no
   <main id="lessonView" hidden>
     <div class="lbar">
       <button class="btn sm" id="backBtn">← Volver al temario</button>
-      <button class="btn sm icon js-settings" aria-label="Ajustes" aria-haspopup="dialog"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      <button class="btn sm icon js-settings" aria-label="Ajustes" aria-haspopup="dialog"><span class="ico" data-icon="settings"></span></button>
       <span class="mono" id="lessonTag" style="color:var(--muted);font-size:.85rem"></span>
     </div>
     <div class="lgrid">
       <div class="stagebox">
         <div class="stage" id="stage">
           <div class="view" id="view"><div id="flbl" aria-hidden="true"></div><span class="tip">Arrastra una pieza para girar la capa · desliza con 2 dedos para girar el cubo</span>
-          <button class="btn sm icon" id="hlt" aria-label="Resaltar en el cubo" title="Resaltar en el cubo" aria-pressed="true" hidden><svg class="eye-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 19C5.6 19 2 12 2 12a18 18 0 0 1 4.1-5.1"/><path d="M9.9 5.2A9.6 9.6 0 0 1 12 5c6.4 0 10 7 10 7a18 18 0 0 1-2.2 3.2"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/><path d="M2 2l20 20"/></svg></button><button class="btn sm icon" id="helpBtn" aria-label="¿Cómo mover el cubo?" aria-expanded="false" aria-controls="helpTip" title="¿Cómo mover el cubo?" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5"/><path d="M12 17h.01"/></svg></button><div class="helpTip" id="helpTip" role="tooltip" hidden><b>¿Cómo mover el cubo?</b><p>Arrastra una pieza para girar su capa. Con dos dedos: arriba o abajo (x), a los lados (y), girar (z); separarlos o juntarlos, zoom. En el ordenador: clic derecho y arrastra, o las teclas <b>X</b>, <b>Y</b>, <b>Z</b> (Mayús, al revés). Para mover la vista, arrastra el fondo.</p></div>
-          <div class="uredo" id="uredo" hidden><button class="btn sm icon" id="undoBtn" aria-label="Deshacer" title="Deshacer" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button><button class="btn sm icon" id="redoBtn" aria-label="Rehacer" title="Rehacer" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button><button class="btn sm icon" id="rstBtn" aria-label="Reiniciar" title="Reiniciar" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="btn sm icon" id="hintBtn" aria-label="Pista" title="Pista" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg></button><button class="btn sm icon" id="fullBtn" aria-label="Modo completo" title="Modo completo" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg></button></div><div class="rstconf" id="rstConf" role="alertdialog" aria-label="Confirmar reinicio" hidden><span>¿Seguro que quieres reiniciar? Se perderán tus movimientos.</span><button class="btn sm" id="rstNo">Cancelar</button><button class="btn sm primary" id="rstYes">Sí, reiniciar</button></div></div>
+          <button class="btn sm icon" id="hlt" aria-label="Resaltar en el cubo" title="Resaltar en el cubo" aria-pressed="true" hidden><span class="ico eye-on" data-icon="eye"></span><span class="ico eye-off" data-icon="eyeOff"></span></button><button class="btn sm icon" id="helpBtn" aria-label="¿Cómo mover el cubo?" aria-expanded="false" aria-controls="helpTip" title="¿Cómo mover el cubo?" hidden><span class="ico" data-icon="help"></span></button><div class="helpTip" id="helpTip" role="tooltip" hidden><b>¿Cómo mover el cubo?</b><p>Arrastra una pieza para girar su capa. Con dos dedos: arriba o abajo (x), a los lados (y), girar (z); separarlos o juntarlos, zoom. En el ordenador: clic derecho y arrastra, o las teclas <b>X</b>, <b>Y</b>, <b>Z</b> (Mayús, al revés). Para mover la vista, arrastra el fondo.</p></div>
+          <div class="uredo" id="uredo" hidden><button class="btn sm icon" id="undoBtn" aria-label="Deshacer" title="Deshacer" disabled><span class="ico" data-icon="undo"></span></button><button class="btn sm icon" id="redoBtn" aria-label="Rehacer" title="Rehacer" disabled><span class="ico" data-icon="redo"></span></button><button class="btn sm icon" id="rstBtn" aria-label="Reiniciar" title="Reiniciar" hidden><span class="ico" data-icon="reset"></span></button><button class="btn sm icon" id="hintBtn" aria-label="Pista" title="Pista" hidden><span class="ico" data-icon="bulb"></span></button><button class="btn sm icon" id="fullBtn" aria-label="Modo completo" title="Modo completo" aria-pressed="false"><span class="ico" data-icon="full"></span></button></div><div class="rstconf" id="rstConf" role="alertdialog" aria-label="Confirmar reinicio" hidden><span>¿Seguro que quieres reiniciar? Se perderán tus movimientos.</span><button class="btn sm" id="rstNo">Cancelar</button><button class="btn sm primary" id="rstYes">Sí, reiniciar</button></div></div>
           <div class="ctl" id="ctl" hidden>
             <div class="tl" id="tl" hidden>
               <button class="btn sm icon" id="tlPlay" aria-label="Reproducir"></button>
@@ -469,6 +464,23 @@ html.in-lesson.full-mode.full-nopad .panel .pad,html.in-lesson.full-mode.full-no
 (function(){
 'use strict';
 var $=function(s,r){return (r||document).querySelector(s)};
+/* ===== Iconos: una sola fuente. Se pintan donde haya data-icon="nombre" y con icon('nombre') desde el script ===== */
+var ICONS={
+  settings:[18,'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'],
+  eye:[16,'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'],
+  eyeOff:[16,'<path d="M17.9 17.9A10.4 10.4 0 0 1 12 19C5.6 19 2 12 2 12a18 18 0 0 1 4.1-5.1"/><path d="M9.9 5.2A9.6 9.6 0 0 1 12 5c6.4 0 10 7 10 7a18 18 0 0 1-2.2 3.2"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/><path d="M2 2l20 20"/>'],
+  help:[16,'<circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5"/><path d="M12 17h.01"/>'],
+  undo:[16,'<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>'],
+  redo:[16,'<path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>'],
+  reset:[16,'<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>'],
+  bulb:[16,'<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/>'],
+  full:[16,'<path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/>'],
+  exit:[16,'<path d="M9 4v5H4"/><path d="M15 4v5h5"/><path d="M9 20v-5H4"/><path d="M15 20v-5h5"/>']
+};
+function icon(name,size){var d=ICONS[name];size=size||d[0];return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d[1]+'</svg>';}
+function paintIcons(root){[].forEach.call((root||document).querySelectorAll('[data-icon]'),function(el){el.innerHTML=icon(el.dataset.icon);});}
+paintIcons();
+
 
 /*LOGIC-START*/
 var NAME={w:'blanco',y:'amarillo',g:'verde',b:'azul',r:'rojo',o:'naranja'};
@@ -3276,8 +3288,7 @@ function renderTl(){
   $('#tlStop').innerHTML=I_STOP;
   $('#tlCur').textContent=tl.hide?'?':tl.seq[tl.idx===0?0:tl.idx-1];
   $('#tlSpeed').value=String(tl.speed);}
-var I_FULL='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg>',I_SMALL='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4"/><path d="M15 4v5h5"/><path d="M9 20v-5H4"/><path d="M15 20v-5h5"/></svg>';
-function hlSpecNow(){var k=curKind();if(k==='recap'){var pv=LESSONS[prevIdx(li)];return pv&&pv.hl||null;}
+var I_FULL=icon('full'),I_SMALL=icon('exit');function hlSpecNow(){var k=curKind();if(k==='recap'){var pv=LESSONS[prevIdx(li)];return pv&&pv.hl||null;}
   if(k==='learn'){var pg=lesson.pages&&lesson.pages[ex.page||0];return (pg&&pg.hl)||lesson.hl||null;}return null;}
 function syncEye(){var b=$('#hlt'),has=!!(lesson&&visible&&ex&&hlSpecNow());b.hidden=!has;$('#helpBtn').classList.toggle('with-eye',has);b.setAttribute('aria-pressed',String(!!hlOn));}
 function closeHelp(){var t=$('#helpTip'),b=$('#helpBtn');if(t)t.hidden=true;if(b)b.setAttribute('aria-expanded','false');}
@@ -3559,7 +3570,6 @@ function applyStep(){
 
 function gestureOn(){return !!(settings.dragTurn&&NSZ===3);}
 function gestureDo(e){return gestureOn()&&!e.forcePad&&e.seq.every(function(m){return /^[RLUDFBMESxyz][2']?$/.test(m)});}
-function gestureHint(big){return '';}
 function REPLAY_BTN(act){return '<button class="btn icon outline" data-act="'+act+'" aria-label="Ver otra vez" title="Ver otra vez">'+I_REPLAY+'</button>';}
 function stepName(k){
   if(k==='intro')return lesson.exam?'Intro':'Objetivo';
@@ -3653,77 +3663,95 @@ function goalNote(e){
 function padHidden(e){return (e.t==='do'&&gestureDo(e))||(settings.hidePad&&gestureOn());}
 function hintTxt(e){var h=e.hint||'';return padHidden(e)?h.replace(/\b([Pp])ulsa(?!\s*«)/g,function(m,a){return a==='P'?'Haz':'haz';}):h;}
 function blkFull(b){var pre=b<=6?'3×3':(b<=12?'4×4':(b<=16?'2×2':(b<=20?'Avanzado':'')));return (pre&&b!==99?pre+' · ':'')+BLOCKS[b];}
-function renderPanel(){
-  var kind=curKind(),e=curExercise(),E=lesson.exercises.length;
-  var h='<div class="meta"><span>'+blkFull(lesson.block)+'</span><span>'+dl(lesson)+'</span></div><h2>'+lesson.title+'</h2>'+stepper()+'<div class="body">';
-  if(kind==='intro'){
-    h+='<div class="mono eyebrow">EN ESTA LECCIÓN</div><p class="goal">'+(INTRO[lesson.id]||lesson.sub)+'</p>'+
-       (lesson.exam?'<p class="sub">'+E+' ejercicios del bloque, cada vez más difíciles. Tienes pista.</p>':(prevIdx(li)>=0?'<p class="sub">Empezamos recordando <b>«'+LESSONS[prevIdx(li)].title+'»</b>.</p>':''))+'</div>'+
-       '<div class="row"><button class="btn primary" data-act="next" style="margin-left:auto">Empezar →</button></div>';
-  }else if(kind==='recap'){
+/* ===== Componentes de interfaz =====
+   Todo el HTML del panel sale de estas piezas pequeñas: un botón, una fila, una tarjeta, un aviso se escriben una sola vez. */
+var UI={
+  esc:function(v){return String(v).replace(/"/g,'&quot;');},
+  /* botón: o = {act, cls, id, v, disabled, end (empuja a la derecha), aria} */
+  btn:function(label,o){o=o||{};
+    return '<button class="btn'+(o.cls?' '+o.cls:'')+'"'+(o.id?' id="'+o.id+'"':'')+(o.act?' data-act="'+o.act+'"':'')+(o.disabled?' disabled':'')+
+      (o.end?' style="margin-left:auto"':'')+(o.aria?' aria-label="'+o.aria+'" title="'+o.aria+'"':'')+'>'+label+'</button>';},
+  primary:function(label,act,o){o=o||{};o.cls='primary';o.act=act;return UI.btn(label,o);},
+  row:function(inner,cls){return '<div class="row'+(cls?' '+cls:'')+'">'+inner+'</div>';},
+  actions:function(inner){return UI.row(inner,'actions');},
+  /* avisos: kind = ok | bad | info */
+  fb:function(kind,html){return '<div class="fb '+kind+'" role="status">'+html+'</div>';},
+  note:function(html){return '<p class="fb info" style="margin:0">'+html+'</p>';},
+  eyebrow:function(text){return '<div class="mono eyebrow">'+text+'</div>';},
+  meta:function(html){return '<div class="mono" style="font-size:.8rem;color:var(--muted);margin-bottom:6px">'+html+'</div>';},
+  /* el bloque que se pega abajo cuando el aviso de acierto y «Siguiente» tienen que verse siempre */
+  sticky:function(on,inner){return on?'<div class="stickyok">'+inner+'</div>':inner;},
+  /* respuestas de elegir: items = [{label, cls, act, v, disabled, sw}] */
+  opts:function(items){return '<div class="opts">'+items.map(function(o){
+    return '<button class="'+o.cls+'" data-act="'+o.act+'" data-v="'+UI.esc(o.v)+'"'+(o.disabled?' disabled':'')+'>'+(o.sw||'')+o.label+'</button>';}).join('')+'</div>';}
+};
+
+/* ===== Un renderizador por tipo de paso: cada uno devuelve el HTML que va tras la cabecera ===== */
+var RENDER={
+  intro:function(c){
+    return UI.eyebrow('EN ESTA LECCIÓN')+'<p class="goal">'+(INTRO[lesson.id]||lesson.sub)+'</p>'+
+      (lesson.exam?'<p class="sub">'+c.E+' ejercicios del bloque, cada vez más difíciles. Tienes pista.</p>':(prevIdx(li)>=0?'<p class="sub">Empezamos recordando <b>«'+LESSONS[prevIdx(li)].title+'»</b>.</p>':''))+'</div>'+
+      UI.row(UI.primary('Empezar →','next',{end:true}));},
+  recap:function(c){
     var pv=LESSONS[prevIdx(li)];
-    h+='<div class="mono" style="font-size:.8rem;color:var(--muted);margin-bottom:6px">REPASO DE LA LECCIÓN ANTERIOR</div>'+
-       '<div class="recap"><b>'+dl(pv)+' · '+pv.title+'</b><p>'+pv.recap+'</p></div>';
-    h+='</div><div class="row actions">'+(pv.demo?REPLAY_BTN('demo'):'')+'<button class="btn primary" data-act="next">Siguiente →</button></div>';
-  }else if(kind==='quick'){
-    var qk=ex.quick;
-    h+='<div class="mono eyebrow">PREGUNTA RELÁMPAGO · DE «'+qk.title+'»</div><div class="q">'+qk.q+'</div></div>'+
-      '<div class="opts">'+qk.opts.map(function(o,oi){var cls='opt'+(qk.status==='ok'&&o===qk.answer?' right':'')+(qk.wrong[oi]?' wrong':'');
-        return '<button class="'+cls+'" data-act="quick" data-v="'+oi+'"'+((qk.status!=='pending'||qk.wrong[oi])?' disabled':'')+'>'+o+'</button>';}).join('')+'</div>'+
-      (qk.status==='ok'?'<div class="stickyok">':'')+(qk.status==='ok'?'<div class="fb ok" role="status">¡Correcto!</div>':(Object.keys(qk.wrong).length?'<div class="fb bad" role="status">No es esa. Prueba otra.</div>':''))+
-      '<div class="row"><button class="btn primary" data-act="next" style="margin-left:auto"'+(qk.status==='ok'?'':' disabled')+'>Siguiente →</button></div>'+(qk.status==='ok'?'</div>':'');
-  }else if(kind==='learn'&&lesson.pages){
-    var pgs=lesson.pages,pi=ex.page||0,pg=pgs[pi],hs=pg.hl||lesson.hl;
-    h+=pg.t;
-    h+='</div>';
-    if(pg.note)h+='<p class="fb info" style="margin:0">'+pg.note+'</p>';
-    h+='<div class="row actions">'+(pi>0?'<button class="btn icon outline" data-act="lpprev" aria-label="Paso anterior" title="Paso anterior">←</button>':'')+(pg.demo?REPLAY_BTN('demo'):'')+
-       (pi<pgs.length-1?'<button class="btn primary" data-act="lpnext">Siguiente →</button>':'<button class="btn primary" data-act="next">Siguiente →</button>')+'</div>';
-  }else if(kind==='learn'){
-    h+=lesson.learn;
-    h+='</div>';
-    if(lesson.demoNote)h+='<p class="fb info" style="margin:0">'+lesson.demoNote+'</p>';
-    h+='<div class="row actions">'+(lesson.demo?REPLAY_BTN('demo'):'')+'<button class="btn primary" data-act="next">Siguiente →</button></div>';
-  }else if(kind==='try'){
-    h+='<p>'+lesson.tryText+'</p></div>';
-    if(lesson.tryKind==='moves')h+=(gestureOn()?gestureHint(false):'')+seqCard(lesson.pad.length>20?macrosHtml(false):'')+padHtml(lesson.pad,false,lesson.pad.length>20);
-    h+=fbHtml();
-    h+='<div class="row">'+(lesson.tryKind==='moves'?'<button class="btn ghost" data-act="reset">Reiniciar</button>':'')+
-       '<button class="btn primary" id="cont" data-act="next" style="margin-left:auto"'+(ex.interacted?'':' disabled')+'>Siguiente →</button></div>';
-  }else if(e){
-    var n=parseInt(kind.slice(2),10)+1;
-    h+='<div class="mono" style="font-size:.8rem;color:var(--muted);margin-bottom:6px">'+(lesson.training?'TRAINING · NIVEL '+e.train.level:'EJERCICIO '+n+' DE '+E)+(e.mixed?' · <span class="mixtag">MEZCLADO CON LECCIONES ANTERIORES</span>':'')+'</div><div class="q">'+e.q+'</div>'+goalNote(e)+'</div>';
-    if(e.t==='do'){
-      h+=(gestureDo(e)?(ex.status==='pending'?gestureHint(true):'')+seqCard(''):seqCard('')+padHtml(e.pad||lesson.pad,ex.status!=='pending'));
-    }else if(e.t==='solve'){
-      h+=(gestureOn()&&ex.status==='pending'?gestureHint(false):'')+seqCard(macrosHtml(ex.status!=='pending'))+padHtml(course==='4x4'?PAD4:PALL,ex.status!=='pending',true);
-    }else if(e.t==='write'){
-      h+='<div class="hist wr" id="wrhist">'+wrHtml()+'</div>'+padHtml(e.pad,ex.status!=='pending',true,'wmv');
-    }else if(e.t==='choice'){
-      h+='<div class="opts">'+ex.opts.map(function(o){
-        var cls='opt'+(e.mono?' mono':'');if(ex.status==='ok'&&o.v===e.answer)cls+=' right';if(ex.wrong[o.v])cls+=' wrong';
-        return '<button class="'+cls+'" data-act="opt" data-v="'+String(o.v).replace(/"/g,'&quot;')+'"'+((ex.status!=='pending'||ex.wrong[o.v])?' disabled':'')+'>'+(o.sw?sw(o.sw):'')+o.label+'</button>';}).join('')+'</div>';
-    }
-    var stk=(ex.status==='ok'||(e.t==='write'&&ex.status==='bad'));
-    h+=(stk?'<div class="stickyok">':'')+fbHtml();
-    var f='<div class="row'+(e.t==='choice'?' actions':'')+'">';
-    if((e.t==='choice'||e.t==='write')&&e.anim)f+=REPLAY_BTN('replay');
-    if(e.t==='write'&&ex.status==='pending')f+='<button class="btn sm ghost" data-act="wdel">Borrar</button><button class="btn primary" data-act="wok" style="margin-left:auto">Comprobar</button>';
-    if(lesson.training&&ex.status==='bad'&&e.t==='do')f+='<button class="btn ghost" data-act="pnext">Otra →</button>';
-    if(e.t==='solve'&&ex.status==='pending')f+='<button class="btn sm ghost" data-act="reset">Reiniciar</button>'+(hasHint(e)?'<button class="btn sm" data-act="hint">'+(ex.hints>=1?'Ver solución':'Pista')+'</button>':'');
-    if(e.t==='do'&&ex.status!=='ok')f+='<button class="btn'+(ex.status==='bad'?' primary':' ghost')+'" data-act="reset">'+(ex.status==='bad'?'Reintentar':'Reiniciar')+'</button>';
-    if((ex.status==='ok'||(e.t==='write'&&ex.status==='bad')))f+=lesson.training?'<button class="btn primary" data-act="pnext" style="margin-left:auto">Otra →</button>':lesson.practice?'<button class="btn primary" data-act="pnext" style="margin-left:auto">Otra →</button>':'<button class="btn primary" data-act="next" style="margin-left:auto">'+(n===E?'Terminar lección →':'Siguiente →')+'</button>';
-    h+=f+'</div>'+(stk?'</div>':'');
-  }else{
-    var nxt=li+1<LESSONS.length?li+1:-1;
-    h+='<div class="done-mark">'+I_CHECK.replace('width="16" height="16"','width="30" height="30"')+'</div><p class="q" style="margin-top:12px">Lección completada.</p><p>'+
-      (lessonErrors?('Has tenido '+lessonErrors+(lessonErrors===1?' fallo o pista':' fallos o pistas')+' en los ejercicios. No cuentan en contra: repetir ayuda a fijarlo.'):'Sin un solo fallo.')+'</p></div>';
-    h+='<div class="row actions"><button class="btn icon outline" data-act="again" aria-label="Repetir lección" title="Repetir lección">'+I_REPLAY+'</button>';
-    if(nxt>=0)h+='<button class="btn primary" data-act="nextLesson">Siguiente lección →</button>';
-    h+='</div>';
-    if(nxt<0){var DM={'2x2':'¡Has completado el curso del 2×2! El 3×3 es el siguiente paso: ya conoces las esquinas.','3x3':'¡Has completado el curso del 3×3! Ya sabes resolver el cubo por capas. El 4×4 y el método avanzado ya están disponibles en sus pestañas.','4x4':'¡Has completado el curso del 4×4! Ya sabes resolver el cubo por reducción.','adv':'¡Has completado el método avanzado!'};h+='<p class="fb ok" style="margin:0">'+DM[course]+'</p>';}
-  }
-  panel.innerHTML=h;updateTip();updateCtl();}
+    return UI.meta('REPASO DE LA LECCIÓN ANTERIOR')+'<div class="recap"><b>'+dl(pv)+' · '+pv.title+'</b><p>'+pv.recap+'</p></div></div>'+
+      UI.actions((pv.demo?REPLAY_BTN('demo'):'')+UI.primary('Siguiente →','next'));},
+  quick:function(c){
+    var qk=ex.quick,okq=qk.status==='ok';
+    return UI.eyebrow('PREGUNTA RELÁMPAGO · DE «'+qk.title+'»')+'<div class="q">'+qk.q+'</div></div>'+
+      UI.opts(qk.opts.map(function(o,oi){return {label:o,act:'quick',v:oi,disabled:qk.status!=='pending'||qk.wrong[oi],
+        cls:'opt'+(okq&&o===qk.answer?' right':'')+(qk.wrong[oi]?' wrong':'')};}))+
+      UI.sticky(okq,(okq?UI.fb('ok','¡Correcto!'):(Object.keys(qk.wrong).length?UI.fb('bad','No es esa. Prueba otra.'):''))+
+        UI.row(UI.primary('Siguiente →','next',{end:true,disabled:!okq})));},
+  learn:function(c){
+    if(lesson.pages){
+      var pgs=lesson.pages,pi=ex.page||0,pg=pgs[pi];
+      return pg.t+'</div>'+(pg.note?UI.note(pg.note):'')+
+        UI.actions((pi>0?UI.btn('←',{cls:'icon outline',act:'lpprev',aria:'Paso anterior'}):'')+(pg.demo?REPLAY_BTN('demo'):'')+
+          UI.primary('Siguiente →',pi<pgs.length-1?'lpnext':'next'));}
+    return lesson.learn+'</div>'+(lesson.demoNote?UI.note(lesson.demoNote):'')+
+      UI.actions((lesson.demo?REPLAY_BTN('demo'):'')+UI.primary('Siguiente →','next'));},
+  try:function(c){
+    var h='<p>'+lesson.tryText+'</p></div>';
+    if(lesson.tryKind==='moves')h+=seqCard(lesson.pad.length>20?macrosHtml(false):'')+padHtml(lesson.pad,false,lesson.pad.length>20);
+    return h+fbHtml()+UI.row((lesson.tryKind==='moves'?UI.btn('Reiniciar',{cls:'ghost',act:'reset'}):'')+
+      UI.primary('Siguiente →','next',{id:'cont',end:true,disabled:!ex.interacted}));},
+  exercise:function(c){
+    var e=c.e,E=c.E,n=parseInt(c.kind.slice(2),10)+1,stk=(ex.status==='ok'||(e.t==='write'&&ex.status==='bad'));
+    var h=UI.meta((lesson.training?'TRAINING · NIVEL '+e.train.level:'EJERCICIO '+n+' DE '+E)+(e.mixed?' · <span class="mixtag">MEZCLADO CON LECCIONES ANTERIORES</span>':''))+
+      '<div class="q">'+e.q+'</div>'+goalNote(e)+'</div>';
+    h+=EXBODY[e.t](e);
+    return h+UI.sticky(stk,fbHtml()+exActions(e,n,E));}
+};
+var EXBODY={
+  'do':function(e){return gestureDo(e)?seqCard(''):seqCard('')+padHtml(e.pad||lesson.pad,ex.status!=='pending');},
+  solve:function(e){return seqCard(macrosHtml(ex.status!=='pending'))+padHtml(course==='4x4'?PAD4:PALL,ex.status!=='pending',true);},
+  write:function(e){return '<div class="hist wr" id="wrhist">'+wrHtml()+'</div>'+padHtml(e.pad,ex.status!=='pending',true,'wmv');},
+  choice:function(e){return UI.opts(ex.opts.map(function(o){
+    return {label:o.label,act:'opt',v:o.v,sw:o.sw?sw(o.sw):'',disabled:ex.status!=='pending'||ex.wrong[o.v],
+      cls:'opt'+(e.mono?' mono':'')+(ex.status==='ok'&&o.v===e.answer?' right':'')+(ex.wrong[o.v]?' wrong':'')};}));}
+};
+function exActions(e,n,E){
+  var f='',ok=(ex.status==='ok'||(e.t==='write'&&ex.status==='bad'));
+  if((e.t==='choice'||e.t==='write')&&e.anim)f+=REPLAY_BTN('replay');
+  if(e.t==='write'&&ex.status==='pending')f+=UI.btn('Borrar',{cls:'sm ghost',act:'wdel'})+UI.primary('Comprobar','wok',{end:true});
+  if(lesson.training&&ex.status==='bad'&&e.t==='do')f+=UI.btn('Otra →',{cls:'ghost',act:'pnext'});
+  if(e.t==='solve'&&ex.status==='pending')f+=UI.btn('Reiniciar',{cls:'sm ghost',act:'reset'})+(hasHint(e)?UI.btn(ex.hints>=1?'Ver solución':'Pista',{cls:'sm',act:'hint'}):'');
+  if(e.t==='do'&&ex.status!=='ok')f+=UI.btn(ex.status==='bad'?'Reintentar':'Reiniciar',{cls:ex.status==='bad'?'primary':'ghost',act:'reset'});
+  if(ok)f+=(lesson.training||lesson.practice)?UI.primary('Otra →','pnext',{end:true}):UI.primary(n===E?'Terminar lección →':'Siguiente →','next',{end:true});
+  return UI.row(f,e.t==='choice'?'actions':'');}
+RENDER.done=function(c){
+  var nxt=li+1<LESSONS.length?li+1:-1;
+  var h='<div class="done-mark">'+I_CHECK.replace('width="16" height="16"','width="30" height="30"')+'</div><p class="q" style="margin-top:12px">Lección completada.</p><p>'+
+    (lessonErrors?('Has tenido '+lessonErrors+(lessonErrors===1?' fallo o pista':' fallos o pistas')+' en los ejercicios. No cuentan en contra: repetir ayuda a fijarlo.'):'Sin un solo fallo.')+'</p></div>';
+  h+=UI.actions(UI.btn(I_REPLAY,{cls:'icon outline',act:'again',aria:'Repetir lección'})+(nxt>=0?UI.primary('Siguiente lección →','nextLesson'):''));
+  if(nxt<0){var DM={'2x2':'¡Has completado el curso del 2×2! El 3×3 es el siguiente paso: ya conoces las esquinas.','3x3':'¡Has completado el curso del 3×3! Ya sabes resolver el cubo por capas. El 4×4 y el método avanzado ya están disponibles en sus pestañas.','4x4':'¡Has completado el curso del 4×4! Ya sabes resolver el cubo por reducción.','adv':'¡Has completado el método avanzado!'};h+='<p class="fb ok" style="margin:0">'+DM[course]+'</p>';}
+  return h;};
+function panelHead(){return '<div class="meta"><span>'+blkFull(lesson.block)+'</span><span>'+dl(lesson)+'</span></div><h2>'+lesson.title+'</h2>'+stepper()+'<div class="body">';}
+function renderPanel(){
+  var kind=curKind(),e=curExercise(),c={kind:kind,e:e,E:lesson.exercises.length};
+  var r=RENDER[kind]||(e?RENDER.exercise:RENDER.done);
+  panel.innerHTML=panelHead()+r(c);updateTip();updateCtl();}
 
 /* ---------- interacción ---------- */
 function markInteracted(){
@@ -3789,53 +3817,52 @@ function finishLesson(){
   prog.done[lesson.id]={errors:(rec.errors==null?lessonErrors:Math.min(rec.errors,lessonErrors)),tries:rec.tries+1,at:new Date().toISOString().slice(0,10)};
   saveProg();sfx('done');}
 
-panel.addEventListener('click',function(ev){
-  var sb=ev.target.closest('[data-step]');
-  if(sb&&!sb.disabled){var n=parseInt(sb.dataset.step,10);if(n!==step)goStep(n);if(sb.dataset.page!==undefined&&curKind()==='learn')learnPage(parseInt(sb.dataset.page,10));return;}
-  var b=ev.target.closest('[data-act]');if(!b||b.disabled)return;
-  var a=b.dataset.act,e=curExercise(),kind=curKind();
-  if(a==='next'){
-    var ks=stepKinds();
-    if(step===ks.length-2)finishLesson();
-    goStep(step+1);
-  }else if(a==='padtab'){padTab=b.dataset.c;renderPanel();}
-  else if(a==='mv'){tlUserMoved();pushGroup(1);ex.queued++;move(b.dataset.mv,{user:true});}
-  else if(a==='mrep'){macroRep=parseInt(b.dataset.n,10);renderPanel();}
-  else if(a==='histall'){ex.histAll=!ex.histAll;var hh=$('#hist');if(hh)hh.classList.toggle('all',!!ex.histAll);b.textContent=ex.histAll?'Ver menos':'Ver toda la secuencia';}
-  else if(a==='macro'){tlUserMoved();var mc=curMacros()[parseInt(b.dataset.m,10)],rp=SHOW_MACRO_REPEAT?macroRep:1,full=[];for(var q0=0;q0<rp;q0++)full=full.concat(mc.seq);pushGroup(full.length);ex.queued+=full.length;full.forEach(function(x){move(x,{user:true,speed:1.7})});macroRep=1;renderPanel();}
-  else if(a==='demo'){
-    if(kind==='recap')playSeq(LESSONS[prevIdx(li)].demo,LESSONS[prevIdx(li)].pre);
-    else if(kind==='learn'&&lesson.pages){var cp=lesson.pages[ex.page||0];if(cp.demo)playSeq(cp.demo,cp.pre||lesson.pre||[]);}
-    else playSeq(lesson.demo,lesson.pre);}
-  else if(a==='lpnext'){learnPage((ex.page||0)+1);}
-  else if(a==='lpprev'){learnPage((ex.page||0)-1);}
-  else if(a==='reset'){requestReset();}
-  else if(a==='undo'){undoLast();}
-  else if(a==='redo'){redoLast();}
-  else if(a==='hint'&&e){giveHint(e);renderPanel();showFb();}
-  else if(a==='replay'&&e&&e.anim){playSeq(e.anim,e.pre||[],e.t==='write'?ex.status==='pending':ex.status!=='ok');}
-  else if(a==='opt'&&e){
+/* ===== Acciones del panel: una función por botón (data-act). Para añadir un botón nuevo, se añade aquí su acción ===== */
+var ACTIONS={
+  next:function(c){var ks=stepKinds();if(step===ks.length-2)finishLesson();goStep(step+1);},
+  padtab:function(c){padTab=c.b.dataset.c;renderPanel();},
+  mv:function(c){tlUserMoved();pushGroup(1);ex.queued++;move(c.b.dataset.mv,{user:true});},
+  mrep:function(c){macroRep=parseInt(c.b.dataset.n,10);renderPanel();},
+  histall:function(c){ex.histAll=!ex.histAll;var hh=$('#hist');if(hh)hh.classList.toggle('all',!!ex.histAll);c.b.textContent=ex.histAll?'Ver menos':'Ver toda la secuencia';},
+  macro:function(c){tlUserMoved();var mc=curMacros()[parseInt(c.b.dataset.m,10)],rp=SHOW_MACRO_REPEAT?macroRep:1,full=[];for(var q0=0;q0<rp;q0++)full=full.concat(mc.seq);pushGroup(full.length);ex.queued+=full.length;full.forEach(function(x){move(x,{user:true,speed:1.7})});macroRep=1;renderPanel();},
+  demo:function(c){
+    if(c.kind==='recap')playSeq(LESSONS[prevIdx(li)].demo,LESSONS[prevIdx(li)].pre);
+    else if(c.kind==='learn'&&lesson.pages){var cp=lesson.pages[ex.page||0];if(cp.demo)playSeq(cp.demo,cp.pre||lesson.pre||[]);}
+    else playSeq(lesson.demo,lesson.pre);},
+  lpnext:function(c){learnPage((ex.page||0)+1);},
+  lpprev:function(c){learnPage((ex.page||0)-1);},
+  reset:function(c){requestReset();},
+  undo:function(c){undoLast();},
+  redo:function(c){redoLast();},
+  hint:function(c){if(!c.e)return;giveHint(c.e);renderPanel();showFb();},
+  replay:function(c){var e=c.e;if(e&&e.anim)playSeq(e.anim,e.pre||[],e.t==='write'?ex.status==='pending':ex.status!=='ok');},
+  opt:function(c){var e=c.e,b=c.b;if(!e)return;
     var v=b.dataset.v;
     if(v===String(e.answer)){ex.status='ok';stageFlash('ok');ex.fb={kind:'ok',html:'¡Correcto!'};if(tl.seq.length){tl.hide=false;renderTl();}renderPanel();}
-    else{ex.wrong[v]=true;stageFlash('bad');lessonErrors++;b.classList.add('wrong');b.disabled=true;setFb('bad','No es esa.'+(e.nohint?'':' '+e.hint));if(e.anim)playSeq(e.anim,e.pre,true);}
-  }
-  else if(a==='quick'&&ex.quick){
-    var qk2=ex.quick,oi=parseInt(b.dataset.v,10),d2=prog.done[qk2.id];
+    else{ex.wrong[v]=true;stageFlash('bad');lessonErrors++;b.classList.add('wrong');b.disabled=true;setFb('bad','No es esa.'+(e.nohint?'':' '+e.hint));if(e.anim)playSeq(e.anim,e.pre,true);}},
+  quick:function(c){if(!ex.quick)return;
+    var qk2=ex.quick,oi=parseInt(c.b.dataset.v,10),d2=prog.done[qk2.id];
     if(qk2.opts[oi]===qk2.answer){qk2.status='ok';sfx('ok');if(d2&&d2.weak){d2.weak=Math.max(0,d2.weak-1);saveProg();}}
     else{qk2.wrong[oi]=true;sfx('bad');if(d2){d2.weak=(d2.weak||0)+1;saveProg();}}
-    renderPanel();}
-  else if(a==='pnext'){if(lesson.training){trainNext();return;}lesson.exercises[0]=genEx(lesson.st);goStep(0);}
-  else if(a==='wmv'&&e&&e.t==='write'&&ex.status==='pending'){ex.wr=ex.wr||[];ex.wr.push(b.dataset.mv);sfx('move');var wh=$('#wrhist');if(wh)wh.innerHTML=wrHtml();}
-  else if(a==='wdel'&&e&&e.t==='write'&&ex.status==='pending'){ex.wr=ex.wr||[];ex.wr.pop();var wh2=$('#wrhist');if(wh2)wh2.innerHTML=wrHtml();}
-  else if(a==='wok'&&e&&e.t==='write'&&ex.status==='pending'){
+    renderPanel();},
+  pnext:function(c){if(lesson.training){trainNext();return;}lesson.exercises[0]=genEx(lesson.st);goStep(0);},
+  wmv:function(c){var e=c.e;if(!(e&&e.t==='write'&&ex.status==='pending'))return;ex.wr=ex.wr||[];ex.wr.push(c.b.dataset.mv);sfx('move');var wh=$('#wrhist');if(wh)wh.innerHTML=wrHtml();},
+  wdel:function(c){var e=c.e;if(!(e&&e.t==='write'&&ex.status==='pending'))return;ex.wr=ex.wr||[];ex.wr.pop();var wh2=$('#wrhist');if(wh2)wh2.innerHTML=wrHtml();},
+  wok:function(c){var e=c.e;if(!(e&&e.t==='write'&&ex.status==='pending'))return;
     ex.wr=ex.wr||[];if(!ex.wr.length){setFb('info','Elige al menos un movimiento.');return;}
     var okw=key(seqState(ex.wr))===key(seqState(e.seq)),same=ex.wr.join(' ')===e.seq.join(' ');
     ex.status=okw?'ok':'bad';stageFlash(okw?'ok':'bad');trainLog(e.train,okw);if(!okw)lessonErrors++;
     ex.fb=okw?{kind:'ok',html:okFb()+(same?'':' Es equivalente; la forma habitual era '+K(e.seq.join(' '))+'.')}:{kind:'bad',html:'No es esa. La notación era '+K(e.seq.join(' '))+'.'};
-    renderPanel();}
-  else if(a==='nextLesson'){enterLesson(li+1);}
-  else if(a==='map'){leaveLesson();}
-  else if(a==='again'){enterLesson(li);}
+    renderPanel();},
+  nextLesson:function(c){enterLesson(li+1);},
+  map:function(c){leaveLesson();},
+  again:function(c){enterLesson(li);}
+};
+panel.addEventListener('click',function(ev){
+  var sb=ev.target.closest('[data-step]');
+  if(sb&&!sb.disabled){var n=parseInt(sb.dataset.step,10);if(n!==step)goStep(n);if(sb.dataset.page!==undefined&&curKind()==='learn')learnPage(parseInt(sb.dataset.page,10));return;}
+  var b=ev.target.closest('[data-act]');if(!b||b.disabled)return;
+  var fn=ACTIONS[b.dataset.act];if(fn)fn({b:b,e:curExercise(),kind:curKind()});
 });
 
 $('#hlt').addEventListener('click',function(){hlOn=!hlOn;var hs=hlSpecNow();setHl(hlOn?hs:null);syncEye();});
